@@ -89,6 +89,7 @@ accessories:
   db:
     image: postgres:18
     host: 89.167.96.7
+    network: kamal
 
     env:
       clear:
