@@ -58,8 +58,9 @@ env:
 # Aliases are triggered with "bin/kamal <alias>". You can overwrite arguments on invocation:
 # "bin/kamal app logs -r job" will tail logs from the first server in the job section.
 #
-# aliases:
-#   shell: app exec --interactive --reuse "bash"
+aliases:
+  console: app exec --interactive --reuse "php bin/console"
+  shell: app exec --interactive --reuse "bash"
 
 # Use a different ssh user than root
 #
@@ -102,7 +103,7 @@ accessories:
 #       - config/mysql/production.cnf:/etc/mysql/my.cnf
 #       - db/production.sql:/docker-entrypoint-initdb.d/setup.sql
     directories:
-      - daywatch-postgres:/var/lib/postgresql/data
+      - daywatch-postgres:/var/lib/postgresql
 #   redis:
 #     image: valkey/valkey:8
 #     host: 192.168.0.2
