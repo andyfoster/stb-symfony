@@ -3,6 +3,7 @@
 FROM dunglas/frankenphp:php8.4-bookworm
 
 ENV APP_ENV=prod
+ENV DATABASE_URL="postgresql://dummy:dummy@localhost:5432/dummy?serverVersion=18&charset=utf8"
 
 RUN install-php-extensions \
     pdo_pgsql \
@@ -25,12 +26,14 @@ RUN composer install \
 
 COPY . .
 
-ENV APP_ENV=prod
-ENV DATABASE_URL="postgresql://dummy:dummy@localhost:5432/dummy?serverVersion=18&charset=utf8"
 
 RUN composer dump-autoload \
     --classmap-authoritative \
     --no-dev
+
+RUN php bin/console importmap:install
+
+RUN php bin/console asset-map:compile
 
 RUN php bin/console cache:clear --env=prod
 
