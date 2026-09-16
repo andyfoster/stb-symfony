@@ -1,15 +1,13 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
     <head>
         <meta charset="UTF-8">
-        <title>{% block title %}Welcome!{% endblock %}</title>
-        <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 128 128%22><text y=%221.2em%22 font-size=%2296%22>⚫️</text><text y=%221.3em%22 x=%220.2em%22 font-size=%2276%22 fill=%22%23fff%22>sf</text></svg>">
-        {% block stylesheets %}
-        {% endblock %}
-
-        {% block javascripts %}
-            {% block importmap %}{{ importmap('app') }}{% endblock %}
-        {% endblock %}
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <meta name="theme-color" content="#f6f5f0">
+        <title>{% block title %}DayWatch{% endblock %}</title>
+        <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='18' fill='%232b5547'/%3E%3Ccircle cx='32' cy='32' r='15' fill='%23edf1c5'/%3E%3C/svg%3E">
+        {% block stylesheets %}{% endblock %}
+        {% block javascripts %}{% block importmap %}{{ importmap('app') }}{% endblock %}{% endblock %}
 
         {% set frankenphp_hot_reload = app.request.server.get('FRANKENPHP_HOT_RELOAD') %}
         {% if frankenphp_hot_reload %}
@@ -19,6 +17,16 @@
         {% endif %}
     </head>
     <body>
-        {% block body %}{% endblock %}
+        <a class="skip-link" href="#main">Skip to content</a>
+        <header class="site-header">
+            <a class="brand" href="{{ path('app_events') }}"><span class="brand-mark" aria-hidden="true">✳</span> daywatch<span class="brand-dot">.</span></a>
+            <span class="header-note">Make every day count.</span>
+            <a class="button button-small" href="{{ path('app_events_new') }}"><span aria-hidden="true">＋</span> New event</a>
+        </header>
+        <main id="main" class="page-shell">
+            {% for message in app.flashes('success') %}<div class="flash" role="status">{{ message }}</div>{% endfor %}
+            {% block body %}{% endblock %}
+        </main>
+        <footer class="site-footer"><span>Little moments. Big milestones.</span><span>Keep the good things in sight.</span></footer>
     </body>
 </html>

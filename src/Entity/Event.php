@@ -5,6 +5,7 @@ namespace App\Entity;
 use App\Repository\EventRepository;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
+use Symfony\Component\Validator\Constraints as Assert;
 
 #[ORM\Entity(repositoryClass: EventRepository::class)]
 class Event
@@ -15,9 +16,12 @@ class Event
     private ?int $id = null;
 
     #[ORM\Column(length: 255)]
+    #[Assert\NotBlank(message: 'Give your event a name.')]
+    #[Assert\Length(max: 255)]
     private ?string $title = null;
 
     #[ORM\Column(type: Types::DATE_IMMUTABLE)]
+    #[Assert\NotNull(message: 'Choose a date for your event.')]
     private ?\DateTimeImmutable $eventDate = null;
 
     #[ORM\Column(type: Types::TEXT, nullable: true)]
@@ -48,7 +52,7 @@ class Event
         return $this->eventDate;
     }
 
-    public function setEventDate(\DateTimeImmutable $eventDate): static
+    public function setEventDate(?\DateTimeImmutable $eventDate): static
     {
         $this->eventDate = $eventDate;
 
@@ -81,8 +85,12 @@ class Event
 
     public function calculateDaysRemaining(): ?int
     {
-        $now      = new \DateTimeImmutable();
-        $interval = $now->diff($this->eventDate);
+        if (null === $this->eventDate) {
+            return null;
+        }
+
+        $today = new \DateTimeImmutable('today');
+        $interval = $today->diff($this->eventDate->setTime(0, 0));
 
         return (int) $interval->format('%r%a');
     }

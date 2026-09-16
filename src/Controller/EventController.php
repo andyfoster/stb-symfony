@@ -10,10 +10,10 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Attribute\Route;
 
-#[Route('/events')]
 final class EventController extends AbstractController
 {
-    #[Route('/', name: 'app_events')]
+    #[Route('/', name: 'app_events', methods: ['GET'])]
+    #[Route('/events/', name: 'app_events_legacy', methods: ['GET'])]
     public function index(EntityManagerInterface $entityManager): Response
     {
         $events = $entityManager
@@ -25,11 +25,11 @@ final class EventController extends AbstractController
         ]);
     }
 
-    #[Route('/new', name: 'app_events_new', methods: ['GET', 'POST'])]
+    #[Route('/events/new', name: 'app_events_new', methods: ['GET', 'POST'])]
     public function new(Request $request, EntityManagerInterface $entityManager): Response
     {
         $event = new Event();
-        $form  = $this->createForm(EventType::class, $event);
+        $form = $this->createForm(EventType::class, $event);
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
@@ -37,12 +37,32 @@ final class EventController extends AbstractController
             $entityManager->persist($event);
             $entityManager->flush();
 
-            return $this->redirectToRoute('app_events');
+            $this->addFlash('success', 'Event created. Something to look forward to!');
+
+            return $this->redirectToRoute('app_events', status: Response::HTTP_SEE_OTHER);
         }
 
         return $this->render('event/new.html.twig', [
             'event' => $event,
-            'form'  => $form->createView(),
+            'form' => $form,
+        ]);
+    }
+    #[Route('/events/{id}/edit', name: 'app_events_edit', requirements: ['id' => '\d+'], methods: ['GET', 'POST'])]
+    public function edit(Event $event, Request $request, EntityManagerInterface $entityManager): Response
+    {
+        $form = $this->createForm(EventType::class, $event);
+        $form->handleRequest($request);
+
+        if ($form->isSubmitted() && $form->isValid()) {
+            $entityManager->flush();
+            $this->addFlash('success', 'Event updated.');
+
+            return $this->redirectToRoute('app_events', status: Response::HTTP_SEE_OTHER);
+        }
+
+        return $this->render('event/edit.html.twig', [
+            'event' => $event,
+            'form' => $form,
         ]);
     }
 }

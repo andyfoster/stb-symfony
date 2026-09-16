@@ -1,25 +1,27 @@
 {% extends 'base.html.twig' %}
-
-{% block title %}DayWatch{% endblock %}
-
+{% block title %}Your events · DayWatch{% endblock %}
 {% block body %}
-    <h1>Events</h1>
-
-    {# Link to New Event #}
-    <a href="{{ path('app_events_new') }}">Create new event</a>
-
-
-    {% for event in events %}
-        <article>
-            <h2>{{ event.title }}</h2>
-
-            <p>
-                {{ event.eventDate|date('j F Y') }}
-                <br>
-                {{ event.calculateDaysRemaining() }} days remaining
-            </p>
-        </article>
-    {% else %}
-        <p>No events yet.</p>
-    {% endfor %}
+    <section class="today-heading" aria-labelledby="today-title">
+        <p class="eyebrow"><span class="live-dot" aria-hidden="true"></span> A little perspective on today</p>
+        <h1 id="today-title"><time datetime="{{ 'now'|date('Y-m-d') }}">{{ 'now'|date('l, j F Y') }}</time></h1>
+        <p>The days ahead, and the moments that matter.</p>
+    </section>
+    <section aria-labelledby="events-title">
+        <div class="section-heading"><div><span class="eyebrow">Your timeline</span><h2 id="events-title">Things to look forward to <span class="count">{{ events|length }}</span></h2></div><span class="sort-note">Ordered by date</span></div>
+        <div class="event-grid">
+            {% for event in events %}
+                {% set days = event.calculateDaysRemaining() %}
+                <article class="event-card {{ days < 0 ? 'event-past' : '' }}">
+                    <div class="card-top"><span class="event-status">{{ days < 0 ? 'A moment to remember' : (days == 0 ? 'The day is here' : 'On the horizon') }}</span><a class="edit-link" href="{{ path('app_events_edit', {id: event.id}) }}" aria-label="Edit {{ event.title }}">Edit <span aria-hidden="true">↗</span></a></div>
+                    <div class="countdown"><span class="countdown-number">{{ days == 0 ? 'Today' : days|abs }}</span>{% if days != 0 %}<span class="countdown-unit">{{ days|abs == 1 ? 'day' : 'days' }} {{ days < 0 ? 'ago' : 'to go' }}</span>{% endif %}</div>
+                    <h3>{{ event.title }}</h3>
+                    {% if event.description %}<p class="event-description">{{ event.description }}</p>{% endif %}
+                    <div class="card-date"><span aria-hidden="true">▦</span> <time datetime="{{ event.eventDate|date('Y-m-d') }}">{{ event.eventDate|date('D, j M Y') }}</time></div>
+                </article>
+            {% else %}
+                <div class="empty-state"><span class="empty-symbol" aria-hidden="true">✳</span><h3>Good things start with a date.</h3><p>A trip, a birthday, a fresh start.<br>Add your first event and watch it get closer.</p><a class="button" href="{{ path('app_events_new') }}">＋ Add your first event</a></div>
+            {% endfor %}
+            {% if events|length %}<a class="add-card" href="{{ path('app_events_new') }}"><span class="add-symbol" aria-hidden="true">＋</span><strong>Something on the horizon?</strong><span>Add an event to your timeline</span></a>{% endif %}
+        </div>
+    </section>
 {% endblock %}

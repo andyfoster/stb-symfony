@@ -1,16 +1,5 @@
 {% extends 'base.html.twig' %}
-
-{% block title %}Create event{% endblock %}
-
+{% block title %}New event · DayWatch{% endblock %}
 {% block body %}
-	<main>
-		<h1>Create event</h1>
-
-		{{ form_start(form) }}
-			{{ form_widget(form) }}
-			<button type="submit">Create event</button>
-		{{ form_end(form) }}
-
-		<a href="{{ path('app_events') }}">Back to events</a>
-	</main>
+    <div class="form-page"><a class="back-link" href="{{ path('app_events') }}">← All events</a><div class="form-heading"><p class="eyebrow">Something good is coming</p><h1>Add a new event</h1><p>Give your next milestone a place on the calendar.</p></div><section class="form-panel" aria-label="New event details">{% include 'event/_form.html.twig' with {button_label: 'Create event'} %}</section></div>
 {% endblock %}

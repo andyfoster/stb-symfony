@@ -1,0 +1,5 @@
+{% extends 'base.html.twig' %}
+{% block title %}Edit {{ event.title }} · DayWatch{% endblock %}
+{% block body %}
+    <div class="form-page"><a class="back-link" href="{{ path('app_events') }}">← All events</a><div class="form-heading"><p class="eyebrow">A little change of plans</p><h1>Edit your event</h1><p>Update the details. Keep the anticipation.</p></div><section class="form-panel" aria-label="Edit event details">{% include 'event/_form.html.twig' with {button_label: 'Save changes'} %}</section></div>
+{% endblock %}
