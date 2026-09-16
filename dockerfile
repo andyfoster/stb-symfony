@@ -25,6 +25,9 @@ RUN composer install \
 
 COPY . .
 
+ENV APP_ENV=prod
+ENV DATABASE_URL="postgresql://dummy:dummy@localhost:5432/dummy?serverVersion=18&charset=utf8"
+
 RUN composer dump-autoload \
     --classmap-authoritative \
     --no-dev
