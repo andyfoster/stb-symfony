@@ -1,0 +1,16 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Create event{% endblock %}
+
+{% block body %}
+	<main>
+		<h1>Create event</h1>
+
+		{{ form_start(form) }}
+			{{ form_widget(form) }}
+			<button type="submit">Create event</button>
+		{{ form_end(form) }}
+
+		<a href="{{ path('app_events') }}">Back to events</a>
+	</main>
+{% endblock %}

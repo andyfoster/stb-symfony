@@ -1,0 +1,25 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}DayWatch{% endblock %}
+
+{% block body %}
+    <h1>Events</h1>
+
+    {# Link to New Event #}
+    <a href="{{ path('app_events_new') }}">Create new event</a>
+
+
+    {% for event in events %}
+        <article>
+            <h2>{{ event.title }}</h2>
+
+            <p>
+                {{ event.eventDate|date('j F Y') }}
+                <br>
+                {{ event.calculateDaysRemaining() }} days remaining
+            </p>
+        </article>
+    {% else %}
+        <p>No events yet.</p>
+    {% endfor %}
+{% endblock %}
