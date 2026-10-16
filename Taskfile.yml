@@ -1,0 +1,140 @@
+version: '3'
+
+# PHP, Composer and PostgreSQL commands run inside Docker.
+# Start the stack with `task up` before running app commands.
+# Arguments after -- are forwarded, e.g. task test -- --filter EventApi
+
+tasks:
+  default:
+    desc: Show available commands
+    cmds:
+      - task --list
+
+  up:
+    desc: Build and start the stack; install dependencies and apply migrations
+    cmds:
+      - docker compose up --build -d --wait --wait-timeout 300
+
+  down:
+    desc: Stop and remove containers, keeping database and dependency volumes
+    cmds:
+      - docker compose down
+
+  stop:
+    desc: Stop containers without removing them
+    cmds:
+      - docker compose stop
+
+  restart:
+    desc: Restart the app and wait for it to be healthy
+    cmds:
+      - docker compose restart app
+      - docker compose up -d --wait --wait-timeout 300
+
+  build:
+    desc: Build the development image (does not start containers)
+    cmds:
+      - docker compose build {{.CLI_ARGS}}
+
+  status:
+    desc: Show container status and ports
+    cmds:
+      - docker compose ps
+
+  logs:
+    desc: 'Follow logs (optionally select services: task logs -- app database)'
+    cmds:
+      - docker compose logs --tail=100 -f {{.CLI_ARGS}}
+
+  shell:
+    desc: Open an interactive shell in the app container
+    interactive: true
+    cmds:
+      - docker compose exec app sh
+
+  console:
+    desc: 'Run Symfony commands (task console -- debug:router)'
+    cmds:
+      - docker compose exec -T app php bin/console {{.CLI_ARGS}}
+
+  composer:
+    desc: 'Run Composer (task composer -- require symfony/lock)'
+    cmds:
+      - docker compose exec -T app composer {{.CLI_ARGS}}
+
+  install:
+    desc: Install locked dependencies and frontend assets
+    cmds:
+      - docker compose exec -T app composer install --prefer-dist --no-interaction
+
+  test:
+    desc: 'Run tests (task test -- --filter EventApiControllerTest)'
+    cmds:
+      - docker compose exec -T app php bin/phpunit {{.CLI_ARGS}}
+
+  lint:
+    desc: Validate Symfony container, Twig templates and YAML configuration
+    cmds:
+      - docker compose config --quiet
+      - docker compose exec -T app php bin/console lint:container
+      - docker compose exec -T app php bin/console lint:twig templates/
+      - docker compose exec -T app php bin/console lint:yaml config/
+
+  check:
+    desc: Run configuration checks and tests
+    cmds:
+      - task: lint
+      - task: test
+
+  cache:clear:
+    desc: Clear and warm the development cache
+    cmds:
+      - docker compose exec -T app php bin/console cache:clear
+
+  assets:install:
+    desc: Download importmap assets and install bundle assets
+    cmds:
+      - docker compose exec -T app php bin/console importmap:install
+      - docker compose exec -T app php bin/console assets:install public
+
+  migrate:
+    desc: Apply pending database migrations
+    cmds:
+      - docker compose exec -T app php bin/console doctrine:migrations:migrate --no-interaction
+
+  migrate:make:
+    desc: Generate a migration after changing Doctrine entities
+    cmds:
+      - docker compose exec -T app php bin/console make:migration --no-interaction
+
+  migrate:status:
+    desc: Show migration status and pending versions
+    cmds:
+      - docker compose exec -T app php bin/console doctrine:migrations:status
+      - docker compose exec -T app php bin/console doctrine:migrations:list
+
+  migrate:dry-run:
+    desc: Preview pending migration SQL without applying it
+    cmds:
+      - docker compose exec -T app php bin/console doctrine:migrations:migrate --dry-run --no-interaction
+
+  db:validate:
+    desc: Check Doctrine mappings and database schema consistency
+    cmds:
+      - docker compose exec -T app php bin/console doctrine:schema:validate
+
+  db:shell:
+    desc: Open PostgreSQL's interactive SQL console
+    interactive: true
+    cmds:
+      - docker compose exec database psql -U daywatch -d daywatch
+
+  worker:
+    desc: 'Consume queued messages in the foreground (Ctrl+C to stop)'
+    cmds:
+      - docker compose exec -T app php bin/console messenger:consume async -vv {{.CLI_ARGS}}
+
+  worker:failed:
+    desc: Show messages in the failed queue
+    cmds:
+      - docker compose exec -T app php bin/console messenger:failed:show {{.CLI_ARGS}}
