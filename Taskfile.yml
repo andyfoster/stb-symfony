@@ -190,16 +190,38 @@ tasks:
       - symfony console messenger:failed:show {{.CLI_ARGS}}
 
   # --- Production (Kamal, stb.gitforked.com) -------------------------------
+  # .kamal/secrets reads KAMAL_REGISTRY_PASSWORD, APP_SECRET and POSTGRES_PASSWORD
+  # from your shell, so export them before running these.
+
+  prod:env:
+    internal: true
+    preconditions:
+      - sh: '[ -n "$KAMAL_REGISTRY_PASSWORD" ] && [ -n "$APP_SECRET" ] && [ -n "$POSTGRES_PASSWORD" ]'
+        msg: 'Export KAMAL_REGISTRY_PASSWORD, APP_SECRET and POSTGRES_PASSWORD first (.kamal/secrets reads them from your shell).'
+
+  prod:db:boot:
+    desc: 'First time only: create and start the production Postgres (stb-db)'
+    prompt: Start the stb-db Postgres accessory on the production server?
+    deps: [prod:env]
+    cmds:
+      - kamal accessory boot db
+
+  prod:db:status:
+    desc: Show whether the production Postgres container is running
+    cmds:
+      - kamal accessory details db
 
   deploy:
     desc: Build and deploy to production with Kamal
     prompt: Deploy the current code to stb.gitforked.com?
+    deps: [prod:env]
     cmds:
       - kamal deploy
 
   prod:migrate:
     desc: Run pending migrations in production
     prompt: Run migrations against the production database?
+    deps: [prod:env]
     cmds:
       - kamal console doctrine:migrations:migrate --no-interaction
 
