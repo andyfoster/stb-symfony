@@ -190,14 +190,22 @@ tasks:
       - symfony console messenger:failed:show {{.CLI_ARGS}}
 
   # --- Production (Kamal, stb.gitforked.com) -------------------------------
-  # .kamal/secrets reads KAMAL_REGISTRY_PASSWORD, APP_SECRET and POSTGRES_PASSWORD
-  # from your shell, so export them before running these.
+  # .kamal/secrets fetches APP_SECRET and POSTGRES_PASSWORD from 1Password
+  # (account my.1password.ca, item Private/ScarfieTextbooks-production).
 
   prod:env:
     internal: true
     preconditions:
-      - sh: '[ -n "$KAMAL_REGISTRY_PASSWORD" ] && [ -n "$APP_SECRET" ] && [ -n "$POSTGRES_PASSWORD" ]'
-        msg: 'Export KAMAL_REGISTRY_PASSWORD, APP_SECRET and POSTGRES_PASSWORD first (.kamal/secrets reads them from your shell).'
+      - sh: command -v op >/dev/null
+        msg: 'Install the 1Password CLI first: brew install 1password-cli'
+      - sh: op item get ScarfieTextbooks-production --vault Private --account my.1password.ca --fields label=APP_SECRET,label=POSTGRES_PASSWORD --reveal >/dev/null
+        msg: 'Could not read APP_SECRET and POSTGRES_PASSWORD from 1Password item Private/ScarfieTextbooks-production (account my.1password.ca). Is it created, and are you signed in?'
+
+  prod:secrets:check:
+    desc: Check Kamal can read the production secrets from 1Password (values are not shown)
+    deps: [prod:env]
+    cmds:
+      - kamal secrets print | sed -E 's/=.+/=(set)/'
 
   prod:db:boot:
     desc: 'First time only: create and start the production Postgres (stb-db)'

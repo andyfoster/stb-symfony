@@ -19,4 +19,5 @@
 /assets/vendor/
 ###< symfony/asset-mapper ###
 
-.kamal/secrets
+# .kamal/secrets is committed: it only references 1Password. Keep any local overrides here.
+.kamal/secrets*.local
