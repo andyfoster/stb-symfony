@@ -10,13 +10,8 @@ use Symfony\Component\Validator\Constraints as Assert;
  * goods don't carry book fields.
  */
 #[ORM\Entity]
-class BookDetails
+class BookDetails extends Base
 {
-    #[ORM\Id]
-    #[ORM\GeneratedValue]
-    #[ORM\Column]
-    private ?int $id = null;
-
     #[ORM\Column(length: 255)]
     #[Assert\NotBlank]
     #[Assert\Length(max: 255)]
@@ -34,11 +29,6 @@ class BookDetails
     #[ORM\Column(length: 20, nullable: true)]
     #[Assert\Length(max: 20)]
     private ?string $courseCode = null;
-
-    public function getId(): ?int
-    {
-        return $this->id;
-    }
 
     public function getAuthor(): ?string
     {
@@ -83,7 +73,7 @@ class BookDetails
 
     public function setCourseCode(?string $courseCode): static
     {
-        $this->courseCode = null === $courseCode ? null : strtoupper($courseCode);
+        $this->courseCode = $courseCode === null ? null : strtoupper($courseCode);
 
         return $this;
     }

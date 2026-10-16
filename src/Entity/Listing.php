@@ -15,13 +15,8 @@ use Symfony\Component\Validator\Constraints as Assert;
  */
 #[ORM\Entity(repositoryClass: ListingRepository::class)]
 #[ORM\Index(columns: ['type', 'category'])]
-class Listing
+class Listing extends Base
 {
-    #[ORM\Id]
-    #[ORM\GeneratedValue]
-    #[ORM\Column]
-    private ?int $id = null;
-
     #[ORM\Column(length: 20, enumType: ListingType::class)]
     #[Assert\NotNull]
     private ?ListingType $type = null;
@@ -54,19 +49,6 @@ class Listing
     #[ORM\OneToOne(cascade: ['persist', 'remove'], orphanRemoval: true)]
     #[Assert\Valid]
     private ?BookDetails $book = null;
-
-    #[ORM\Column]
-    private ?\DateTimeImmutable $createdAt = null;
-
-    public function __construct()
-    {
-        $this->createdAt = new \DateTimeImmutable();
-    }
-
-    public function getId(): ?int
-    {
-        return $this->id;
-    }
 
     public function getType(): ?ListingType
     {
@@ -160,18 +142,6 @@ class Listing
     public function setBook(?BookDetails $book): static
     {
         $this->book = $book;
-
-        return $this;
-    }
-
-    public function getCreatedAt(): ?\DateTimeImmutable
-    {
-        return $this->createdAt;
-    }
-
-    public function setCreatedAt(\DateTimeImmutable $createdAt): static
-    {
-        $this->createdAt = $createdAt;
 
         return $this;
     }
