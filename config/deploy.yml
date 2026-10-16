@@ -1,8 +1,8 @@
 # Name of your application. Used to uniquely configure containers.
-service: daywatch
+service: stb
 
 # Name of the container image.
-image: daywatch
+image: stb
 
 # Deploy to these servers.
 servers:
@@ -19,7 +19,7 @@ servers:
 # Note: If using Cloudflare, set encryption mode in SSL/TLS setting to "Full" to enable CF-to-app encryption.
 proxy:
   ssl: true
-  host: daywatch.gitforked.com
+  host: stb.gitforked.com
   # Proxy connects to your container on port 80 by default.
   app_port: 80
   healthcheck:
@@ -94,8 +94,8 @@ accessories:
 
     env:
       clear:
-        POSTGRES_USER: daywatch
-        POSTGRES_DB: daywatch
+        POSTGRES_USER: stb
+        POSTGRES_DB: stb
 
       secret:
         - POSTGRES_PASSWORD
@@ -103,7 +103,7 @@ accessories:
 #       - config/mysql/production.cnf:/etc/mysql/my.cnf
 #       - db/production.sql:/docker-entrypoint-initdb.d/setup.sql
     directories:
-      - daywatch-postgres:/var/lib/postgresql
+      - stb-postgres:/var/lib/postgresql
 #   redis:
 #     image: valkey/valkey:8
 #     host: 192.168.0.2
