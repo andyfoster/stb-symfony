@@ -6,7 +6,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Project
 
-ScarfieTextbooks ("stb"): a marketplace for buying and selling university textbooks. Stack:
+ScarfieTextbooks ("stb"): a marketplace where students buy and sell textbooks and other goods, and post things they're looking for. Stack:
 Symfony 8.1, PHP 8.4, Doctrine ORM 3 on PostgreSQL 18, Twig + AssetMapper (importmap, no Node
 build) + Stimulus/Turbo. No authentication is configured yet, even though SecurityBundle is
 installed.
@@ -14,50 +14,53 @@ installed.
 Goal and scope:
 - The immediate goal is a modern replacement for an existing ScarfieTextbooks site that is
   live today as a vanilla PHP app. Aim for parity with that app before adding new features.
-- For now only books are listed. The site is meant to cover other kinds of items later, so
+- Textbooks come first. The site also covers other student goods (furniture, electronics, ...), so
   don't hard-code "book" into the generic marketplace parts (listings, sellers, buying). Keep
   book-only fields (e.g. ISBN, author, edition, course) separate from them, without building a
   general item-type system before it's needed.
 
-The codebase was copied from a small countdown app called **DayWatch**, and none of the
-textbook domain exists yet. Everything below about `Event` (entity, form, controller,
-templates, test, the existing migration) is DayWatch leftover, kept as a working example of
-the project's patterns, and is expected to be replaced. DayWatch naming also survives in
-infrastructure: the `daywatch` database/user and `daywatch-local-db` container in
-`compose.yaml`, `.env`/`.env.dev`, `Taskfile.yml` (`db:shell`), and the branding in
-`templates/base.html.twig`. Deployment (`config/deploy.yml`) already uses `stb`.
+The codebase started as a copy of a countdown app called DayWatch; that code and naming have
+been removed.
 
 ## Local development
 
-- `compose.yaml` only runs PostgreSQL (`database`, host port **5440**); `compose.override.yaml`
-  adds Mailpit. PHP runs on the host: `.env.dev` points `DATABASE_URL` at `127.0.0.1:5440`.
-  - `docker compose up -d database`
-  - `symfony serve -d`
-  - `symfony console doctrine:migrations:migrate`
-- `Taskfile.yml` (untracked, work in progress) wraps everything as `docker compose exec app ...`,
-  but no `app` service exists in the compose files yet, so its tasks won't work until one is added.
-  Its task names (`test`, `lint`, `migrate:make`, `worker`, ...) are the intended entry points.
+`Taskfile.yml` is the command reference (`task` lists everything). Prefer its tasks
+(`task start`, `task test`, `task check`, `task migrate:make`, `task db:seed`, ...) and keep it
+up to date when adding a workflow.
+
+- PHP runs on the host via the Symfony CLI; only Postgres (`database`, fixed host port
+  **5441**) and Mailpit run in Docker. The compose project is named `scarfietextbooks`.
+- `.env` holds the local Docker `DATABASE_URL`, so plain `bin/console` works as well as
+  `symfony console` (which injects the same values from Docker, plus `MAILER_DSN` for Mailpit).
+- Example data lives in `src/DataFixtures/AppFixtures.php` (DoctrineFixturesBundle, dev/test
+  only). `task db:seed` wipes and reloads it.
 - Mailer/Notifier messages are routed to the Doctrine `async` Messenger transport
-  (`auto_setup=0`), so emails are only sent while `messenger:consume async` is running.
+  (`auto_setup=0`, tables created by `messenger:setup-transports`), so emails are only sent
+  while `task worker` is running.
 
 ## Tests
 
-- `php bin/phpunit` runs everything; `php bin/phpunit --filter testCreateAndEditEventFromHomePage`
-  runs one test. `phpunit.dist.xml` fails on deprecations, notices and warnings.
-- Functional tests don't use PostgreSQL or migrations: each test overrides `DATABASE_URL` to
-  in-memory SQLite in `setUp()`, calls `$client->disableReboot()` (so the in-memory DB survives
-  across requests), and builds the schema with `SchemaTool`. Follow that pattern for new
-  controller tests; a new entity must be added to the `createSchema([...])` list.
-- Tests assert on CSS classes and copy in the templates (`.event-card`, `.countdown`,
-  `.countdown-unit`, `.empty-state`, flash text, button labels). Changing template markup or
-  wording usually means updating `tests/Controller/EventControllerTest.php`.
+- `task test` (or `php bin/phpunit`); one test: `task test -- --filter testFilterBySearchTypeCategoryAndPrice`.
+  `phpunit.dist.xml` fails on deprecations, notices and warnings.
+- Functional tests don't use PostgreSQL or migrations: `setUp()` overrides `DATABASE_URL` to
+  in-memory SQLite, calls `$client->disableReboot()` (so the in-memory DB survives across
+  requests), and builds the schema from all mapped entities with `SchemaTool`. Keep DQL
+  portable between SQLite and Postgres (e.g. `LOWER(...) LIKE`, not `ILIKE`).
+- Tests assert on template CSS classes and copy (`.listing-card h3`, `.listing-price`,
+  `.course-code`, `.empty-state`, `#listings .count`), so markup changes usually need test updates.
 
-## Architecture notes (DayWatch example code)
+## Architecture
 
-- `Event::calculateDaysRemaining()` holds the countdown logic (signed day difference from
-  today); templates render from it.
-- `EventController` serves `/` and a legacy `/events/` listing alias; create/edit redirect back
-  with HTTP 303 and invalid forms re-render with 422 (Symfony form rendering default).
+- `Listing` is the generic marketplace item: `ListingType` (for sale / wanted), `Category`,
+  optional `Condition`, price in integer cents (null = make an offer / name your price;
+  0 = free). Book-only data lives in the optional one-to-one `BookDetails` (author, edition,
+  ISBN, course code), per the scope rule above. Enums in `src/Enum` carry their display `label()`.
+- Home page (`ListingController`, `/`): a GET `ListingFilterType` form with an empty block
+  prefix (clean `?q=&type=&category=&maxPrice=` URLs) binds to the `App\Search\ListingFilter`
+  DTO, and `ListingRepository::findByFilter()` builds the query. Results sit in the
+  `<turbo-frame id="listings">`; the `filter-form` Stimulus controller auto-submits into it so
+  the search box keeps focus. The controller passes `$form->createView()` deliberately, so
+  invalid filters render with 200 and the full list rather than a 422.
 - `HealthController` (`/up`) is the Kamal proxy healthcheck; keep it dependency-free.
 
 ## Deployment
@@ -67,5 +70,5 @@ infrastructure: the `daywatch` database/user and `daywatch-local-db` container i
   `.kamal/secrets`.
 - The production image is `dockerfile` (lowercase): FrankenPHP, `APP_ENV=prod`, and it runs
   `importmap:install` + `asset-map:compile` at build time. Caddy config is `Caddyfile`.
-- Migrations are not run on deploy (all `.kamal/hooks` are samples); run them with
-  `kamal console doctrine:migrations:migrate`.
+- Migrations are not run on deploy (all `.kamal/hooks` are samples); run `task prod:migrate`
+  after `task deploy`.

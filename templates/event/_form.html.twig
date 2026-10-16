@@ -1,7 +1,0 @@
-{{ form_start(form, {attr: {class: 'event-form'}}) }}
-    {{ form_errors(form) }}
-    <div class="form-field">{{ form_row(form.title) }}</div>
-    <div class="form-field">{{ form_row(form.eventDate) }}</div>
-    <div class="form-field">{{ form_row(form.description, {label: 'Notes (optional)'}) }}</div>
-    <div class="form-actions"><a class="cancel-link" href="{{ path('app_events') }}">Cancel</a><button class="button" type="submit">{{ button_label }} <span aria-hidden="true">↗</span></button></div>
-{{ form_end(form) }}

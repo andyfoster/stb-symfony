@@ -26,15 +26,15 @@ a {
     text-decoration:none
 }
 
-button,input,textarea {
+button,input,select,textarea {
     font:inherit
 }
 
-a,button,input,textarea {
+a,button,input,select,textarea {
     -webkit-tap-highlight-color:transparent
 }
 
-a:focus-visible,button:focus-visible,input:focus-visible,textarea:focus-visible {
+a:focus-visible,button:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-visible {
     outline:3px solid #8d9f4e;
     outline-offset:5px
 }
@@ -43,7 +43,7 @@ h1,h2,h3,p {
     margin:0
 }
 
-h1,h2,h3,.brand,.countdown-number {
+h1,h2,h3,.brand {
     font-family:'Manrope',sans-serif
 }
 
@@ -76,7 +76,7 @@ h1,h2,h3,.brand,.countdown-number {
     border-radius:11px;
     background:var(--green);
     color:#e4ebbe;
-    font-size:31px;
+    font-size:22px;
     font-weight:400
 }
 
@@ -121,20 +121,12 @@ h1,h2,h3,.brand,.countdown-number {
     min-height:calc(100vh - 195px)
 }
 
-.today-heading {
+.hero {
     text-align:center;
-    padding:70px 0 67px
+    padding:64px 0 44px
 }
 
-.eyebrow {
-    text-transform:uppercase;
-    font-size:10px;
-    letter-spacing:2px;
-    font-weight:700;
-    color:var(--muted)
-}
-
-.today-heading .eyebrow {
+.hero .eyebrow {
     display:flex;
     align-items:center;
     justify-content:center;
@@ -148,16 +140,91 @@ h1,h2,h3,.brand,.countdown-number {
     background:#8d9f4e
 }
 
-.today-heading h1 {
-    font-size:clamp(27px,3.7vw,47px);
+.hero h1 {
+    max-width:760px;
+    margin:17px auto 14px;
+    font-size:clamp(27px,3.7vw,44px);
     font-weight:500;
-    letter-spacing:-1.7px;
-    margin:17px 0 14px
+    letter-spacing:-1.5px;
+    line-height:1.2
 }
 
-.today-heading>p:last-child,.form-heading>p:last-child {
+.hero>p:last-child,.form-heading>p:last-child {
     color:var(--muted);
     line-height:1.7
+}
+
+.eyebrow {
+    text-transform:uppercase;
+    font-size:10px;
+    letter-spacing:2px;
+    font-weight:700;
+    color:var(--muted)
+}
+
+.filter-bar {
+    display:grid;
+    grid-template-columns:minmax(0,2.2fr) repeat(2,minmax(0,1fr)) minmax(0,.8fr) auto;
+    gap:14px;
+    align-items:end;
+    background:var(--white);
+    border:1px solid var(--line);
+    border-radius:16px;
+    padding:20px;
+    margin-bottom:40px;
+    box-shadow:0 8px 32px #253d3404
+}
+
+.filter-field label {
+    display:block;
+    font-size:12px;
+    font-weight:600;
+    margin-bottom:7px
+}
+
+.filter-field input,.filter-field select {
+    display:block;
+    width:100%;
+    min-width:0;
+    height:44px;
+    border:1px solid #d5d9ce;
+    border-radius:8px;
+    background:#fff;
+    color:var(--ink);
+    padding:0 12px
+}
+
+.filter-field input::placeholder {
+    color:#868e83;
+    font-size:13px
+}
+
+.filter-field ul {
+    color:#9c3833;
+    list-style:none;
+    padding:0;
+    font-size:12px;
+    margin:6px 0 0
+}
+
+.filter-actions .button {
+    height:44px
+}
+
+.clear-link {
+    font-size:13px;
+    color:var(--green);
+    font-weight:600;
+    padding-bottom:3px
+}
+
+.clear-link:hover {
+    text-decoration:underline
+}
+
+turbo-frame[aria-busy=true] .listing-grid {
+    opacity:.55;
+    transition:opacity .15s
 }
 
 .section-heading {
@@ -194,40 +261,40 @@ h1,h2,h3,.brand,.countdown-number {
     padding-bottom:3px
 }
 
-.event-grid {
+.listing-grid {
     display:grid;
     grid-template-columns:repeat(3,minmax(0,1fr));
     gap:20px;
     padding-bottom:56px
 }
 
-.event-card {
+.listing-card {
     border:1px solid #dcded2;
     background:#edf0e2;
     border-radius:15px;
-    padding:24px;
+    padding:22px 24px;
     display:flex;
     flex-direction:column;
-    min-height:300px;
+    min-height:280px;
     transition:box-shadow .2s,transform .2s
 }
 
-.event-card:nth-child(3n+2) {
+.listing-card:nth-child(3n+2) {
     background:#f2ebe1;
     border-color:#e4dbcf
 }
 
-.event-card:nth-child(3n) {
+.listing-card:nth-child(3n) {
     background:#e8edeb;
     border-color:#d7e1dc
 }
 
-.event-card.event-past {
-    background:#eeede8;
-    border-color:#deddd5
+.listing-card.listing-wanted {
+    background:var(--white);
+    border:1px dashed #c4cbb9
 }
 
-.event-card:hover {
+.listing-card:hover {
     transform:translateY(-3px);
     box-shadow:0 10px 24px #253d3409
 }
@@ -239,98 +306,99 @@ h1,h2,h3,.brand,.countdown-number {
     gap:10px
 }
 
-.event-status {
+.badge {
     font-size:10px;
+    font-weight:700;
     letter-spacing:.8px;
     text-transform:uppercase;
+    padding:5px 8px;
+    border-radius:6px
+}
+
+.badge-sale {
+    background:var(--green);
+    color:#edf1c5
+}
+
+.badge-wanted {
+    background:#f0e3c8;
+    color:#7a5418
+}
+
+.listing-category {
+    font-size:12px;
     color:#5d6a5c
 }
 
-.edit-link {
-    font-size:12px;
-    padding:6px 9px;
-    border:1px solid #253d3424;
-    border-radius:6px;
-    white-space:nowrap
-}
-
-.edit-link:hover {
-    background:#ffffff70
-}
-
-.countdown {
-    display:flex;
-    align-items:baseline;
-    flex-wrap:wrap;
-    gap:10px;
-    margin:28px 0 17px
-}
-
-.countdown-number {
-    font-size:58px;
-    letter-spacing:-3px;
+.listing-price {
+    font-family:'Manrope',sans-serif;
+    font-size:34px;
+    font-weight:600;
+    letter-spacing:-1.4px;
     line-height:1;
-    font-weight:500
+    margin:24px 0 14px
 }
 
-.countdown-unit {
-    font-size:13px;
-    color:#59665b
+.price-label {
+    display:block;
+    font-family:'DM Sans',sans-serif;
+    font-size:11px;
+    font-weight:500;
+    letter-spacing:0;
+    color:var(--muted);
+    margin-bottom:6px
 }
 
-.event-card h3 {
-    font-size:19px;
+.listing-card h3 {
+    font-size:18px;
     letter-spacing:-.4px;
+    line-height:1.3;
     overflow-wrap:anywhere
 }
 
-.event-description {
+.book-meta {
+    display:flex;
+    flex-wrap:wrap;
+    align-items:center;
+    gap:8px;
+    color:#4f5c51;
+    font-size:13px;
+    margin-top:7px
+}
+
+.course-code {
+    font-size:11px;
+    font-weight:700;
+    letter-spacing:.5px;
+    padding:3px 7px;
+    border-radius:5px;
+    background:#253d3412
+}
+
+.listing-description {
     color:#5e695f;
     font-size:13px;
     line-height:1.65;
-    margin-top:9px;
-    white-space:pre-line;
+    margin:10px 0 20px;
     overflow-wrap:anywhere
 }
 
-.card-date {
+.card-footer {
     display:flex;
-    gap:9px;
-    align-items:center;
+    flex-wrap:wrap;
+    gap:6px 14px;
     border-top:1px solid #253d341b;
-    padding-top:17px;
+    padding-top:15px;
     margin-top:auto;
     color:#5c685e;
     font-size:12px
 }
 
-.event-card h3,.event-description {
-    margin-bottom:20px
+.card-footer time {
+    margin-left:auto
 }
 
-.event-card h3:has(+.event-description) {
-    margin-bottom:0
-}
-
-.add-card {
-    border:1px dashed #c4cbb9;
-    border-radius:15px;
-    min-height:300px;
-    display:flex;
-    flex-direction:column;
-    align-items:center;
-    justify-content:center;
-    text-align:center;
-    gap:11px;
-    padding:24px;
-    transition:background .2s
-}
-
-.add-card:hover {
-    background:#efefe5
-}
-
-.add-symbol,.empty-symbol {
+.empty-symbol {
     display:grid;
     place-items:center;
     width:46px;
@@ -339,16 +407,6 @@ h1,h2,h3,.brand,.countdown-number {
     border-radius:50%;
     font-size:25px;
     margin-bottom:6px
-}
-
-.add-card strong {
-    font-size:14px;
-    font-weight:500
-}
-
-.add-card>span:last-child {
-    color:var(--muted);
-    font-size:12px
 }
 
 .empty-state {
@@ -463,7 +521,7 @@ h1,h2,h3,.brand,.countdown-number {
     margin-top:8px
 }
 
-.form-field ul,.event-form>ul {
+.form-field ul {
     color:#9c3833;
     list-style:none;
     padding:0;
@@ -512,16 +570,19 @@ h1,h2,h3,.brand,.countdown-number {
     top:12px
 }
 
-@media(min-width:1400px) {
-    .today-heading {
-        padding-top:85px;
-        padding-bottom:80px
+@media(max-width:1080px) {
+    .filter-bar {
+        grid-template-columns:repeat(3,minmax(0,1fr)) auto
+    }
+
+    .filter-search {
+        grid-column:1/-1
     }
 
 }
 
 @media(max-width:900px) {
-    .event-grid {
+    .listing-grid {
         grid-template-columns:repeat(2,minmax(0,1fr))
     }
 
@@ -533,8 +594,8 @@ h1,h2,h3,.brand,.countdown-number {
         display:none
     }
 
-    .today-heading {
-        padding:55px 0
+    .hero {
+        padding:48px 0 36px
     }
 
     .page-shell {
@@ -550,40 +611,40 @@ h1,h2,h3,.brand,.countdown-number {
     }
 
     .brand {
-        font-size:23px
+        font-size:21px
     }
 
     .brand-mark {
         width:30px;
         height:30px;
-        font-size:25px
-    }
-
-    .button-small {
-        padding:10px 12px
+        font-size:22px
     }
 
     .page-shell {
-        padding:0 20px
+        padding:0 16px
     }
 
-    .today-heading {
-        padding:44px 0
+    .hero {
+        padding:36px 0 28px
     }
 
-    .today-heading h1 {
-        font-size:29px;
+    .hero h1 {
+        font-size:27px;
         letter-spacing:-1px;
-        line-height:1.35
+        line-height:1.3
     }
 
-    .today-heading>p:last-child {
+    .hero>p:last-child {
         font-size:13px
     }
 
-    .today-heading .eyebrow {
-        font-size:9px;
-        letter-spacing:1.4px
+    .filter-bar {
+        grid-template-columns:1fr;
+        padding:16px
+    }
+
+    .filter-actions .button {
+        width:100%
     }
 
     .section-heading {
@@ -598,21 +659,17 @@ h1,h2,h3,.brand,.countdown-number {
         display:none
     }
 
-    .event-grid {
+    .listing-grid {
         grid-template-columns:1fr;
         gap:16px
     }
 
-    .event-card {
-        min-height:290px
-    }
-
-    .add-card {
-        min-height:190px
+    .listing-card {
+        min-height:0
     }
 
     .site-footer {
-        padding:24px 20px
+        padding:24px 16px
     }
 
     .site-footer span:last-child {

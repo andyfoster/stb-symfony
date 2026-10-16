@@ -1,140 +1,220 @@
+# ScarfieTextbooks. Run `task` to list everything.
+#
+# PHP runs on this machine through the Symfony CLI (`symfony serve`, `symfony console`).
+# Postgres and Mailpit run in Docker (compose.yaml, compose.override.yaml).
+# Production is deployed with Kamal (config/deploy.yml).
 version: '3'
 
-# PHP, Composer and PostgreSQL commands run inside Docker.
-# Start the stack with `task up` before running app commands.
-# Arguments after -- are forwarded, e.g. task test -- --filter EventApi
+vars:
+  URL: https://127.0.0.1:8000
 
 tasks:
   default:
-    desc: Show available commands
+    desc: List all commands
+    silent: true
     cmds:
       - task --list
 
-  up:
-    desc: Build and start the stack; install dependencies and apply migrations
-    cmds:
-      - docker compose up --build -d --wait --wait-timeout 300
+  # --- Everyday ------------------------------------------------------------
 
-  down:
-    desc: Stop and remove containers, keeping database and dependency volumes
+  setup:
+    desc: 'First-time setup: install dependencies, start Docker, migrate and load example data'
     cmds:
-      - docker compose down
+      - composer install --no-interaction
+      - task: db:start
+      - task: migrate
+      - symfony console messenger:setup-transports --no-interaction
+      - task: db:seed
+
+  start:
+    desc: Start Docker services and the web server, apply pending migrations
+    cmds:
+      - task: db:start
+      - task: migrate
+      - symfony serve -d
+      - echo "ScarfieTextbooks is running at {{.URL}}"
 
   stop:
-    desc: Stop containers without removing them
+    desc: Stop the web server and Docker services (data is kept)
     cmds:
+      - symfony server:stop
       - docker compose stop
 
-  restart:
-    desc: Restart the app and wait for it to be healthy
-    cmds:
-      - docker compose restart app
-      - docker compose up -d --wait --wait-timeout 300
-
-  build:
-    desc: Build the development image (does not start containers)
-    cmds:
-      - docker compose build {{.CLI_ARGS}}
-
   status:
-    desc: Show container status and ports
+    desc: Show web server and Docker container status
     cmds:
+      - symfony server:status
       - docker compose ps
 
-  logs:
-    desc: 'Follow logs (optionally select services: task logs -- app database)'
+  open:
+    desc: Open the site in your browser
     cmds:
-      - docker compose logs --tail=100 -f {{.CLI_ARGS}}
+      - symfony open:local
 
-  shell:
-    desc: Open an interactive shell in the app container
-    interactive: true
+  logs:
+    desc: Follow web server and application logs
     cmds:
-      - docker compose exec app sh
+      - symfony server:log
+
+  mail:
+    desc: Open Mailpit to see emails the app has sent
+    cmds:
+      - symfony open:local:webmail
+
+  # --- Symfony and Composer ------------------------------------------------
 
   console:
-    desc: 'Run Symfony commands (task console -- debug:router)'
+    desc: 'Run a Symfony console command (task console -- debug:router)'
     cmds:
-      - docker compose exec -T app php bin/console {{.CLI_ARGS}}
+      - symfony console {{.CLI_ARGS}}
 
   composer:
     desc: 'Run Composer (task composer -- require symfony/lock)'
     cmds:
-      - docker compose exec -T app composer {{.CLI_ARGS}}
+      - symfony composer {{.CLI_ARGS}}
 
-  install:
-    desc: Install locked dependencies and frontend assets
+  routes:
+    desc: List all routes
     cmds:
-      - docker compose exec -T app composer install --prefer-dist --no-interaction
+      - symfony console debug:router
+
+  cache:clear:
+    desc: Clear the dev cache
+    cmds:
+      - symfony console cache:clear
+
+  assets:install:
+    desc: Download importmap packages and install bundle assets
+    cmds:
+      - symfony console importmap:install
+      - symfony console assets:install public
+
+  # --- Quality -------------------------------------------------------------
 
   test:
-    desc: 'Run tests (task test -- --filter EventApiControllerTest)'
+    desc: 'Run the test suite (task test -- --filter ListingControllerTest)'
     cmds:
-      - docker compose exec -T app php bin/phpunit {{.CLI_ARGS}}
+      - php bin/phpunit {{.CLI_ARGS}}
 
   lint:
-    desc: Validate Symfony container, Twig templates and YAML configuration
+    desc: Validate the container, Twig templates, YAML config and Doctrine mapping
     cmds:
       - docker compose config --quiet
-      - docker compose exec -T app php bin/console lint:container
-      - docker compose exec -T app php bin/console lint:twig templates/
-      - docker compose exec -T app php bin/console lint:yaml config/
+      - symfony console lint:container
+      - symfony console lint:twig templates/
+      - symfony console lint:yaml config/
+      - symfony console doctrine:schema:validate --skip-sync
 
   check:
-    desc: Run configuration checks and tests
+    desc: Run lint and tests (do this before committing)
     cmds:
       - task: lint
       - task: test
 
-  cache:clear:
-    desc: Clear and warm the development cache
-    cmds:
-      - docker compose exec -T app php bin/console cache:clear
+  # --- Database (Postgres in Docker) ---------------------------------------
 
-  assets:install:
-    desc: Download importmap assets and install bundle assets
+  db:start:
+    desc: Start Postgres and Mailpit in Docker and wait until they are ready
     cmds:
-      - docker compose exec -T app php bin/console importmap:install
-      - docker compose exec -T app php bin/console assets:install public
+      - docker compose up -d --wait --wait-timeout 120
+
+  db:stop:
+    desc: Stop the Docker services (data is kept)
+    cmds:
+      - docker compose stop
+
+  db:shell:
+    desc: Open psql in the Docker database
+    interactive: true
+    cmds:
+      - docker compose exec database psql -U scarfietextbooks -d scarfietextbooks
+
+  db:seed:
+    desc: Replace all data with the example listings (src/DataFixtures)
+    cmds:
+      - symfony console doctrine:fixtures:load --no-interaction
+
+  db:reset:
+    desc: Drop and recreate the database, run migrations and load example data
+    prompt: This deletes all local data in the scarfietextbooks database. Continue?
+    cmds:
+      - symfony console doctrine:database:drop --force --if-exists
+      - symfony console doctrine:database:create
+      - task: migrate
+      - symfony console messenger:setup-transports --no-interaction
+      - task: db:seed
+
+  db:validate:
+    desc: Check Doctrine mapping matches the database schema
+    cmds:
+      - symfony console doctrine:schema:validate
+
+  db:destroy:
+    desc: Remove the Docker containers and the database volume
+    prompt: This permanently deletes the local Docker database volume. Continue?
+    cmds:
+      - docker compose down --volumes
+
+  # --- Migrations ----------------------------------------------------------
 
   migrate:
     desc: Apply pending database migrations
     cmds:
-      - docker compose exec -T app php bin/console doctrine:migrations:migrate --no-interaction
+      - symfony console doctrine:migrations:migrate --no-interaction --allow-no-migration
 
   migrate:make:
-    desc: Generate a migration after changing Doctrine entities
+    desc: Generate a migration after changing entities (review it before running)
     cmds:
-      - docker compose exec -T app php bin/console make:migration --no-interaction
+      - symfony console make:migration --no-interaction
 
   migrate:status:
-    desc: Show migration status and pending versions
+    desc: Show migration status
     cmds:
-      - docker compose exec -T app php bin/console doctrine:migrations:status
-      - docker compose exec -T app php bin/console doctrine:migrations:list
+      - symfony console doctrine:migrations:status
 
   migrate:dry-run:
-    desc: Preview pending migration SQL without applying it
+    desc: Preview the SQL of pending migrations without running it
     cmds:
-      - docker compose exec -T app php bin/console doctrine:migrations:migrate --dry-run --no-interaction
+      - symfony console doctrine:migrations:migrate --dry-run --no-interaction
 
-  db:validate:
-    desc: Check Doctrine mappings and database schema consistency
-    cmds:
-      - docker compose exec -T app php bin/console doctrine:schema:validate
-
-  db:shell:
-    desc: Open PostgreSQL's interactive SQL console
-    interactive: true
-    cmds:
-      - docker compose exec database psql -U daywatch -d daywatch
+  # --- Background jobs (Messenger) -----------------------------------------
 
   worker:
-    desc: 'Consume queued messages in the foreground (Ctrl+C to stop)'
+    desc: 'Process queued messages such as emails (Ctrl+C to stop)'
     cmds:
-      - docker compose exec -T app php bin/console messenger:consume async -vv {{.CLI_ARGS}}
+      - symfony console messenger:consume async -vv {{.CLI_ARGS}}
 
   worker:failed:
-    desc: Show messages in the failed queue
+    desc: Show messages that failed processing
     cmds:
-      - docker compose exec -T app php bin/console messenger:failed:show {{.CLI_ARGS}}
+      - symfony console messenger:failed:show {{.CLI_ARGS}}
+
+  # --- Production (Kamal, stb.gitforked.com) -------------------------------
+
+  deploy:
+    desc: Build and deploy to production with Kamal
+    prompt: Deploy the current code to stb.gitforked.com?
+    cmds:
+      - kamal deploy
+
+  prod:migrate:
+    desc: Run pending migrations in production
+    prompt: Run migrations against the production database?
+    cmds:
+      - kamal console doctrine:migrations:migrate --no-interaction
+
+  prod:logs:
+    desc: Follow production app logs
+    cmds:
+      - kamal app logs -f
+
+  prod:console:
+    desc: 'Run a Symfony console command in production (task prod:console -- about)'
+    cmds:
+      - kamal console {{.CLI_ARGS}}
+
+  prod:shell:
+    desc: Open a shell in the production app container
+    interactive: true
+    cmds:
+      - kamal shell

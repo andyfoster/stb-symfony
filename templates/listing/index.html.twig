@@ -1,0 +1,93 @@
+{% extends 'base.html.twig' %}
+
+{% macro money(cents) %}${{ (cents / 100)|number_format(cents % 100 ? 2 : 0) }}{% endmacro %}
+
+{% block title %}Browse listings · ScarfieTextbooks{% endblock %}
+
+{% block body %}
+    <section class="hero" aria-labelledby="hero-title">
+        <p class="eyebrow"><span class="live-dot" aria-hidden="true"></span> Student marketplace</p>
+        <h1 id="hero-title">Textbooks and flat gear, from students to students.</h1>
+        <p>Find what you need for next semester, or see what other students are looking for.</p>
+    </section>
+
+    {{ form_start(form, {attr: {
+        class: 'filter-bar',
+        role: 'search',
+        'aria-label': 'Filter listings',
+        'data-controller': 'filter-form',
+        'data-turbo-frame': 'listings',
+        'data-turbo-action': 'advance',
+    }}) }}
+        <div class="filter-field filter-search">{{ form_row(form.q, {attr: {'data-action': 'input->filter-form#debouncedSubmit'}}) }}</div>
+        <div class="filter-field">{{ form_row(form.type, {attr: {'data-action': 'filter-form#submit'}}) }}</div>
+        <div class="filter-field">{{ form_row(form.category, {attr: {'data-action': 'filter-form#submit'}}) }}</div>
+        <div class="filter-field filter-price">{{ form_row(form.maxPrice, {attr: {'data-action': 'input->filter-form#debouncedSubmit'}}) }}</div>
+        <div class="filter-actions">
+            <button class="button button-small" type="submit">Filter</button>
+        </div>
+    {{ form_end(form) }}
+
+    <turbo-frame id="listings" data-turbo-action="advance">
+        <section aria-labelledby="listings-title">
+            <div class="section-heading">
+                <div>
+                    <span class="eyebrow">{{ filtered ? 'Filtered results' : 'Latest listings' }}</span>
+                    <h2 id="listings-title">{{ filtered ? 'Matching listings' : 'Everything on offer' }} <span class="count">{{ listings|length }}</span></h2>
+                </div>
+                {% if filtered %}<a class="clear-link" href="{{ path('app_listings') }}" data-turbo-frame="_top">Clear filters</a>{% else %}<span class="sort-note">Newest first</span>{% endif %}
+            </div>
+
+            <div class="listing-grid">
+                {% for listing in listings %}
+                    {% set wanted = listing.type.value == 'wanted' %}
+                    <article class="listing-card {{ wanted ? 'listing-wanted' : '' }}">
+                        <div class="card-top">
+                            <span class="badge {{ wanted ? 'badge-wanted' : 'badge-sale' }}">{{ listing.type.label }}</span>
+                            <span class="listing-category">{{ listing.category.label }}</span>
+                        </div>
+
+                        <p class="listing-price">
+                            {% if listing.priceCents is null %}
+                                {{ wanted ? 'Name your price' : 'Make an offer' }}
+                            {% elseif listing.priceCents == 0 %}
+                                Free
+                            {% else %}
+                                {% if wanted %}<span class="price-label">Budget up to</span> {% endif %}{{ _self.money(listing.priceCents) }}
+                            {% endif %}
+                        </p>
+
+                        <h3>{{ listing.title }}</h3>
+
+                        {% if listing.book %}
+                            <p class="book-meta">
+                                {{ listing.book.author }}{% if listing.book.edition %} · {{ listing.book.edition }} ed.{% endif %}
+                                {% if listing.book.courseCode %}<span class="course-code">{{ listing.book.courseCode }}</span>{% endif %}
+                            </p>
+                        {% endif %}
+
+                        {% if listing.description %}<p class="listing-description">{{ listing.description }}</p>{% endif %}
+
+                        <div class="card-footer">
+                            {% if listing.condition %}<span>{{ listing.condition.label }}</span>{% endif %}
+                            {% if listing.location %}<span>{{ listing.location }}</span>{% endif %}
+                            <time datetime="{{ listing.createdAt|date('c') }}">{{ listing.createdAt|date('j M') }}</time>
+                        </div>
+                    </article>
+                {% else %}
+                    <div class="empty-state">
+                        <span class="empty-symbol" aria-hidden="true">❡</span>
+                        {% if filtered %}
+                            <h3>Nothing matches those filters.</h3>
+                            <p>Try a different search, or widen the category or price.</p>
+                            <a class="button" href="{{ path('app_listings') }}" data-turbo-frame="_top">Clear filters</a>
+                        {% else %}
+                            <h3>No listings yet.</h3>
+                            <p>Listings will show up here once students start posting.</p>
+                        {% endif %}
+                    </div>
+                {% endfor %}
+            </div>
+        </section>
+    </turbo-frame>
+{% endblock %}
