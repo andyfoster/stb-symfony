@@ -87,4 +87,28 @@ class ListingRepository extends ServiceEntityRepository
             ->getQuery()
             ->getResult();
     }
+
+    /**
+     * Live listings expiring within $days whose seller hasn't been reminded yet.
+     *
+     * @return Listing[] soonest first
+     */
+    public function findNeedingExpiryReminder(int $days, ?\DateTimeImmutable $now = null): array
+    {
+        $now ??= new \DateTimeImmutable();
+
+        return $this->createQueryBuilder('l')
+            ->join('l.seller', 's')
+            ->addSelect('s')
+            ->andWhere('l.status = :active')
+            ->andWhere('l.expiresAt > :now')
+            ->andWhere('l.expiresAt <= :soon')
+            ->andWhere('l.expiryReminderSentAt IS NULL')
+            ->setParameter('active', ListingStatus::Active)
+            ->setParameter('now', $now)
+            ->setParameter('soon', $now->modify(\sprintf('+%d days', $days)))
+            ->orderBy('l.expiresAt', 'ASC')
+            ->getQuery()
+            ->getResult();
+    }
 }

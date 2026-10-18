@@ -26,6 +26,9 @@ class Listing extends Base
     /** Refreshing opens up this many days before a listing expires. */
     public const int REFRESH_WINDOW_DAYS = 7;
 
+    /** Sellers get an "expiring soon" email this many days before. */
+    public const int EXPIRY_REMINDER_DAYS = 3;
+
     /** Null only for listings imported from before accounts existed. */
     #[ORM\ManyToOne]
     #[ORM\JoinColumn(onDelete: 'CASCADE')]
@@ -40,6 +43,10 @@ class Listing extends Base
 
     #[ORM\Column(nullable: true)]
     private ?\DateTimeImmutable $expiresAt = null;
+
+    /** When the seller was told this listing expires soon; cleared by publish() and refresh(). */
+    #[ORM\Column(nullable: true)]
+    private ?\DateTimeImmutable $expiryReminderSentAt = null;
 
     #[ORM\Column(length: 20, enumType: ListingType::class)]
     #[Assert\NotNull]
@@ -135,6 +142,18 @@ class Listing extends Base
         return $this;
     }
 
+    public function getExpiryReminderSentAt(): ?\DateTimeImmutable
+    {
+        return $this->expiryReminderSentAt;
+    }
+
+    public function setExpiryReminderSentAt(?\DateTimeImmutable $expiryReminderSentAt): static
+    {
+        $this->expiryReminderSentAt = $expiryReminderSentAt;
+
+        return $this;
+    }
+
     public function isDraft(): bool
     {
         return ListingStatus::Draft === $this->status;
@@ -178,6 +197,7 @@ class Listing extends Base
         $this->status = ListingStatus::Active;
         $this->publishedAt = $now;
         $this->expiresAt = $now->modify(\sprintf('+%d days', $days));
+        $this->expiryReminderSentAt = null;
 
         return $this;
     }

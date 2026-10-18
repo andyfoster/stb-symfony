@@ -36,7 +36,8 @@ up to date when adding a workflow.
 - Mailer/Notifier messages are routed to the Doctrine `async` Messenger transport
   (`auto_setup=0`, tables created by `messenger:setup-transports`). `symfony serve` (so
   `task start`) also runs a `messenger:consume async` worker, configured in
-  `.symfony.local.yaml`, that restarts on code changes; `symfony server:status` shows it.
+  `.symfony.local.yaml`, that restarts on code changes and also consumes `scheduler_default`
+  (the recurring jobs in `src/Schedule.php`); `symfony server:status` shows it.
   `task worker` runs one in the foreground with `-vv` for debugging.
 
 ## Tests
@@ -62,6 +63,9 @@ up to date when adding a workflow.
   the admin-set lifetime in the single `SiteSettings` row (`SiteSettingsProvider`, default 42
   days). Refresh only opens `REFRESH_WINDOW_DAYS` (7) before expiry. `ListingVoter`
   (`LISTING_VIEW`, `LISTING_EDIT`): anyone sees live listings, sellers and admins the rest.
+  Every morning (9:00 NZ, `src/Schedule.php`, Symfony Scheduler) `ExpiryReminder` emails each
+  seller once about listings expiring within `EXPIRY_REMINDER_DAYS` (3); `expiryReminderSentAt`
+  stops repeats until the next publish/refresh. `task reminders:send` runs it now.
   `ListingFormType` (create/edit at `/sell`, `/listings/{id}/edit`) clears `book` before
   validation unless the category is Textbooks; `ListingEditor` saves, publishes and deletes.
 - ISBN lookup: `BookLookup` asks Open Library, then Google Books (no keys), caching answers in
@@ -130,6 +134,6 @@ up to date when adding a workflow.
   (`config/packages/mailer.yaml`), so that domain must be verified in Mailgun (SPF/DKIM DNS).
   Mail is queued on the Doctrine `async` transport and sent by the `job` role in
   `config/deploy.yml`, a second container from the same image on the same server running
-  `messenger:consume async` (restarts hourly; the image's Caddy HEALTHCHECK is disabled for
+  `messenger:consume async scheduler_default`, so it also runs the scheduled jobs (restarts hourly; the image's Caddy HEALTHCHECK is disabled for
   it). The `kamal console`/`shell` aliases target `--roles=web` so they run once.
   `task prod:worker:logs` / `prod:worker:failed` inspect it.

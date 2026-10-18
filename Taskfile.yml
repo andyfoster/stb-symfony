@@ -183,7 +183,12 @@ tasks:
   worker:
     desc: 'Process queued messages in the foreground with verbose output (Ctrl+C to stop)'
     cmds:
-      - symfony console messenger:consume async -vv {{.CLI_ARGS}}
+      - symfony console messenger:consume async scheduler_default -vv {{.CLI_ARGS}}
+
+  reminders:send:
+    desc: Email sellers whose listings expire soon now, instead of waiting for the daily schedule
+    cmds:
+      - symfony console app:listings:send-expiry-reminders
 
   worker:failed:
     desc: Show messages that failed processing

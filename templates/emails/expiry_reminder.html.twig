@@ -1,0 +1,16 @@
+<p>Hi {{ seller.displayName }},</p>
+
+{% if listings|length == 1 %}
+    <p>Your listing <a href="{{ url('app_listing_show', {id: listings[0].id}) }}">{{ listings[0].title }}</a> expires on {{ listings[0].expiresAt|date('l j F', 'Pacific/Auckland') }}.</p>
+{% else %}
+    <p>These listings expire soon:</p>
+    <ul>
+        {% for listing in listings %}
+            <li><a href="{{ url('app_listing_show', {id: listing.id}) }}">{{ listing.title }}</a>, on {{ listing.expiresAt|date('l j F', 'Pacific/Auckland') }}</li>
+        {% endfor %}
+    </ul>
+{% endif %}
+
+<p>Still selling? Refresh {{ listings|length == 1 ? 'it' : 'them' }} from <a href="{{ url('app_account_listings') }}">My listings</a> to keep {{ listings|length == 1 ? 'it' : 'them' }} up and back at the top of the list. If you’ve sold {{ listings|length == 1 ? 'it' : 'them' }}, mark {{ listings|length == 1 ? 'it' : 'them' }} as sold there so people stop asking.</p>
+
+<p>Otherwise you don’t need to do anything. Expired listings stay in My listings and you can refresh them later.</p>
