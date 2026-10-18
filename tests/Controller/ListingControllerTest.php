@@ -51,7 +51,9 @@ final class ListingControllerTest extends WebTestCase
         $chemistry = $this->client->getCrawler()->filter('.listing-card')->first();
         self::assertStringContainsString('$95', $chemistry->filter('.listing-price')->text());
         self::assertSame('CHEM191', $chemistry->filter('.course-code')->text());
-        self::assertSame('For sale', $chemistry->filter('.badge')->text());
+        // Only wanted listings are marked; for sale is the default.
+        self::assertCount(0, $chemistry->filter('.badge'));
+        self::assertSelectorTextContains('.listing-wanted .badge', 'Wanted');
 
         self::assertSelectorTextContains('.listing-wanted .listing-price', 'Budget up to $50');
         self::assertAnySelectorTextContains('.listing-price', 'Free');
@@ -120,6 +122,6 @@ final class ListingControllerTest extends WebTestCase
     /** @return string[] */
     private function titles(): array
     {
-        return $this->client->getCrawler()->filter('.listing-card h3')->each(static fn ($node) => $node->text());
+        return $this->client->getCrawler()->filter('.listing-card .card-link')->each(static fn ($node) => $node->text());
     }
 }

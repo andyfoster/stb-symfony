@@ -26,7 +26,7 @@ final class ListingExpiryTest extends WebTestCase
         $expired = $this->createListing($sam, 'Stale', '-43 days');
 
         $this->client->request('GET', '/');
-        self::assertSame(['Fresh'], $this->client->getCrawler()->filter('.listing-card h3')->each(static fn ($n) => $n->text()));
+        self::assertSame(['Fresh'], $this->client->getCrawler()->filter('.listing-card .card-link')->each(static fn ($n) => $n->text()));
 
         $this->client->request('GET', '/listings/'.$expired->getId());
         self::assertResponseStatusCodeSame(404);
@@ -59,7 +59,7 @@ final class ListingExpiryTest extends WebTestCase
 
         // Refreshed listings go back to the top.
         $this->client->request('GET', '/');
-        self::assertSelectorTextContains('.listing-card h3', 'Old');
+        self::assertSelectorTextContains('.listing-card .card-link', 'Old');
 
         // Too early: the button isn't offered, and posting anyway is refused.
         $this->client->request('POST', '/listings/'.$new->getId().'/refresh', ['_csrf_token' => 'csrf-token']);

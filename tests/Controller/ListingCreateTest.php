@@ -59,7 +59,7 @@ final class ListingCreateTest extends WebTestCase
         self::assertSelectorTextContains('.contact-panel h2', 'Your listing');
 
         $this->client->request('GET', '/');
-        self::assertSelectorTextContains('.listing-card h3', 'Chemistry: The Central Science');
+        self::assertSelectorTextContains('.listing-card .card-link', 'Chemistry: The Central Science');
         self::assertSelectorTextContains('.listing-card .course-code', 'CHEM191');
         self::assertSelectorTextContains('.listing-card .listing-price', '$85.50');
     }

@@ -16,22 +16,20 @@
         }}) }}
             <div class="filter-search">{{ form_row(form.q, {label_attr: {class: 'visually-hidden'}, attr: {'data-action': 'input->filter-form#debouncedSubmit', autofocus: true}}) }}</div>
             <div class="filter-options">
-                <div class="filter-field">{{ form_row(form.type, {attr: {'data-action': 'filter-form#submit'}}) }}</div>
-                <div class="filter-field">{{ form_row(form.category, {attr: {'data-action': 'filter-form#submit'}}) }}</div>
-                <div class="filter-field filter-price">{{ form_row(form.maxPrice, {attr: {'data-action': 'input->filter-form#debouncedSubmit'}}) }}</div>
-                <div class="filter-actions"><button class="button" type="submit">Filter</button></div>
+                <div class="filter-field">{{ form_row(form.type, {label_attr: {class: 'visually-hidden'}, attr: {'data-action': 'filter-form#submit'}}) }}</div>
+                <div class="filter-field">{{ form_row(form.category, {label_attr: {class: 'visually-hidden'}, attr: {'data-action': 'filter-form#submit'}}) }}</div>
+                <div class="filter-field filter-price">{{ form_row(form.maxPrice, {label_attr: {class: 'visually-hidden'}, attr: {'data-action': 'input->filter-form#debouncedSubmit', placeholder: 'Max price ($)'}}) }}</div>
+                <div class="filter-actions"><button class="button button-outline button-small" type="submit">Filter</button></div>
             </div>
         {{ form_end(form) }}
 
-        <p class="tagline">ScarfieTextbooks is the <strong>free</strong> 21st-century alternative to posters on noticeboards. But much easier.</p>
+        <p class="tagline">Buy and sell textbooks with other students. Free, and much easier than a poster on the noticeboard.</p>
     </section>
 
     <turbo-frame id="listings" data-turbo-action="advance">
         <section aria-labelledby="listings-title">
             <div class="section-heading">
-                <h2 id="listings-title">
-                    {{ filtered ? 'Found' : 'Now showing all' }} <span class="count">{{ listings|length }}</span> {{ listings|length == 1 ? 'listing' : 'listings' }}
-                </h2>
+                <h2 id="listings-title"><span class="count">{{ listings|length }}</span> {{ listings|length == 1 ? 'listing' : 'listings' }}{{ filtered ? ' found' : '' }}</h2>
                 {% if filtered %}<a class="clear-link" href="{{ path('app_listings') }}" data-turbo-frame="_top">Clear filters</a>{% else %}<span class="sort-note">Newest first</span>{% endif %}
             </div>
 
@@ -40,7 +38,6 @@
                     {{ include('listing/_card.html.twig') }}
                 {% else %}
                     <div class="empty-state">
-                        <svg class="empty-symbol" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 4h11a3 3 0 0 1 3 3v13H8a3 3 0 0 1-3-3z"/><path d="M5 17a3 3 0 0 1 3-3h11"/></svg>
                         {% if filtered %}
                             <h3>Nothing matches those filters.</h3>
                             <p>Try a different search, or widen the category or price.</p>

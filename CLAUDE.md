@@ -48,7 +48,7 @@ up to date when adding a workflow.
   in-memory SQLite, calls `$client->disableReboot()` (so the in-memory DB survives across
   requests), and builds the schema from all mapped entities with `SchemaTool`. Keep DQL
   portable between SQLite and Postgres (e.g. `LOWER(...) LIKE`, not `ILIKE`).
-- Tests assert on template CSS classes and copy (`.listing-card h3`, `.listing-price`,
+- Tests assert on template CSS classes and copy (`.listing-card .card-link`, `.listing-price`,
   `.course-code`, `.empty-state`, `#listings .count`), so markup changes usually need test updates.
 
 ## Architecture
@@ -109,8 +109,9 @@ up to date when adding a workflow.
   client and creates users and listings; new tests log in with `loginUser()`.
 - `HealthController` (`/up`) is the Kamal proxy healthcheck; keep it dependency-free.
 - Styling is hand-written CSS in `assets/styles/app.css` (no framework, system fonts only),
-  in the original site's blue and gold (`--blue`, `--gold` tokens on `:root`). The home page
-  lists listings as striped rows with alternating blue and gold price buttons, like the old site.
+  kept deliberately quiet: white pages, navy text, blue (`--blue`) for links and buttons, and
+  gold (`--gold`) only for the monospaced wordmark and "Wanted" listings. Listings are plain
+  rows (title and details left, price right); avoid adding cards, shadows or all-caps labels.
 - The project `php.ini` (read by the Symfony CLI) raises upload limits to match the dockerfile
   and gives dev cache warmup enough memory for EasyAdmin's templates.
 

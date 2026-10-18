@@ -24,7 +24,7 @@ class ListingFilterType extends AbstractType
             ->add('q', SearchType::class, [
                 'label' => 'Search',
                 'required' => false,
-                'attr' => ['placeholder' => 'Search titles, authors, paper codes or ISBNs'],
+                'attr' => ['placeholder' => 'Search by title, author, paper or ISBN'],
             ])
             ->add('type', EnumType::class, [
                 'class' => ListingType::class,
