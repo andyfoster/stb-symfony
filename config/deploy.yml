@@ -7,7 +7,12 @@ image: stb
 # Deploy to these servers.
 servers:
   web:
-    - 89.167.96.7
+    hosts:
+      - 89.167.96.7
+    # Listing photos (PhotoStorage, UPLOAD_DIR). Only the web role reads or writes them.
+    # Lives in /var/lib/docker/volumes/stb_uploads on the server: include it in backups.
+    options:
+      volume: "stb_uploads:/app/var/uploads"
   # Messenger worker: sends queued emails (async transport). It exits after an hour or
   # 128M and Kamal's restart policy starts it again. No proxy: only "web" serves HTTP.
   job:

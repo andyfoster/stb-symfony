@@ -1,4 +1,4 @@
-{# The create/edit listing form. #}
+{# The create/edit listing form: details on the left, photos on the right. #}
 {{ form_start(form, {attr: {
     class: 'listing-form',
     novalidate: 'novalidate',
@@ -8,7 +8,7 @@
     <div class="listing-form-main form-panel">
         <div class="form-field type-choice">{{ form_row(form.type) }}</div>
 
-        <div class="form-field">{{ form_row(form.title) }}</div>
+        <div class="form-field">{{ form_row(form.title, {attr: {'data-listing-form-target': 'title', 'data-action': 'listing-form#score'}}) }}</div>
 
         <div class="form-grid">
             <div class="form-field">{{ form_row(form.category, {attr: {'data-listing-form-target': 'category', 'data-action': 'listing-form#toggleBook'}}) }}</div>
@@ -40,11 +40,43 @@
         </fieldset>
 
         <div class="form-grid">
-            <div class="form-field">{{ form_row(form.condition) }}</div>
+            <div class="form-field">{{ form_row(form.condition, {attr: {'data-listing-form-target': 'condition', 'data-action': 'listing-form#score'}}) }}</div>
             <div class="form-field">{{ form_row(form.location) }}</div>
         </div>
 
-        <div class="form-field">{{ form_row(form.description) }}</div>
+        <div class="form-field">{{ form_row(form.description, {attr: {'data-listing-form-target': 'description', 'data-action': 'listing-form#score'}}) }}</div>
+    </div>
+
+    <div class="listing-form-side">
+        <div class="form-panel photo-panel" data-controller="photo-slots" data-photo-slots-max-value="{{ constant('App\\Entity\\Listing::MAX_PHOTOS') }}" data-photo-slots-existing-value="{{ listing.photos|length }}" data-action="photo-slots:changed->listing-form#score">
+            {{ form_label(form.photos) }}
+            {{ form_widget(form.photos, {attr: {'data-photo-slots-target': 'input', 'data-action': 'photo-slots#preview'}}) }}
+            {{ form_errors(form.photos) }}
+
+            <div class="photo-slots">
+                {% for photo in listing.photos %}
+                    <div class="photo-slot photo-slot-filled">
+                        <img src="{{ path('app_photo', {id: photo.id, size: 'thumb'}) }}" alt="Photo {{ loop.index }}">
+                        {% if form.children.removePhotos is defined %}
+                            <label class="photo-remove">{{ form_widget(form.removePhotos[loop.index0], {attr: {'data-action': 'photo-slots#preview'}}) }} Remove</label>
+                        {% endif %}
+                    </div>
+                {% endfor %}
+                {% for i in (listing.photos|length + 1)..constant('App\\Entity\\Listing::MAX_PHOTOS') %}
+                    <label class="photo-slot photo-slot-empty" for="{{ form.photos.vars.id }}" data-photo-slots-target="slot" data-action="dragover->photo-slots#dragOver dragleave->photo-slots#dragLeave drop->photo-slots#drop">
+                        <span>Drop photo here</span>
+                    </label>
+                {% endfor %}
+            </div>
+            <p class="form-help">JPEG, PNG or WebP, up to 10 MB each. We strip location data from photos.</p>
+            {% if not app.user.verified %}
+                <p class="form-help photo-warning">Your photos stay hidden from other people until you confirm your email address.</p>
+            {% endif %}
+        </div>
+
+        <div class="quality-hint" data-listing-form-target="quality" aria-live="polite">
+            <strong>Quality score:</strong> <span data-listing-form-target="qualityText">Add a clear title, 3+ photos, and condition to improve ranking.</span>
+        </div>
     </div>
 
     <div class="listing-form-actions">

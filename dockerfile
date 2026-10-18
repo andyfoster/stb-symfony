@@ -9,7 +9,11 @@ RUN install-php-extensions \
     pdo_pgsql \
     intl \
     opcache \
-    zip
+    zip \
+    gd
+
+# Listing photos: up to 4 x 10 MB per form, and room to resize a phone photo with GD.
+RUN printf 'upload_max_filesize = 10M\npost_max_size = 45M\nmemory_limit = 256M\n' > "$PHP_INI_DIR/conf.d/app.ini"
 
 WORKDIR /app
 

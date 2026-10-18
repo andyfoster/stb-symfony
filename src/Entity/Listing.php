@@ -7,6 +7,8 @@ use App\Enum\Condition;
 use App\Enum\ListingStatus;
 use App\Enum\ListingType;
 use App\Repository\ListingRepository;
+use Doctrine\Common\Collections\ArrayCollection;
+use Doctrine\Common\Collections\Collection;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\Validator\Constraints as Assert;
@@ -19,6 +21,8 @@ use Symfony\Component\Validator\Constraints as Assert;
 #[ORM\Index(columns: ['status', 'expires_at'])]
 class Listing extends Base
 {
+    public const int MAX_PHOTOS = 4;
+
     /** Refreshing opens up this many days before a listing expires. */
     public const int REFRESH_WINDOW_DAYS = 7;
 
@@ -69,6 +73,19 @@ class Listing extends Base
     #[ORM\OneToOne(cascade: ['persist', 'remove'], orphanRemoval: true)]
     #[Assert\Valid]
     private ?BookDetails $book = null;
+
+    /**
+     * @var Collection<int, ListingPhoto>
+     */
+    #[ORM\OneToMany(targetEntity: ListingPhoto::class, mappedBy: 'listing', cascade: ['persist', 'remove'], orphanRemoval: true)]
+    #[ORM\OrderBy(['position' => \SortDirection::Ascending, 'id' => \SortDirection::Ascending])]
+    private Collection $photos;
+
+    public function __construct()
+    {
+        parent::__construct();
+        $this->photos = new ArrayCollection();
+    }
 
     public function getSeller(): ?User
     {
@@ -276,5 +293,36 @@ class Listing extends Base
         $this->book = $book;
 
         return $this;
+    }
+
+    /**
+     * @return Collection<int, ListingPhoto>
+     */
+    public function getPhotos(): Collection
+    {
+        return $this->photos;
+    }
+
+    public function addPhoto(ListingPhoto $photo): static
+    {
+        if (!$this->photos->contains($photo)) {
+            $this->photos->add($photo);
+            $photo->setListing($this);
+        }
+
+        return $this;
+    }
+
+    public function removePhoto(ListingPhoto $photo): static
+    {
+        $this->photos->removeElement($photo);
+
+        return $this;
+    }
+
+    /** Photos are only shown to the public once the seller has confirmed their email. */
+    public function arePhotosPublic(): bool
+    {
+        return true === $this->seller?->isVerified();
     }
 }

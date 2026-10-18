@@ -66,6 +66,10 @@ up to date when adding a workflow.
   validation unless the category is Textbooks; `ListingEditor` saves, publishes and deletes.
 - ISBN lookup: `BookLookup` asks Open Library, then Google Books (no keys), caching answers in
   `cache.app`; `/sell/lookup-isbn` serves the `isbn-lookup` Stimulus controller.
+- Photos (max 4, `ListingPhoto`): `PhotoStorage` re-encodes uploads to WebP (strips EXIF) in
+  `large`/`thumb` sizes under `UPLOAD_DIR` (default `var/uploads`), outside `public/`.
+  `PhotoController` (`/photos/{id}/{size}`) serves them only when the seller's email is
+  verified, or to the seller and admins. Needs the `gd` extension.
 - Home page (`ListingController`, `/`): a GET `ListingFilterType` form with an empty block
   prefix (clean `?q=&type=&category=&maxPrice=` URLs) binds to the `App\Search\ListingFilter`
   DTO, and `ListingRepository::findByFilter()` builds the query. Results sit in the
@@ -90,6 +94,8 @@ up to date when adding a workflow.
   answers from `tests/MockHttpResponses.php`. `tests/DatabaseTestTrait.php` boots the SQLite
   client and creates users and listings; new tests log in with `loginUser()`.
 - `HealthController` (`/up`) is the Kamal proxy healthcheck; keep it dependency-free.
+- The project `php.ini` (read by the Symfony CLI) raises upload limits to match the dockerfile
+  so photo uploads work locally.
 
 ## Deployment
 
@@ -103,6 +109,8 @@ up to date when adding a workflow.
   server also hosts DayWatch (`daywatch-db`), so check you're pointing at `stb-db`.
 - The production image is `dockerfile` (lowercase): FrankenPHP, `APP_ENV=prod`, and it runs
   `importmap:install` + `asset-map:compile` at build time. Caddy config is `Caddyfile`.
+- Listing photos live in the `stb_uploads` Docker volume, mounted on the `web` role at
+  `/app/var/uploads`. Nothing backs it up yet.
 - Migrations are not run on deploy (all `.kamal/hooks` are samples); run `task prod:migrate`
   after `task deploy`. Migrations create `messenger_messages`; `task prod:messenger:setup`
   (`messenger:setup-transports`, idempotent) makes sure it exists, since `auto_setup=0`.

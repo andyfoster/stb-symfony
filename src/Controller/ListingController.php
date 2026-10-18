@@ -67,7 +67,12 @@ final class ListingController extends AbstractController
 
         if ($form->isSubmitted() && $form->isValid()) {
             $publish = !$form->get('saveDraft')->isClicked();
-            $editor->save($listing, $publish);
+            $editor->save(
+                $listing,
+                $publish,
+                array_filter($form->get('photos')->getData() ?? []),
+                $form->has('removePhotos') ? $form->get('removePhotos')->getData() : [],
+            );
 
             $this->addFlash('success', match (true) {
                 !$publish => 'Saved as a draft. Publish it when you’re ready.',
