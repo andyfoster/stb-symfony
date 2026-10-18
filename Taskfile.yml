@@ -190,6 +190,11 @@ tasks:
     cmds:
       - symfony console messenger:failed:show {{.CLI_ARGS}}
 
+  user:promote:
+    desc: 'Make an account an admin (task user:promote -- sam@example.com; add --demote to undo)'
+    cmds:
+      - symfony console app:user:promote {{.CLI_ARGS}}
+
   # --- Production (Kamal, stb.gitforked.com) -------------------------------
   # .kamal/secrets fetches APP_SECRET, POSTGRES_PASSWORD, MAILER_DSN (Mailgun) and the
   # Cloudflare Turnstile keys (TURNSTILE_SITE_KEY, TURNSTILE_SECRET_KEY) from
@@ -262,6 +267,12 @@ tasks:
     desc: 'Run a Symfony console command in production (task prod:console -- about)'
     cmds:
       - kamal console {{.CLI_ARGS}}
+
+  prod:user:promote:
+    desc: 'Make a production account an admin (task prod:user:promote -- you@example.com)'
+    deps: [prod:env]
+    cmds:
+      - kamal console app:user:promote {{.CLI_ARGS}}
 
   prod:shell:
     desc: Open a shell in the production app container

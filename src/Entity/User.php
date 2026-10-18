@@ -157,6 +157,22 @@ class User extends Base implements UserInterface, PasswordAuthenticatedUserInter
         return $this->showPhone ? $this->phone : null;
     }
 
+    public function isAdmin(): bool
+    {
+        return \in_array('ROLE_ADMIN', $this->roles, true);
+    }
+
+    public function setAdmin(bool $admin): static
+    {
+        $roles = array_values(array_diff($this->roles, ['ROLE_ADMIN']));
+        if ($admin) {
+            $roles[] = 'ROLE_ADMIN';
+        }
+        $this->roles = $roles;
+
+        return $this;
+    }
+
     /**
      * Keep the real password hash out of the session; Symfony compares this CRC instead.
      */

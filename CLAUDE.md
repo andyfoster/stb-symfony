@@ -76,6 +76,10 @@ up to date when adding a workflow.
   set to the sender. Guests and unverified users get Cloudflare Turnstile (`App\Captcha`, keys in
   `TURNSTILE_SITE_KEY`/`TURNSTILE_SECRET_KEY`; `.env` has Cloudflare's always-pass test keys),
   and a hidden `website` honeypot field. Sellers can show their phone (`User::showPhone`).
+- Admin: EasyAdmin 5 at `/admin` (`src/Controller/Admin`, `ROLE_ADMIN`, also in
+  `access_control`); the "Admin" menu link only renders for admins. EasyAdmin 5's API differs
+  from 4: read `vendor/easycorp/easyadmin-bundle/skills/easyadmin/SKILL.md` first.
+  `task user:promote -- email` (or `prod:user:promote`) grants the role.
 - Home page (`ListingController`, `/`): a GET `ListingFilterType` form with an empty block
   prefix (clean `?q=&type=&category=&maxPrice=` URLs) binds to the `App\Search\ListingFilter`
   DTO, and `ListingRepository::findByFilter()` builds the query. Results sit in the
@@ -101,7 +105,7 @@ up to date when adding a workflow.
   client and creates users and listings; new tests log in with `loginUser()`.
 - `HealthController` (`/up`) is the Kamal proxy healthcheck; keep it dependency-free.
 - The project `php.ini` (read by the Symfony CLI) raises upload limits to match the dockerfile
-  so photo uploads work locally.
+  and gives dev cache warmup enough memory for EasyAdmin's templates.
 
 ## Deployment
 

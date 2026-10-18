@@ -35,9 +35,9 @@ trait DatabaseTestTrait
         (new SchemaTool($this->manager))->createSchema($this->manager->getMetadataFactory()->getAllMetadata());
     }
 
-    private function createUser(string $email, bool $verified = true, string $name = 'Sam'): User
+    private function createUser(string $email, bool $verified = true, bool $admin = false, string $name = 'Sam'): User
     {
-        $user = (new User())->setEmail($email)->setDisplayName($name)->setVerified($verified);
+        $user = (new User())->setEmail($email)->setDisplayName($name)->setVerified($verified)->setAdmin($admin);
         $user->setPassword(static::getContainer()->get(UserPasswordHasherInterface::class)->hashPassword($user, 'correct horse'));
         $this->manager->persist($user);
         $this->manager->flush();
