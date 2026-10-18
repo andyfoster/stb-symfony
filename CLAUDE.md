@@ -108,6 +108,9 @@ up to date when adding a workflow.
   answers from `tests/MockHttpResponses.php`. `tests/DatabaseTestTrait.php` boots the SQLite
   client and creates users and listings; new tests log in with `loginUser()`.
 - `HealthController` (`/up`) is the Kamal proxy healthcheck; keep it dependency-free.
+- Styling is hand-written CSS in `assets/styles/app.css` (no framework, system fonts only),
+  in the original site's blue and gold (`--blue`, `--gold` tokens on `:root`). The home page
+  lists listings as striped rows with alternating blue and gold price buttons, like the old site.
 - The project `php.ini` (read by the Symfony CLI) raises upload limits to match the dockerfile
   and gives dev cache warmup enough memory for EasyAdmin's templates.
 

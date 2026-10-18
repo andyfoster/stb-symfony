@@ -3,9 +3,9 @@
     <head>
         <meta charset="UTF-8">
         <meta name="viewport" content="width=device-width, initial-scale=1">
-        <meta name="theme-color" content="#f6f5f0">
+        <meta name="theme-color" content="#f3f4f6">
         <title>{% block title %}ScarfieTextbooks{% endblock %}</title>
-        <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='18' fill='%232b5547'/%3E%3Crect x='17' y='18' width='30' height='28' rx='3' fill='%23edf1c5'/%3E%3Crect x='30' y='18' width='4' height='28' fill='%232b5547'/%3E%3C/svg%3E">
+        <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%230b3a9f'/%3E%3Cpath d='M32 14 6 26l26 12 26-12z' fill='%23ffcd00'/%3E%3Cpath d='M17 32v10c0 4 7 8 15 8s15-4 15-8V32l-15 7z' fill='%23ffcd00'/%3E%3C/svg%3E">
         {% block stylesheets %}{% endblock %}
         {% block javascripts %}{% block importmap %}{{ importmap('app') }}{% endblock %}{% endblock %}
 
@@ -19,37 +19,45 @@
     <body>
         <a class="skip-link" href="#main">Skip to content</a>
         <header class="site-header">
-            <a class="brand" href="{{ path('app_listings') }}"><span class="brand-mark" aria-hidden="true">❡</span> scarfietextbooks<span class="brand-dot">.</span></a>
-            <span class="header-note">Buy and sell with other students.</span>
-            <nav class="site-nav" aria-label="Account">
-                {% if app.user %}
-                    {% set unread = unread_message_count() %}
-                    <a class="button button-small nav-sell" href="{{ path('app_listing_new') }}">Post a listing</a>
-                    <details class="nav-menu" data-controller="nav-menu" data-action="click@window->nav-menu#closeOutside keydown.esc@window->nav-menu#close">
-                        <summary class="nav-user">
-                            {{ app.user.displayName }}
-                            {% if unread %}<span class="nav-badge" aria-label="{{ unread }} unread">{{ unread }}</span>{% endif %}
-                        </summary>
-                        <ul class="nav-menu-list">
-                            <li><a href="{{ path('app_account_listings') }}">My listings</a></li>
-                            <li><a href="{{ path('app_account_messages') }}">Messages{% if unread %} <span class="nav-badge">{{ unread }}</span>{% endif %}</a></li>
-                            <li><a href="{{ path('app_account') }}">Account</a></li>
-                            {% if is_granted('ROLE_ADMIN') %}
-                                <li><a class="nav-admin" href="{{ path('admin') }}" data-turbo="false">Admin</a></li>
-                            {% endif %}
-                            <li>
-                                <form method="post" action="{{ path('app_logout') }}">
-                                    <input type="hidden" name="_csrf_token" data-controller="csrf-protection" value="{{ csrf_token('logout') }}">
-                                    <button class="nav-link" type="submit">Log out</button>
-                                </form>
-                            </li>
-                        </ul>
-                    </details>
-                {% else %}
-                    <a class="nav-link" href="{{ path('app_login') }}">Log in</a>
-                    <a class="button button-small" href="{{ path('app_register') }}">Sign up</a>
-                {% endif %}
-            </nav>
+            <div class="header-inner">
+                <a class="brand" href="{{ path('app_listings') }}" aria-label="ScarfieTextbooks home">
+                    <span class="brand-scarfie">scarfie</span>
+                    <svg class="brand-cap" viewBox="0 0 64 48" aria-hidden="true"><path d="M32 2 2 16l30 14 30-14z"/><path d="M14 23v11c0 5 8 10 18 10s18-5 18-10V23L32 31z"/><path d="M57 18v16" stroke="currentColor" stroke-width="3"/></svg>
+                    <span class="brand-textbooks">textbooks</span>
+                </a>
+                <nav class="main-nav" aria-label="Main">
+                    <a class="main-link" href="{{ path('app_listings') }}"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="10.5" cy="10.5" r="6.5"/><path d="m15.5 15.5 5 5"/></svg>Search</a>
+                    <a class="main-link" href="{{ path('app_listing_new') }}"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 4h11a3 3 0 0 1 3 3v13H8a3 3 0 0 1-3-3z"/><path d="M5 17a3 3 0 0 1 3-3h11"/></svg>Sell</a>
+                </nav>
+                <nav class="site-nav" aria-label="Account">
+                    {% if app.user %}
+                        {% set unread = unread_message_count() %}
+                        <details class="nav-menu" data-controller="nav-menu" data-action="click@window->nav-menu#closeOutside keydown.esc@window->nav-menu#close">
+                            <summary class="nav-user">
+                                {{ app.user.displayName }}
+                                {% if unread %}<span class="nav-badge" aria-label="{{ unread }} unread">{{ unread }}</span>{% endif %}
+                            </summary>
+                            <ul class="nav-menu-list">
+                                <li><a href="{{ path('app_account_listings') }}">My listings</a></li>
+                                <li><a href="{{ path('app_account_messages') }}">Messages{% if unread %} <span class="nav-badge">{{ unread }}</span>{% endif %}</a></li>
+                                <li><a href="{{ path('app_account') }}">Account</a></li>
+                                {% if is_granted('ROLE_ADMIN') %}
+                                    <li><a class="nav-admin" href="{{ path('admin') }}" data-turbo="false">Admin</a></li>
+                                {% endif %}
+                                <li>
+                                    <form method="post" action="{{ path('app_logout') }}">
+                                        <input type="hidden" name="_csrf_token" data-controller="csrf-protection" value="{{ csrf_token('logout') }}">
+                                        <button class="nav-link" type="submit">Log out</button>
+                                    </form>
+                                </li>
+                            </ul>
+                        </details>
+                    {% else %}
+                        <a class="nav-link" href="{{ path('app_login') }}">Log in</a>
+                        <a class="button button-small button-gold" href="{{ path('app_register') }}">Sign up</a>
+                    {% endif %}
+                </nav>
+            </div>
         </header>
         <main id="main" class="page-shell">
             {% for message in app.flashes('success') %}<div class="flash" role="status">{{ message }}</div>{% endfor %}
@@ -63,6 +71,11 @@
             {% endif %}
             {% block body %}{% endblock %}
         </main>
-        <footer class="site-footer"><span>© {{ 'now'|date('Y') }} ScarfieTextbooks</span><span>Textbooks, flat gear and everything in between.</span></footer>
+        <footer class="site-footer">
+            <div class="footer-inner">
+                <span>© {{ 'now'|date('Y') }} ScarfieTextbooks. Free for students, no fees.</span>
+                <span>The 21st-century alternative to posters on noticeboards.</span>
+            </div>
+        </footer>
     </body>
 </html>
