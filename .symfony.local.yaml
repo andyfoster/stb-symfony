@@ -1,0 +1,6 @@
+# Symfony CLI local server config: `symfony serve` (and `task start`) also runs these.
+workers:
+    # Sends queued emails to Mailpit. Restarts when code or config changes.
+    messenger_consume_async:
+        cmd: ['symfony', 'console', 'messenger:consume', 'async']
+        watch: ['config', 'src', 'templates', 'vendor']

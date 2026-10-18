@@ -27,7 +27,7 @@ tasks:
       - task: db:seed
 
   start:
-    desc: Start Docker services and the web server, apply pending migrations
+    desc: Start Docker services, the web server and email worker, apply pending migrations
     cmds:
       - task: db:start
       - task: migrate
@@ -178,9 +178,10 @@ tasks:
       - symfony console doctrine:migrations:migrate --dry-run --no-interaction
 
   # --- Background jobs (Messenger) -----------------------------------------
+  # `symfony serve` already runs a worker (.symfony.local.yaml); this one is for watching it work.
 
   worker:
-    desc: 'Process queued messages such as emails (Ctrl+C to stop)'
+    desc: 'Process queued messages in the foreground with verbose output (Ctrl+C to stop)'
     cmds:
       - symfony console messenger:consume async -vv {{.CLI_ARGS}}
 

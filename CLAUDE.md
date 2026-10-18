@@ -34,8 +34,10 @@ up to date when adding a workflow.
 - Example data lives in `src/DataFixtures/AppFixtures.php` (DoctrineFixturesBundle, dev/test
   only). `task db:seed` wipes and reloads it.
 - Mailer/Notifier messages are routed to the Doctrine `async` Messenger transport
-  (`auto_setup=0`, tables created by `messenger:setup-transports`), so emails are only sent
-  while `task worker` is running.
+  (`auto_setup=0`, tables created by `messenger:setup-transports`). `symfony serve` (so
+  `task start`) also runs a `messenger:consume async` worker, configured in
+  `.symfony.local.yaml`, that restarts on code changes; `symfony server:status` shows it.
+  `task worker` runs one in the foreground with `-vv` for debugging.
 
 ## Tests
 
