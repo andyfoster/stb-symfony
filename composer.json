@@ -24,6 +24,7 @@
         "symfony/http-client": "8.1.*",
         "symfony/intl": "8.1.*",
         "symfony/mailer": "8.1.*",
+        "symfony/mailgun-mailer": "8.1.*",
         "symfony/mime": "8.1.*",
         "symfony/monolog-bundle": "^3.0|^4.0",
         "symfony/notifier": "8.1.*",

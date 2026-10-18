@@ -190,16 +190,17 @@ tasks:
       - symfony console messenger:failed:show {{.CLI_ARGS}}
 
   # --- Production (Kamal, stb.gitforked.com) -------------------------------
-  # .kamal/secrets fetches APP_SECRET and POSTGRES_PASSWORD from 1Password
-  # (account my.1password.ca, item Private/ScarfieTextbooks-production).
+  # .kamal/secrets fetches APP_SECRET, POSTGRES_PASSWORD and MAILER_DSN (Mailgun) from
+  # 1Password (account my.1password.ca, item Private/ScarfieTextbooks-production).
+  # config/deploy.yml has two roles: web, and job (the Messenger worker that sends emails).
 
   prod:env:
     internal: true
     preconditions:
       - sh: command -v op >/dev/null
         msg: 'Install the 1Password CLI first: brew install 1password-cli'
-      - sh: op item get ScarfieTextbooks-production --vault Private --account my.1password.ca --fields label=APP_SECRET,label=POSTGRES_PASSWORD --reveal >/dev/null
-        msg: 'Could not read APP_SECRET and POSTGRES_PASSWORD from 1Password item Private/ScarfieTextbooks-production (account my.1password.ca). Is it created, and are you signed in?'
+      - sh: op item get ScarfieTextbooks-production --vault Private --account my.1password.ca --fields label=APP_SECRET,label=POSTGRES_PASSWORD,label=MAILER_DSN --reveal >/dev/null
+        msg: 'Could not read APP_SECRET, POSTGRES_PASSWORD and MAILER_DSN from 1Password item Private/ScarfieTextbooks-production (account my.1password.ca). Is it created, and are you signed in?'
 
   prod:secrets:check:
     desc: Check Kamal can read the production secrets from 1Password (values are not shown)
@@ -233,10 +234,27 @@ tasks:
     cmds:
       - kamal console doctrine:migrations:migrate --no-interaction
 
-  prod:logs:
-    desc: Follow production app logs
+  prod:messenger:setup:
+    desc: 'Make sure the Messenger queue table exists in production (auto_setup=0; migrations create it, safe to rerun)'
+    prompt: Create any missing Messenger tables in the production database?
+    deps: [prod:env]
     cmds:
-      - kamal app logs -f
+      - kamal console messenger:setup-transports --no-interaction
+
+  prod:worker:logs:
+    desc: Follow the production Messenger worker (email sending) logs
+    cmds:
+      - kamal app logs -f --roles=job
+
+  prod:worker:failed:
+    desc: Show messages (e.g. emails) that failed in production
+    cmds:
+      - kamal console messenger:failed:show
+
+  prod:logs:
+    desc: Follow production web app logs
+    cmds:
+      - kamal app logs -f --roles=web
 
   prod:console:
     desc: 'Run a Symfony console command in production (task prod:console -- about)'

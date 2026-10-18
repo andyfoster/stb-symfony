@@ -80,8 +80,8 @@ up to date when adding a workflow.
 
 - Kamal (`config/deploy.yml`) deploys service `stb` to `stb.gitforked.com`, with Postgres as a
   Kamal accessory (container `stb-db`, user/database `stb`). `.kamal/secrets` is committed
-  and holds only references: it fetches `APP_SECRET` and `POSTGRES_PASSWORD` from 1Password
-  (account `my.1password.ca`, item `Private/ScarfieTextbooks-production`) and builds
+  and holds only references: it fetches `APP_SECRET`, `POSTGRES_PASSWORD` and `MAILER_DSN` from
+  1Password (account `my.1password.ca`, item `Private/ScarfieTextbooks-production`) and builds
   `DATABASE_URL` from them. Never put raw values in it. `task prod:secrets:check` confirms they
   resolve; `task deploy`, `prod:migrate` and `prod:db:boot` run the same check first. The
   registry is Kamal's local one (`localhost:5555`), so no registry password is needed. The same
@@ -89,4 +89,13 @@ up to date when adding a workflow.
 - The production image is `dockerfile` (lowercase): FrankenPHP, `APP_ENV=prod`, and it runs
   `importmap:install` + `asset-map:compile` at build time. Caddy config is `Caddyfile`.
 - Migrations are not run on deploy (all `.kamal/hooks` are samples); run `task prod:migrate`
-  after `task deploy`.
+  after `task deploy`. Migrations create `messenger_messages`; `task prod:messenger:setup`
+  (`messenger:setup-transports`, idempotent) makes sure it exists, since `auto_setup=0`.
+- Email goes through Mailgun (`symfony/mailgun-mailer`, `MAILER_DSN` like
+  `mailgun+api://KEY:DOMAIN@default?region=eu`), sent from `noreply@stb.gitforked.com`
+  (`config/packages/mailer.yaml`), so that domain must be verified in Mailgun (SPF/DKIM DNS).
+  Mail is queued on the Doctrine `async` transport and sent by the `job` role in
+  `config/deploy.yml`, a second container from the same image on the same server running
+  `messenger:consume async` (restarts hourly; the image's Caddy HEALTHCHECK is disabled for
+  it). The `kamal console`/`shell` aliases target `--roles=web` so they run once.
+  `task prod:worker:logs` / `prod:worker:failed` inspect it.
