@@ -25,9 +25,9 @@ class AppFixtures extends Fixture
     public function load(ObjectManager $manager): void
     {
         // Dev-only logins, all with the password "password":
-        // sam@example.com (verified) and alex@example.com (unverified,
+        // sam@example.com (verified, shows their phone) and alex@example.com (unverified,
         // so their photos stay hidden).
-        $sam = $this->user($manager, 'sam@example.com', 'Sam', verified: true);
+        $sam = $this->user($manager, 'sam@example.com', 'Sam', verified: true)->setPhone('021 555 0123')->setShowPhone(true);
         $alex = $this->user($manager, 'alex@example.com', 'Alex', verified: false);
         $manager->persist(new SiteSettings());
 

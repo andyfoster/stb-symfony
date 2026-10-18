@@ -1,5 +1,15 @@
 framework:
     rate_limiter:
+        # Messages to sellers, per IP address.
+        contact_seller:
+            policy: sliding_window
+            limit: 5
+            interval: '1 hour'
+        # The same sender messaging about the same listing.
+        contact_seller_listing:
+            policy: sliding_window
+            limit: 3
+            interval: '1 day'
         # ISBN lookups while writing a listing, per user.
         isbn_lookup:
             policy: sliding_window

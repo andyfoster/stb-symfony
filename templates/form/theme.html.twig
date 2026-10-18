@@ -1,0 +1,9 @@
+{# App-wide form blocks, on top of Symfony's default layout. #}
+
+{% block turnstile_widget %}
+    <div class="turnstile"
+         data-controller="turnstile"
+         data-turnstile-site-key-value="{{ site_key }}"
+         data-turnstile-field-name-value="{{ full_name }}"></div>
+    <noscript><p class="form-help">Please turn on JavaScript to send a message.</p></noscript>
+{% endblock %}

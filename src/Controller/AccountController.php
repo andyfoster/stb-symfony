@@ -2,15 +2,18 @@
 
 namespace App\Controller;
 
+use App\Entity\Message;
 use App\Entity\User;
 use App\Form\ProfileFormType;
 use App\Repository\ListingRepository;
+use App\Repository\MessageRepository;
 use App\Settings\SiteSettingsProvider;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Attribute\Route;
+use Symfony\Component\Routing\Requirement\Requirement;
 use Symfony\Component\Security\Http\Attribute\CurrentUser;
 use Symfony\Component\Security\Http\Attribute\IsGranted;
 
@@ -46,5 +49,28 @@ final class AccountController extends AbstractController
             'listings' => $listings->findBySeller($user),
             'lifetime_days' => $settings->listingLifetimeDays(),
         ]);
+    }
+
+    #[Route('/messages', name: 'app_account_messages', methods: ['GET'])]
+    public function messages(MessageRepository $messages, #[CurrentUser] User $user): Response
+    {
+        return $this->render('account/messages.html.twig', [
+            'messages' => $messages->findInbox($user),
+        ]);
+    }
+
+    #[Route('/messages/{id}', name: 'app_account_message', requirements: ['id' => Requirement::DIGITS], methods: ['GET'])]
+    public function message(Message $message, EntityManagerInterface $manager, #[CurrentUser] User $user): Response
+    {
+        if ($message->getRecipient()?->getId() !== $user->getId()) {
+            throw $this->createNotFoundException('Message not found.');
+        }
+
+        if (!$message->isRead()) {
+            $message->markRead();
+            $manager->flush();
+        }
+
+        return $this->render('account/message.html.twig', ['message' => $message]);
     }
 }

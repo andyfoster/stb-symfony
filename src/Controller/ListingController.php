@@ -3,16 +3,20 @@
 namespace App\Controller;
 
 use App\Entity\Listing;
+use App\Entity\Message;
 use App\Entity\User;
 use App\Enum\Category;
 use App\Enum\ListingType;
+use App\Form\ContactSellerType;
 use App\Form\ListingFilterType;
 use App\Form\ListingFormType;
 use App\Listing\ListingEditor;
+use App\Messaging\SellerMessenger;
 use App\Repository\ListingRepository;
 use App\Search\ListingFilter;
 use App\Security\Voter\ListingVoter;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
+use Symfony\Component\Form\FormInterface;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Attribute\Route;
@@ -43,9 +47,46 @@ final class ListingController extends AbstractController
 
     #[Route('/listings/{id}', name: 'app_listing_show', requirements: ['id' => Requirement::DIGITS], methods: ['GET'])]
     #[IsGranted(ListingVoter::VIEW, 'listing', 'Listing not found.', 404)]
-    public function show(Listing $listing): Response
+    public function show(Listing $listing, #[CurrentUser] ?User $user): Response
     {
-        return $this->render('listing/show.html.twig', ['listing' => $listing]);
+        return $this->render('listing/show.html.twig', [
+            'listing' => $listing,
+            'contact' => $this->contactForm($listing, $user),
+        ]);
+    }
+
+    #[Route('/listings/{id}/contact', name: 'app_listing_contact', requirements: ['id' => Requirement::DIGITS], methods: ['POST'])]
+    #[IsGranted(ListingVoter::VIEW, 'listing', 'Listing not found.', 404)]
+    public function contact(Listing $listing, Request $request, SellerMessenger $messenger, #[CurrentUser] ?User $user): Response
+    {
+        if (null === $listing->getSeller() || $listing->getSeller()->getId() === $user?->getId() || !$listing->isLive()) {
+            throw $this->createNotFoundException('This listing can’t be contacted.');
+        }
+
+        $form = $this->contactForm($listing, $user);
+        $form->handleRequest($request);
+
+        if ($form->isSubmitted() && $form->isValid()) {
+            $message = $form->getData();
+            // Bots fill in the hidden field: act as if it worked and send nothing.
+            if ('' === trim((string) $form->get(ContactSellerType::HONEYPOT)->getData())) {
+                if (!$messenger->allow($request, $listing, $message)) {
+                    $this->addFlash('error', 'You’ve sent a lot of messages recently. Please try again later.');
+
+                    return $this->redirectToRoute('app_listing_show', ['id' => $listing->getId()], Response::HTTP_SEE_OTHER);
+                }
+                $messenger->send($request, $listing, $message->setSender($user));
+            }
+
+            $this->addFlash('success', \sprintf('Message sent to %s. They’ll reply to your email.', $listing->getSeller()->getDisplayName()));
+
+            return $this->redirectToRoute('app_listing_show', ['id' => $listing->getId()], Response::HTTP_SEE_OTHER);
+        }
+
+        return $this->render('listing/show.html.twig', [
+            'listing' => $listing,
+            'contact' => $form,
+        ]);
     }
 
     #[Route('/sell', name: 'app_listing_new', methods: ['GET', 'POST'])]
@@ -129,5 +170,22 @@ final class ListingController extends AbstractController
         $this->addFlash('success', \sprintf('“%s” is deleted.', $title));
 
         return $this->redirectToRoute('app_account_listings', [], Response::HTTP_SEE_OTHER);
+    }
+
+    /**
+     * @return FormInterface<Message>
+     */
+    private function contactForm(Listing $listing, ?User $user): FormInterface
+    {
+        $message = new Message();
+        if (null !== $user) {
+            $message->setSenderName($user->getDisplayName())->setSenderEmail($user->getEmail());
+        }
+
+        return $this->createForm(ContactSellerType::class, $message, [
+            'action' => $this->generateUrl('app_listing_contact', ['id' => $listing->getId()]),
+            'captcha' => !$user?->isVerified(),
+            'known_sender' => null !== $user,
+        ]);
     }
 }

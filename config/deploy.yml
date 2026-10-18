@@ -65,6 +65,9 @@ env:
     - APP_SECRET
     - DATABASE_URL
     - MAILER_DSN
+    # Cloudflare Turnstile. The site key is public, but lives next to its secret.
+    - TURNSTILE_SITE_KEY
+    - TURNSTILE_SECRET_KEY
 
 # Aliases are triggered with "bin/kamal <alias>". You can overwrite arguments on invocation:
 # "bin/kamal app logs -r job" will tail logs from the first server in the job section.

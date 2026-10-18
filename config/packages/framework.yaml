@@ -13,7 +13,7 @@ when@test:
         test: true
         session:
             storage_factory_id: session.storage.factory.mock_file
-        # Every outside HTTP call (book APIs) gets a canned answer in tests.
+        # Every outside HTTP call (Turnstile, book APIs) gets a canned answer in tests.
         http_client:
             mock_response_factory: App\Tests\MockHttpResponses
 

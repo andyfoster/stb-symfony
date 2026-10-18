@@ -23,11 +23,16 @@
             <span class="header-note">Buy and sell with other students.</span>
             <nav class="site-nav" aria-label="Account">
                 {% if app.user %}
+                    {% set unread = unread_message_count() %}
                     <a class="button button-small nav-sell" href="{{ path('app_listing_new') }}">Post a listing</a>
                     <details class="nav-menu" data-controller="nav-menu" data-action="click@window->nav-menu#closeOutside keydown.esc@window->nav-menu#close">
-                        <summary class="nav-user">{{ app.user.displayName }}</summary>
+                        <summary class="nav-user">
+                            {{ app.user.displayName }}
+                            {% if unread %}<span class="nav-badge" aria-label="{{ unread }} unread">{{ unread }}</span>{% endif %}
+                        </summary>
                         <ul class="nav-menu-list">
                             <li><a href="{{ path('app_account_listings') }}">My listings</a></li>
+                            <li><a href="{{ path('app_account_messages') }}">Messages{% if unread %} <span class="nav-badge">{{ unread }}</span>{% endif %}</a></li>
                             <li><a href="{{ path('app_account') }}">Account</a></li>
                             <li>
                                 <form method="post" action="{{ path('app_logout') }}">

@@ -45,6 +45,15 @@ class User extends Base implements UserInterface, PasswordAuthenticatedUserInter
     #[ORM\Column]
     private bool $verified = false;
 
+    /** Cellphone, shown on listings only when showPhone is on. */
+    #[ORM\Column(length: 30, nullable: true)]
+    #[Assert\Length(max: 30)]
+    #[Assert\Regex('/^\+?[0-9 ()-]{6,}$/', message: 'Enter a phone number using digits, spaces and an optional leading +.')]
+    private ?string $phone = null;
+
+    #[ORM\Column(options: ['default' => false])]
+    private bool $showPhone = false;
+
     public function getEmail(): ?string
     {
         return $this->email;
@@ -115,6 +124,37 @@ class User extends Base implements UserInterface, PasswordAuthenticatedUserInter
         $this->verified = $verified;
 
         return $this;
+    }
+
+    public function getPhone(): ?string
+    {
+        return $this->phone;
+    }
+
+    public function setPhone(?string $phone): static
+    {
+        $phone = null === $phone ? null : trim($phone);
+        $this->phone = '' === $phone ? null : $phone;
+
+        return $this;
+    }
+
+    public function isShowPhone(): bool
+    {
+        return $this->showPhone;
+    }
+
+    public function setShowPhone(bool $showPhone): static
+    {
+        $this->showPhone = $showPhone;
+
+        return $this;
+    }
+
+    /** The number to show buyers, or null when there isn't one to show. */
+    public function getPublicPhone(): ?string
+    {
+        return $this->showPhone ? $this->phone : null;
     }
 
     /**

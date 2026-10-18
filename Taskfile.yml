@@ -191,7 +191,8 @@ tasks:
       - symfony console messenger:failed:show {{.CLI_ARGS}}
 
   # --- Production (Kamal, stb.gitforked.com) -------------------------------
-  # .kamal/secrets fetches APP_SECRET, POSTGRES_PASSWORD and MAILER_DSN (Mailgun) from
+  # .kamal/secrets fetches APP_SECRET, POSTGRES_PASSWORD, MAILER_DSN (Mailgun) and the
+  # Cloudflare Turnstile keys (TURNSTILE_SITE_KEY, TURNSTILE_SECRET_KEY) from
   # 1Password (account my.1password.ca, item Private/ScarfieTextbooks-production).
   # config/deploy.yml has two roles: web, and job (the Messenger worker that sends emails).
 

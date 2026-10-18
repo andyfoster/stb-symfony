@@ -1,0 +1,33 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Messages · ScarfieTextbooks{% endblock %}
+
+{% block body %}
+    <div class="account-page">
+        <div class="section-heading account-heading">
+            <div>
+                <span class="eyebrow">Account</span>
+                <h1>Messages <span class="count">{{ messages|length }}</span></h1>
+            </div>
+        </div>
+
+        <ul class="message-list">
+            {% for message in messages %}
+                <li class="message-row {{ message.read ? '' : 'message-unread' }}">
+                    <a href="{{ path('app_account_message', {id: message.id}) }}">
+                        <span class="message-from">{{ message.senderName }}</span>
+                        <span class="message-about">{{ message.listing ? message.listing.title : 'Deleted listing' }}</span>
+                        <span class="message-snippet">{{ message.body|length > 110 ? message.body|slice(0, 110)|trim ~ '…' : message.body }}</span>
+                        <time datetime="{{ message.createdAt|date('c') }}">{{ message.createdAt|date('j M') }}</time>
+                    </a>
+                </li>
+            {% else %}
+                <li class="empty-state">
+                    <span class="empty-symbol" aria-hidden="true">✉</span>
+                    <h3>No messages yet.</h3>
+                    <p>When someone contacts you about a listing, it shows up here and in your email.</p>
+                </li>
+            {% endfor %}
+        </ul>
+    </div>
+{% endblock %}

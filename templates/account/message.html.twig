@@ -1,0 +1,23 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Message from {{ message.senderName }} · ScarfieTextbooks{% endblock %}
+
+{% block body %}
+    <div class="form-page">
+        <a class="back-link" href="{{ path('app_account_messages') }}">← Messages</a>
+        <div class="form-heading">
+            <span class="eyebrow">{{ message.createdAt|date('j M Y, g:i a') }}</span>
+            <h1>{{ message.senderName }}</h1>
+            <p>
+                About {% if message.listing %}<a class="inline-link" href="{{ path('app_listing_show', {id: message.listing.id}) }}">{{ message.listing.title }}</a>{% else %}a listing you’ve deleted{% endif %}
+            </p>
+        </div>
+        <div class="form-panel">
+            <div class="message-body">{{ message.body|nl2br }}</div>
+            <div class="form-actions">
+                <span class="muted">{{ message.senderEmail }}</span>
+                <a class="button" href="mailto:{{ message.senderEmail }}?subject={{ ('Re: ' ~ (message.listing ? message.listing.title : 'your message'))|url_encode }}">Reply by email</a>
+            </div>
+        </div>
+    </div>
+{% endblock %}

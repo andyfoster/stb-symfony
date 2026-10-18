@@ -73,13 +73,34 @@
             <aside class="contact-panel" aria-labelledby="contact-title">
                 {% set seller = listing.seller %}
                 {% if seller is null %}
-                    <h2 id="contact-title">Seller</h2>
-                    <p class="muted">This listing was imported from the old site.</p>
+                    <h2 id="contact-title">Contact</h2>
+                    <p class="muted">This listing was imported from the old site and can’t be contacted here.</p>
                 {% elseif owner and seller.id == app.user.id %}
                     <h2 id="contact-title">Your listing</h2>
-                    <p class="muted">Manage it from <a class="inline-link" href="{{ path('app_account_listings') }}">My listings</a>.</p>
+                    <p class="muted">Messages people send you show up in <a class="inline-link" href="{{ path('app_account_messages') }}">your messages</a> and your email.</p>
                 {% else %}
-                    <h2 id="contact-title">{{ wanted ? 'Wanted by' : 'Sold by' }} {{ seller.displayName }}</h2>
+                    <h2 id="contact-title">{{ wanted ? 'Got one?' : 'Interested?' }} Message {{ seller.displayName }}</h2>
+
+                    {% if seller.publicPhone %}
+                        <div class="phone-reveal" data-controller="reveal">
+                            <button class="button button-outline" type="button" data-action="reveal#show" data-reveal-target="button">Show phone number</button>
+                            <a class="phone-number" href="tel:{{ seller.publicPhone|replace({' ': '', '(': '', ')': '', '-': ''}) }}" data-reveal-target="content" hidden>{{ seller.publicPhone }}</a>
+                        </div>
+                    {% endif %}
+
+                    {% if listing.live %}
+                        {{ form_start(contact, {attr: {class: 'contact-form', novalidate: 'novalidate'}}) }}
+                            <div class="form-field">{{ form_row(contact.senderName) }}</div>
+                            <div class="form-field">{{ form_row(contact.senderEmail) }}</div>
+                            <div class="form-field">{{ form_row(contact.body) }}</div>
+                            {{ form_row(contact.website) }}
+                            {% if contact.children.captcha is defined %}<div class="form-field">{{ form_row(contact.captcha) }}</div>{% endif %}
+                            <button class="button contact-send" type="submit">Send message</button>
+                            <p class="form-help">Your email goes to the seller so they can reply. We don’t show it on the site.</p>
+                        {{ form_end(contact) }}
+                    {% else %}
+                        <p class="muted">This listing isn’t live, so it can’t be messaged.</p>
+                    {% endif %}
                 {% endif %}
             </aside>
         </div>

@@ -70,6 +70,12 @@ up to date when adding a workflow.
   `large`/`thumb` sizes under `UPLOAD_DIR` (default `var/uploads`), outside `public/`.
   `PhotoController` (`/photos/{id}/{size}`) serves them only when the seller's email is
   verified, or to the seller and admins. Needs the `gd` extension.
+- Contact the seller: `ContactSellerType` on the listing page posts to
+  `/listings/{id}/contact`; `SellerMessenger` rate-limits (`config/packages/rate_limiter.yaml`),
+  saves a `Message` for the seller's inbox (`/account/messages`) and emails them with Reply-To
+  set to the sender. Guests and unverified users get Cloudflare Turnstile (`App\Captcha`, keys in
+  `TURNSTILE_SITE_KEY`/`TURNSTILE_SECRET_KEY`; `.env` has Cloudflare's always-pass test keys),
+  and a hidden `website` honeypot field. Sellers can show their phone (`User::showPhone`).
 - Home page (`ListingController`, `/`): a GET `ListingFilterType` form with an empty block
   prefix (clean `?q=&type=&category=&maxPrice=` URLs) binds to the `App\Search\ListingFilter`
   DTO, and `ListingRepository::findByFilter()` builds the query. Results sit in the
@@ -90,7 +96,7 @@ up to date when adding a workflow.
   field with `data-controller="csrf-protection"`, and tests send `Sec-Fetch-Site: same-origin`.
   In the test env Messenger's `async` transport is `in-memory://` (assert with
   `assertQueuedEmailCount()`) and `cache.app` is an array, so throttling resets per request
-  (test rate limits through the service). Outside HTTP calls (book APIs) get canned
+  (test rate limits through the service). Outside HTTP calls (Turnstile, book APIs) get canned
   answers from `tests/MockHttpResponses.php`. `tests/DatabaseTestTrait.php` boots the SQLite
   client and creates users and listings; new tests log in with `loginUser()`.
 - `HealthController` (`/up`) is the Kamal proxy healthcheck; keep it dependency-free.
@@ -102,7 +108,8 @@ up to date when adding a workflow.
 - Kamal (`config/deploy.yml`) deploys service `stb` to `stb.gitforked.com`, with Postgres as a
   Kamal accessory (container `stb-db`, user/database `stb`). `.kamal/secrets` is committed
   and holds only references: it fetches `APP_SECRET`, `POSTGRES_PASSWORD` and `MAILER_DSN` from
-  1Password (account `my.1password.ca`, item `Private/ScarfieTextbooks-production`) and builds
+  1Password (account `my.1password.ca`, item `Private/ScarfieTextbooks-production`), along with
+  `TURNSTILE_SITE_KEY` and `TURNSTILE_SECRET_KEY`, and builds
   `DATABASE_URL` from them. Never put raw values in it. `task prod:secrets:check` confirms they
   resolve; `task deploy`, `prod:migrate` and `prod:db:boot` run the same check first. The
   registry is Kamal's local one (`localhost:5555`), so no registry password is needed. The same

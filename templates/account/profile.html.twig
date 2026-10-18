@@ -13,6 +13,9 @@
 
         {{ form_start(form, {attr: {class: 'form-panel', novalidate: 'novalidate'}}) }}
             <div class="form-field">{{ form_row(form.displayName) }}</div>
+            <div class="form-field">{{ form_row(form.phone) }}</div>
+            <div class="checkbox-field">{{ form_widget(form.showPhone) }} {{ form_label(form.showPhone) }}</div>
+            {{ form_help(form.showPhone) }}
             <div class="form-actions">
                 <a class="cancel-link" href="{{ path('app_forgot_password') }}">Change your password</a>
                 <button class="button" type="submit">Save</button>

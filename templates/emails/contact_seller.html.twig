@@ -1,0 +1,10 @@
+<p>Hi {{ seller.displayName }},</p>
+
+<p>{{ message.senderName }} sent you a message about <a href="{{ url('app_listing_show', {id: listing.id}) }}">{{ listing.title }}</a> on ScarfieTextbooks:</p>
+
+<blockquote style="margin:16px 0;padding:12px 16px;border-left:3px solid #2b5547;background:#f6f5f0">{{ message.body|nl2br }}</blockquote>
+
+<p>Reply to this email to answer them at {{ message.senderEmail }}.</p>
+
+<p>You can also see your messages at <a href="{{ url('app_account_messages') }}">{{ url('app_account_messages') }}</a>.</p>
+
