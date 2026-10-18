@@ -1,0 +1,21 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Choose a new password · ScarfieTextbooks{% endblock %}
+
+{% block body %}
+    <div class="form-page">
+        <div class="form-heading">
+            <span class="eyebrow">Reset your password</span>
+            <h1>Choose a new password</h1>
+        </div>
+
+        {{ form_start(form, {attr: {class: 'form-panel', novalidate: 'novalidate'}}) }}
+            <div class="form-field">{{ form_row(form.plainPassword.first) }}</div>
+            <div class="form-field">{{ form_row(form.plainPassword.second) }}</div>
+            <div class="form-actions">
+                <a class="cancel-link" href="{{ path('app_login') }}">Cancel</a>
+                <button class="button" type="submit">Change password</button>
+            </div>
+        {{ form_end(form) }}
+    </div>
+{% endblock %}

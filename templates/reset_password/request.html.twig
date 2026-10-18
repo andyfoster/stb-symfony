@@ -1,0 +1,22 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Reset your password · ScarfieTextbooks{% endblock %}
+
+{% block body %}
+    <div class="form-page">
+        <a class="back-link" href="{{ path('app_login') }}">← Back to log in</a>
+        <div class="form-heading">
+            <span class="eyebrow">Forgot your password?</span>
+            <h1>Reset your password</h1>
+            <p>Enter the email you signed up with and we’ll send you a link to choose a new password.</p>
+        </div>
+
+        {{ form_start(form, {attr: {class: 'form-panel', novalidate: 'novalidate'}}) }}
+            <div class="form-field">{{ form_row(form.email) }}</div>
+            <div class="form-actions">
+                <a class="cancel-link" href="{{ path('app_login') }}">Cancel</a>
+                <button class="button" type="submit">Send reset link</button>
+            </div>
+        {{ form_end(form) }}
+    </div>
+{% endblock %}

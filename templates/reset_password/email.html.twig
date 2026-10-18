@@ -1,0 +1,9 @@
+<p>Hi,</p>
+
+<p>Someone asked to reset the password for your ScarfieTextbooks account. To choose a new one, click this link:</p>
+
+<p><a href="{{ url('app_reset_password', {token: resetToken.token}) }}">Reset my password</a></p>
+
+<p>The link expires in {{ resetToken.expirationMessageKey|trans(resetToken.expirationMessageData, 'ResetPasswordBundle') }}.</p>
+
+<p>If you didn’t ask for this, you can ignore this email; your password won’t change.</p>

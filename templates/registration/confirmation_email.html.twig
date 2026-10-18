@@ -1,0 +1,9 @@
+<p>Hi {{ user.displayName }},</p>
+
+<p>Please confirm your email address for ScarfieTextbooks by clicking this link:</p>
+
+<p><a href="{{ signedUrl }}">Confirm my email</a></p>
+
+<p>The link expires in {{ expiresAtMessageKey|trans(expiresAtMessageData, 'VerifyEmailBundle') }}.</p>
+
+<p>If you didn’t sign up, you can ignore this email.</p>

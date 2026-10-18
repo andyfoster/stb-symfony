@@ -8,8 +8,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ScarfieTextbooks ("stb"): a marketplace where students buy and sell textbooks and other goods, and post things they're looking for. Stack:
 Symfony 8.1, PHP 8.4, Doctrine ORM 3 on PostgreSQL 18, Twig + AssetMapper (importmap, no Node
-build) + Stimulus/Turbo. No authentication is configured yet, even though SecurityBundle is
-installed.
+build) + Stimulus/Turbo. SecurityBundle with email + password login (see Accounts below).
 
 Goal and scope:
 - The immediate goal is a modern replacement for an existing ScarfieTextbooks site that is
@@ -61,6 +60,20 @@ up to date when adding a workflow.
   `<turbo-frame id="listings">`; the `filter-form` Stimulus controller auto-submits into it so
   the search box keeps focus. The controller passes `$form->createView()` deliberately, so
   invalid filters render with 200 and the full list rather than a 422.
+- Accounts: `User` (table `app_user`) is identified by email, always stored lower-case;
+  `UserRepository::loadUserByIdentifier()` is the provider's loader, so lookups are
+  case-insensitive. `password` is nullable so later social (OAuth) or magic-link (`login_link`)
+  sign-ins can create password-less accounts on the same `main` firewall. Firewall: `form_login`
+  (fields `email`/`password`), `remember_me`, `login_throttling` (needs `symfony/rate-limiter`),
+  POST-only `logout` with CSRF. Sign-up and email confirmation use
+  `symfonycasts/verify-email-bundle` (`App\Security\EmailVerifier`; the link carries the user
+  id so it works signed out), forgot-password uses `symfonycasts/reset-password-bundle`
+  (`ResetPasswordRequest`). Unverified users can still log in and see a banner. The dev login
+  from fixtures is `sam@example.com` / `password`.
+- CSRF is stateless (`config/packages/csrf.yaml`): hand-written forms need a `_csrf_token`
+  field with `data-controller="csrf-protection"`, and tests send `Sec-Fetch-Site: same-origin`.
+  In the test env Messenger's `async` transport is `in-memory://` (assert with
+  `assertQueuedEmailCount()`) and `cache.app` is an array, so throttling resets per test.
 - `HealthController` (`/up`) is the Kamal proxy healthcheck; keep it dependency-free.
 
 ## Deployment

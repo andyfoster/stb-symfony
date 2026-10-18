@@ -17,3 +17,9 @@ framework:
         # Namespaced pools use the above "app" backend by default
         #pools:
             #my.dedicated.cache: null
+
+when@test:
+    framework:
+        cache:
+            # Fresh per test, so login throttling counts don't leak between runs.
+            app: cache.adapter.array

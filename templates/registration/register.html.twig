@@ -1,0 +1,24 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Sign up · ScarfieTextbooks{% endblock %}
+
+{% block body %}
+    <div class="form-page">
+        <a class="back-link" href="{{ path('app_listings') }}">← Back to listings</a>
+        <div class="form-heading">
+            <span class="eyebrow">Join in</span>
+            <h1>Create an account</h1>
+            <p>Sell your old textbooks and gear, or let other students know what you’re after.</p>
+        </div>
+
+        {{ form_start(form, {attr: {class: 'form-panel', novalidate: 'novalidate'}}) }}
+            <div class="form-field">{{ form_row(form.displayName) }}</div>
+            <div class="form-field">{{ form_row(form.email) }}</div>
+            <div class="form-field">{{ form_row(form.plainPassword) }}</div>
+            <div class="form-actions">
+                <a class="cancel-link" href="{{ path('app_login') }}">Already have an account? Log in</a>
+                <button class="button" type="submit">Sign up</button>
+            </div>
+        {{ form_end(form) }}
+    </div>
+{% endblock %}

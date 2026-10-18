@@ -4,19 +4,29 @@ namespace App\DataFixtures;
 
 use App\Entity\BookDetails;
 use App\Entity\Listing;
+use App\Entity\User;
 use App\Enum\Category;
 use App\Enum\Condition;
 use App\Enum\ListingType;
 use Doctrine\Bundle\FixturesBundle\Fixture;
 use Doctrine\Persistence\ObjectManager;
+use Symfony\Component\PasswordHasher\Hasher\UserPasswordHasherInterface;
 
 /**
- * Example listings for local development: `task db:seed`.
+ * Example listings and a login for local development: `task db:seed`.
  */
 class AppFixtures extends Fixture
 {
+    public function __construct(private UserPasswordHasherInterface $hasher)
+    {
+    }
+
     public function load(ObjectManager $manager): void
     {
+        // Dev-only login: sam@example.com / password
+        $sam = (new User())->setEmail('sam@example.com')->setDisplayName('Sam')->setVerified(true);
+        $manager->persist($sam->setPassword($this->hasher->hashPassword($sam, 'password')));
+
         $sale = ListingType::ForSale;
         $wanted = ListingType::Wanted;
 

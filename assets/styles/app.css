@@ -557,6 +557,76 @@ turbo-frame[aria-busy=true] .listing-grid {
     font-size:14px
 }
 
+.flash-error {
+    border-color:#e3c1bb;
+    background:#f7e6e2;
+    color:#7d2c26
+}
+
+.flash-notice {
+    display:flex;
+    flex-wrap:wrap;
+    align-items:center;
+    justify-content:space-between;
+    gap:8px 20px;
+    border-color:#e4dcb6;
+    background:#f6f1db
+}
+
+.site-nav {
+    display:flex;
+    align-items:center;
+    gap:18px;
+    margin-left:auto
+}
+
+.site-nav form {
+    margin:0
+}
+
+.nav-user {
+    font-size:14px;
+    font-weight:600
+}
+
+.nav-link {
+    background:none;
+    border:0;
+    padding:0;
+    color:inherit;
+    font-size:14px;
+    font-weight:600;
+    text-decoration:underline;
+    text-underline-offset:3px;
+    cursor:pointer
+}
+
+.form-links {
+    display:flex;
+    justify-content:space-between;
+    gap:16px;
+    margin-top:22px;
+    font-size:13px;
+    color:var(--muted)
+}
+
+.form-links a {
+    color:var(--ink);
+    font-weight:600
+}
+
+.checkbox-field {
+    display:flex;
+    align-items:center;
+    gap:10px;
+    margin-bottom:24px;
+    font-size:13px
+}
+
+.form-panel p+p {
+    margin-top:14px
+}
+
 .skip-link {
     position:absolute;
     top:-100px;
@@ -612,6 +682,14 @@ turbo-frame[aria-busy=true] .listing-grid {
 
     .brand {
         font-size:21px
+    }
+
+    .site-nav {
+        gap:12px
+    }
+
+    .nav-user {
+        display:none
     }
 
     .brand-mark {
