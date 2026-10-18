@@ -1,0 +1,73 @@
+{% extends 'base.html.twig' %}
+{% import 'listing/_macros.html.twig' as m %}
+
+{% block title %}{{ listing.title }} · ScarfieTextbooks{% endblock %}
+
+{% block body %}
+    {% set wanted = listing.type.value == 'wanted' %}
+    {% set owner = is_granted('LISTING_EDIT', listing) %}
+
+    <div class="listing-page">
+        <a class="back-link" href="{{ path('app_listings') }}">← Back to listings</a>
+
+        {% if owner %}
+            <div class="owner-bar">
+                <span>
+                    {% if listing.draft %}
+                        <strong>Draft.</strong> Only you can see this listing.
+                    {% elseif listing.sold %}
+                        <strong>Sold.</strong> This listing is hidden from everyone else.
+                    {% elseif listing.expired %}
+                        <strong>Expired</strong> on {{ listing.expiresAt|date('j M Y') }}. Refresh it from My listings to put it back up.
+                    {% else %}
+                        <strong>Live</strong> until {{ listing.expiresAt|date('j M Y') }}.
+                    {% endif %}
+                </span>
+                <span class="owner-actions">
+                    <a class="nav-link" href="{{ path('app_listing_edit', {id: listing.id}) }}">Edit</a>
+                    <a class="nav-link" href="{{ path('app_account_listings') }}">My listings</a>
+                </span>
+            </div>
+        {% endif %}
+
+        <div class="listing-layout">
+            <article class="listing-detail">
+                <div class="card-top">
+                    <span class="badge {{ wanted ? 'badge-wanted' : 'badge-sale' }}">{{ listing.type.label }}</span>
+                    <span class="listing-category">{{ listing.category.label }}</span>
+                </div>
+                <h1>{{ listing.title }}</h1>
+                <p class="listing-price">{{ m.price(listing) }}</p>
+
+                <dl class="listing-facts">
+                    {% if listing.book %}
+                        <div><dt>Author</dt><dd>{{ listing.book.author }}</dd></div>
+                        {% if listing.book.edition %}<div><dt>Edition</dt><dd>{{ listing.book.edition }}</dd></div>{% endif %}
+                        {% if listing.book.isbn %}<div><dt>ISBN</dt><dd>{{ listing.book.isbn }}</dd></div>{% endif %}
+                        {% if listing.book.courseCode %}<div><dt>Paper</dt><dd><span class="course-code">{{ listing.book.courseCode }}</span></dd></div>{% endif %}
+                    {% endif %}
+                    {% if listing.condition %}<div><dt>Condition</dt><dd>{{ listing.condition.label }}</dd></div>{% endif %}
+                    {% if listing.location %}<div><dt>Pick-up</dt><dd>{{ listing.location }}</dd></div>{% endif %}
+                    {% if listing.publishedAt %}<div><dt>Listed</dt><dd><time datetime="{{ listing.publishedAt|date('c') }}">{{ listing.publishedAt|date('j M Y') }}</time></dd></div>{% endif %}
+                </dl>
+
+                {% if listing.description %}
+                    <div class="listing-body">{{ listing.description|nl2br }}</div>
+                {% endif %}
+            </article>
+
+            <aside class="contact-panel" aria-labelledby="contact-title">
+                {% set seller = listing.seller %}
+                {% if seller is null %}
+                    <h2 id="contact-title">Seller</h2>
+                    <p class="muted">This listing was imported from the old site.</p>
+                {% elseif owner and seller.id == app.user.id %}
+                    <h2 id="contact-title">Your listing</h2>
+                    <p class="muted">Manage it from <a class="inline-link" href="{{ path('app_account_listings') }}">My listings</a>.</p>
+                {% else %}
+                    <h2 id="contact-title">{{ wanted ? 'Wanted by' : 'Sold by' }} {{ seller.displayName }}</h2>
+                {% endif %}
+            </aside>
+        </div>
+    </div>
+{% endblock %}

@@ -1,0 +1,46 @@
+{# The create/edit listing form. #}
+{{ form_start(form, {attr: {
+    class: 'listing-form',
+    novalidate: 'novalidate',
+    'data-controller': 'listing-form',
+    'data-listing-form-textbooks-value': 'textbooks',
+}}) }}
+    <div class="listing-form-main form-panel">
+        <div class="form-field type-choice">{{ form_row(form.type) }}</div>
+
+        <div class="form-field">{{ form_row(form.title) }}</div>
+
+        <div class="form-grid">
+            <div class="form-field">{{ form_row(form.category, {attr: {'data-listing-form-target': 'category', 'data-action': 'listing-form#toggleBook'}}) }}</div>
+            <div class="form-field">
+                {{ form_label(form.priceCents) }}
+                <div class="input-prefix"><span aria-hidden="true">$</span>{{ form_widget(form.priceCents) }}</div>
+                {{ form_help(form.priceCents) }}
+                {{ form_errors(form.priceCents) }}
+            </div>
+        </div>
+
+        <fieldset class="book-fields" data-listing-form-target="book">
+            <legend>Textbook details</legend>
+            <div class="form-field">{{ form_row(form.book.isbn) }}</div>
+            <div class="form-field">{{ form_row(form.book.author) }}</div>
+            <div class="form-grid">
+                <div class="form-field">{{ form_row(form.book.edition) }}</div>
+                <div class="form-field">{{ form_row(form.book.courseCode) }}</div>
+            </div>
+        </fieldset>
+
+        <div class="form-grid">
+            <div class="form-field">{{ form_row(form.condition) }}</div>
+            <div class="form-field">{{ form_row(form.location) }}</div>
+        </div>
+
+        <div class="form-field">{{ form_row(form.description) }}</div>
+    </div>
+
+    <div class="listing-form-actions">
+        {{ form_widget(form.publish, {attr: {class: 'button'}}) }}
+        {{ form_widget(form.saveDraft, {attr: {class: 'button button-outline'}}) }}
+        {% if listing.id %}<a class="cancel-link" href="{{ path('app_listing_show', {id: listing.id}) }}">Cancel</a>{% endif %}
+    </div>
+{{ form_end(form) }}

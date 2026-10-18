@@ -56,6 +56,14 @@ up to date when adding a workflow.
   optional `Condition`, price in integer cents (null = make an offer / name your price;
   0 = free). Book-only data lives in the optional one-to-one `BookDetails` (author, edition,
   ISBN, course code), per the scope rule above. Enums in `src/Enum` carry their display `label()`.
+- Listings belong to a `seller` (nullable only for imported rows) and have a `ListingStatus`
+  (draft / active / sold). "Expired" is not a status: an active listing past `expiresAt`.
+  `publish()` / `refresh()` set `publishedAt` (the home page sorts by it) and `expiresAt` from
+  the admin-set lifetime in the single `SiteSettings` row (`SiteSettingsProvider`, default 42
+  days). Refresh only opens `REFRESH_WINDOW_DAYS` (7) before expiry. `ListingVoter`
+  (`LISTING_VIEW`, `LISTING_EDIT`): anyone sees live listings, sellers and admins the rest.
+  `ListingFormType` (create/edit at `/sell`, `/listings/{id}/edit`) clears `book` before
+  validation unless the category is Textbooks; `ListingEditor` saves, publishes and deletes.
 - Home page (`ListingController`, `/`): a GET `ListingFilterType` form with an empty block
   prefix (clean `?q=&type=&category=&maxPrice=` URLs) binds to the `App\Search\ListingFilter`
   DTO, and `ListingRepository::findByFilter()` builds the query. Results sit in the
@@ -75,7 +83,9 @@ up to date when adding a workflow.
 - CSRF is stateless (`config/packages/csrf.yaml`): hand-written forms need a `_csrf_token`
   field with `data-controller="csrf-protection"`, and tests send `Sec-Fetch-Site: same-origin`.
   In the test env Messenger's `async` transport is `in-memory://` (assert with
-  `assertQueuedEmailCount()`) and `cache.app` is an array, so throttling resets per test.
+  `assertQueuedEmailCount()`) and `cache.app` is an array, so throttling resets per request
+  (test rate limits through the service). `tests/DatabaseTestTrait.php` boots the SQLite
+  client and creates users and listings; new tests log in with `loginUser()`.
 - `HealthController` (`/up`) is the Kamal proxy healthcheck; keep it dependency-free.
 
 ## Deployment

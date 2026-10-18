@@ -113,7 +113,8 @@ final class ListingControllerTest extends WebTestCase
             ->setCondition(ListingType::ForSale === $type ? Condition::Good : null)
             ->setLocation('North Dunedin')
             ->setBook($book)
-            ->setCreatedAt(new \DateTimeImmutable($created));
+            ->setCreatedAt(new \DateTimeImmutable($created))
+            ->publish(42, new \DateTimeImmutable($created));
     }
 
     /** @return string[] */

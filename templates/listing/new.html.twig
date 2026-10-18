@@ -1,0 +1,15 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Post a listing · ScarfieTextbooks{% endblock %}
+
+{% block body %}
+    <div class="listing-form-page">
+        <a class="back-link" href="{{ path('app_listings') }}">← Back to listings</a>
+        <div class="form-heading">
+            <span class="eyebrow">Sell or ask</span>
+            <h1>Create a new listing</h1>
+            <p>Sell your textbooks and gear, or tell other students what you’re looking for.</p>
+        </div>
+        {{ include('listing/_form.html.twig') }}
+    </div>
+{% endblock %}

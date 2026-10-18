@@ -62,7 +62,7 @@ class User extends Base implements UserInterface, PasswordAuthenticatedUserInter
         return $this->displayName;
     }
 
-    public function setDisplayName(string $displayName): static
+    public function setDisplayName(?string $displayName): static
     {
         $this->displayName = $displayName;
 

@@ -4,6 +4,7 @@ namespace App\DataFixtures;
 
 use App\Entity\BookDetails;
 use App\Entity\Listing;
+use App\Entity\SiteSettings;
 use App\Entity\User;
 use App\Enum\Category;
 use App\Enum\Condition;
@@ -13,7 +14,7 @@ use Doctrine\Persistence\ObjectManager;
 use Symfony\Component\PasswordHasher\Hasher\UserPasswordHasherInterface;
 
 /**
- * Example listings and a login for local development: `task db:seed`.
+ * Example listings and logins for local development: `task db:seed`.
  */
 class AppFixtures extends Fixture
 {
@@ -23,9 +24,11 @@ class AppFixtures extends Fixture
 
     public function load(ObjectManager $manager): void
     {
-        // Dev-only login: sam@example.com / password
-        $sam = (new User())->setEmail('sam@example.com')->setDisplayName('Sam')->setVerified(true);
-        $manager->persist($sam->setPassword($this->hasher->hashPassword($sam, 'password')));
+        // Dev-only logins, all with the password "password":
+        // sam@example.com (verified) and alex@example.com (unverified).
+        $sam = $this->user($manager, 'sam@example.com', 'Sam', verified: true);
+        $alex = $this->user($manager, 'alex@example.com', 'Alex', verified: false);
+        $manager->persist(new SiteSettings());
 
         $sale = ListingType::ForSale;
         $wanted = ListingType::Wanted;
@@ -67,7 +70,10 @@ class AppFixtures extends Fixture
                 ->setPriceCents(null === $price ? null : $price * 100)
                 ->setCondition($condition)
                 ->setLocation($location)
-                ->setCreatedAt(new \DateTimeImmutable(\sprintf('-%d days -%d minutes', $daysAgo, $i)));
+                ->setSeller(0 === $i % 3 ? $alex : $sam);
+
+            $createdAt = new \DateTimeImmutable(\sprintf('-%d days -%d minutes', $daysAgo, $i));
+            $listing->setCreatedAt($createdAt)->publish(SiteSettings::DEFAULT_LISTING_LIFETIME_DAYS, $createdAt);
 
             if (null !== $book) {
                 [$author, $edition, $isbn, $courseCode] = $book;
@@ -81,6 +87,34 @@ class AppFixtures extends Fixture
             $manager->persist($listing);
         }
 
+        // Some of Sam's listings in other states, for "My listings".
+        $manager->persist((new Listing())
+            ->setSeller($sam)->setType($sale)->setCategory(Category::Textbooks)
+            ->setTitle('Organic Chemistry (Clayden)')->setPriceCents(6500)->setCondition(Condition::Good)
+            ->setBook((new BookDetails())->setAuthor('Clayden, Greeves & Warren')->setEdition('2nd')->setIsbn('9780199270293')->setCourseCode('CHEM202')));
+        $manager->persist((new Listing())
+            ->setSeller($sam)->setType($sale)->setCategory(Category::Furniture)
+            ->setTitle('Standing lamp')->setPriceCents(1500)->setCondition(Condition::Fair)->setLocation('Castle Street')
+            ->publish(SiteSettings::DEFAULT_LISTING_LIFETIME_DAYS, new \DateTimeImmutable('-40 days')));
+        $manager->persist((new Listing())
+            ->setSeller($sam)->setType($sale)->setCategory(Category::Electronics)
+            ->setTitle('Bluetooth speaker')->setPriceCents(2000)->setCondition(Condition::Good)
+            ->publish(SiteSettings::DEFAULT_LISTING_LIFETIME_DAYS, new \DateTimeImmutable('-50 days')));
+        $manager->persist((new Listing())
+            ->setSeller($sam)->setType($sale)->setCategory(Category::Textbooks)
+            ->setTitle('Microeconomics (Pindyck)')->setPriceCents(4000)->setCondition(Condition::Good)
+            ->setBook((new BookDetails())->setAuthor('Pindyck & Rubinfeld'))
+            ->publish(SiteSettings::DEFAULT_LISTING_LIFETIME_DAYS, new \DateTimeImmutable('-20 days'))
+            ->markSold());
+
         $manager->flush();
+    }
+
+    private function user(ObjectManager $manager, string $email, string $name, bool $verified): User
+    {
+        $user = (new User())->setEmail($email)->setDisplayName($name)->setVerified($verified);
+        $manager->persist($user->setPassword($this->hasher->hashPassword($user, 'password')));
+
+        return $user;
     }
 }

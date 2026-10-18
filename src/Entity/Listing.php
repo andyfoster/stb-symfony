@@ -4,6 +4,7 @@ namespace App\Entity;
 
 use App\Enum\Category;
 use App\Enum\Condition;
+use App\Enum\ListingStatus;
 use App\Enum\ListingType;
 use App\Repository\ListingRepository;
 use Doctrine\DBAL\Types\Types;
@@ -15,8 +16,27 @@ use Symfony\Component\Validator\Constraints as Assert;
  */
 #[ORM\Entity(repositoryClass: ListingRepository::class)]
 #[ORM\Index(columns: ['type', 'category'])]
+#[ORM\Index(columns: ['status', 'expires_at'])]
 class Listing extends Base
 {
+    /** Refreshing opens up this many days before a listing expires. */
+    public const int REFRESH_WINDOW_DAYS = 7;
+
+    /** Null only for listings imported from before accounts existed. */
+    #[ORM\ManyToOne]
+    #[ORM\JoinColumn(onDelete: 'CASCADE')]
+    private ?User $seller = null;
+
+    #[ORM\Column(length: 20, enumType: ListingStatus::class)]
+    private ListingStatus $status = ListingStatus::Draft;
+
+    /** When it was last published or refreshed; the home page sorts by this. */
+    #[ORM\Column(nullable: true)]
+    private ?\DateTimeImmutable $publishedAt = null;
+
+    #[ORM\Column(nullable: true)]
+    private ?\DateTimeImmutable $expiresAt = null;
+
     #[ORM\Column(length: 20, enumType: ListingType::class)]
     #[Assert\NotNull]
     private ?ListingType $type = null;
@@ -50,12 +70,124 @@ class Listing extends Base
     #[Assert\Valid]
     private ?BookDetails $book = null;
 
+    public function getSeller(): ?User
+    {
+        return $this->seller;
+    }
+
+    public function setSeller(?User $seller): static
+    {
+        $this->seller = $seller;
+
+        return $this;
+    }
+
+    public function getStatus(): ListingStatus
+    {
+        return $this->status;
+    }
+
+    public function setStatus(ListingStatus $status): static
+    {
+        $this->status = $status;
+
+        return $this;
+    }
+
+    public function getPublishedAt(): ?\DateTimeImmutable
+    {
+        return $this->publishedAt;
+    }
+
+    public function setPublishedAt(?\DateTimeImmutable $publishedAt): static
+    {
+        $this->publishedAt = $publishedAt;
+
+        return $this;
+    }
+
+    public function getExpiresAt(): ?\DateTimeImmutable
+    {
+        return $this->expiresAt;
+    }
+
+    public function setExpiresAt(?\DateTimeImmutable $expiresAt): static
+    {
+        $this->expiresAt = $expiresAt;
+
+        return $this;
+    }
+
+    public function isDraft(): bool
+    {
+        return ListingStatus::Draft === $this->status;
+    }
+
+    public function isSold(): bool
+    {
+        return ListingStatus::Sold === $this->status;
+    }
+
+    public function isExpired(?\DateTimeImmutable $now = null): bool
+    {
+        return ListingStatus::Active === $this->status
+            && null !== $this->expiresAt
+            && $this->expiresAt <= ($now ?? new \DateTimeImmutable());
+    }
+
+    /** Active and not expired: what everyone can see and search. */
+    public function isLive(?\DateTimeImmutable $now = null): bool
+    {
+        return ListingStatus::Active === $this->status && !$this->isExpired($now);
+    }
+
+    /**
+     * Unsold listings can be refreshed once they're close to expiring (or have
+     * expired), so people can't bump themselves to the top every day.
+     */
+    public function canRefresh(?\DateTimeImmutable $now = null): bool
+    {
+        $now ??= new \DateTimeImmutable();
+
+        return ListingStatus::Active === $this->status
+            && null !== $this->expiresAt
+            && $this->expiresAt <= $now->modify(\sprintf('+%d days', self::REFRESH_WINDOW_DAYS));
+    }
+
+    /** Puts a draft live (or re-lists a sold one) for $days days. */
+    public function publish(int $days, ?\DateTimeImmutable $now = null): static
+    {
+        $now ??= new \DateTimeImmutable();
+        $this->status = ListingStatus::Active;
+        $this->publishedAt = $now;
+        $this->expiresAt = $now->modify(\sprintf('+%d days', $days));
+
+        return $this;
+    }
+
+    /** Another $days days from now, and back to the top of the list. */
+    public function refresh(int $days, ?\DateTimeImmutable $now = null): static
+    {
+        if (!$this->canRefresh($now)) {
+            throw new \LogicException(\sprintf('%s can\'t be refreshed yet.', $this));
+        }
+
+        return $this->publish($days, $now);
+    }
+
+    public function markSold(): static
+    {
+        $this->status = ListingStatus::Sold;
+
+        return $this;
+    }
+
     public function getType(): ?ListingType
     {
         return $this->type;
     }
 
-    public function setType(ListingType $type): static
+    public function setType(?ListingType $type): static
     {
         $this->type = $type;
 
@@ -67,7 +199,7 @@ class Listing extends Base
         return $this->category;
     }
 
-    public function setCategory(Category $category): static
+    public function setCategory(?Category $category): static
     {
         $this->category = $category;
 
@@ -79,7 +211,7 @@ class Listing extends Base
         return $this->title;
     }
 
-    public function setTitle(string $title): static
+    public function setTitle(?string $title): static
     {
         $this->title = $title;
 

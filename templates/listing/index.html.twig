@@ -1,7 +1,5 @@
 {% extends 'base.html.twig' %}
 
-{% macro money(cents) %}${{ (cents / 100)|number_format(cents % 100 ? 2 : 0) }}{% endmacro %}
-
 {% block title %}Browse listings · ScarfieTextbooks{% endblock %}
 
 {% block body %}
@@ -40,40 +38,7 @@
 
             <div class="listing-grid">
                 {% for listing in listings %}
-                    {% set wanted = listing.type.value == 'wanted' %}
-                    <article class="listing-card {{ wanted ? 'listing-wanted' : '' }}">
-                        <div class="card-top">
-                            <span class="badge {{ wanted ? 'badge-wanted' : 'badge-sale' }}">{{ listing.type.label }}</span>
-                            <span class="listing-category">{{ listing.category.label }}</span>
-                        </div>
-
-                        <p class="listing-price">
-                            {% if listing.priceCents is null %}
-                                {{ wanted ? 'Name your price' : 'Make an offer' }}
-                            {% elseif listing.priceCents == 0 %}
-                                Free
-                            {% else %}
-                                {% if wanted %}<span class="price-label">Budget up to</span> {% endif %}{{ _self.money(listing.priceCents) }}
-                            {% endif %}
-                        </p>
-
-                        <h3>{{ listing.title }}</h3>
-
-                        {% if listing.book %}
-                            <p class="book-meta">
-                                {{ listing.book.author }}{% if listing.book.edition %} · {{ listing.book.edition }} ed.{% endif %}
-                                {% if listing.book.courseCode %}<span class="course-code">{{ listing.book.courseCode }}</span>{% endif %}
-                            </p>
-                        {% endif %}
-
-                        {% if listing.description %}<p class="listing-description">{{ listing.description }}</p>{% endif %}
-
-                        <div class="card-footer">
-                            {% if listing.condition %}<span>{{ listing.condition.label }}</span>{% endif %}
-                            {% if listing.location %}<span>{{ listing.location }}</span>{% endif %}
-                            <time datetime="{{ listing.createdAt|date('c') }}">{{ listing.createdAt|date('j M') }}</time>
-                        </div>
-                    </article>
+                    {{ include('listing/_card.html.twig') }}
                 {% else %}
                     <div class="empty-state">
                         <span class="empty-symbol" aria-hidden="true">❡</span>
@@ -84,6 +49,7 @@
                         {% else %}
                             <h3>No listings yet.</h3>
                             <p>Listings will show up here once students start posting.</p>
+                            <a class="button" href="{{ path('app_listing_new') }}" data-turbo-frame="_top">Post the first one</a>
                         {% endif %}
                     </div>
                 {% endfor %}

@@ -1,0 +1,14 @@
+{% macro money(cents) %}${{ (cents / 100)|number_format(cents % 100 ? 2 : 0) }}{% endmacro %}
+
+{# "Make an offer", "Free", "$85", or "Budget up to $50" for wanted listings. #}
+{% macro price(listing) %}
+    {%- set wanted = listing.type.value == 'wanted' -%}
+    {%- if listing.priceCents is null -%}
+        {{ wanted ? 'Name your price' : 'Make an offer' }}
+    {%- elseif listing.priceCents == 0 -%}
+        Free
+    {%- else -%}
+        {% if wanted %}<span class="price-label">Budget up to</span> {% endif %}{{ _self.money(listing.priceCents) }}
+    {%- endif -%}
+{% endmacro %}
+

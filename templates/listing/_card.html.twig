@@ -1,0 +1,28 @@
+{% import 'listing/_macros.html.twig' as m %}
+{% set wanted = listing.type.value == 'wanted' %}
+<article class="listing-card {{ wanted ? 'listing-wanted' : '' }}">
+    <div class="card-top">
+        <span class="badge {{ wanted ? 'badge-wanted' : 'badge-sale' }}">{{ listing.type.label }}</span>
+        <span class="listing-category">{{ listing.category.label }}</span>
+    </div>
+
+    <p class="listing-price">{{ m.price(listing) }}</p>
+
+    <h3><a class="card-link" href="{{ path('app_listing_show', {id: listing.id}) }}" data-turbo-frame="_top">{{ listing.title }}</a></h3>
+
+    {% if listing.book %}
+        <p class="book-meta">
+            {{ listing.book.author }}{% if listing.book.edition %} · {{ listing.book.edition }} ed.{% endif %}
+            {% if listing.book.courseCode %}<span class="course-code">{{ listing.book.courseCode }}</span>{% endif %}
+        </p>
+    {% endif %}
+
+    {% if listing.description %}<p class="listing-description">{{ listing.description }}</p>{% endif %}
+
+    <div class="card-footer">
+        {% if listing.condition %}<span>{{ listing.condition.label }}</span>{% endif %}
+        {% if listing.location %}<span>{{ listing.location }}</span>{% endif %}
+        {% set date = listing.publishedAt ?? listing.createdAt %}
+        <time datetime="{{ date|date('c') }}">{{ date|date('j M') }}</time>
+    </div>
+</article>

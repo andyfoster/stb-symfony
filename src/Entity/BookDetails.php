@@ -35,7 +35,7 @@ class BookDetails extends Base
         return $this->author;
     }
 
-    public function setAuthor(string $author): static
+    public function setAuthor(?string $author): static
     {
         $this->author = $author;
 

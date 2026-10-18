@@ -3,6 +3,8 @@
 namespace App\Repository;
 
 use App\Entity\Listing;
+use App\Entity\User;
+use App\Enum\ListingStatus;
 use App\Search\ListingFilter;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\Persistence\ManagerRegistry;
@@ -18,14 +20,22 @@ class ListingRepository extends ServiceEntityRepository
     }
 
     /**
-     * @return Listing[] newest first
+     * Live listings (active, not expired) matching the filter.
+     *
+     * @return Listing[] most recently published or refreshed first
      */
-    public function findByFilter(ListingFilter $filter): array
+    public function findByFilter(ListingFilter $filter, ?\DateTimeImmutable $now = null): array
     {
         $qb = $this->createQueryBuilder('l')
             ->leftJoin('l.book', 'b')
             ->addSelect('b')
-            ->orderBy('l.createdAt', 'DESC')
+            ->leftJoin('l.seller', 's')
+            ->addSelect('s')
+            ->andWhere('l.status = :active')
+            ->andWhere('l.expiresAt > :now')
+            ->setParameter('active', ListingStatus::Active)
+            ->setParameter('now', $now ?? new \DateTimeImmutable())
+            ->orderBy('l.publishedAt', 'DESC')
             ->addOrderBy('l.id', 'DESC');
 
         $q = trim((string) $filter->q);
@@ -54,5 +64,23 @@ class ListingRepository extends ServiceEntityRepository
         }
 
         return $qb->getQuery()->getResult();
+    }
+
+    /**
+     * Everything a seller has posted, whatever its status.
+     *
+     * @return Listing[] newest first
+     */
+    public function findBySeller(User $seller): array
+    {
+        return $this->createQueryBuilder('l')
+            ->leftJoin('l.book', 'b')
+            ->addSelect('b')
+            ->andWhere('l.seller = :seller')
+            ->setParameter('seller', $seller)
+            ->orderBy('l.createdAt', 'DESC')
+            ->addOrderBy('l.id', 'DESC')
+            ->getQuery()
+            ->getResult();
     }
 }
