@@ -20,7 +20,7 @@ class BookDetailsFormType extends AbstractType
             ->add('isbn', TextType::class, [
                 'label' => 'ISBN',
                 'required' => false,
-                'help' => 'On the back cover or copyright page.',
+                'help' => 'On the back cover or copyright page. Look it up to fill in the details.',
                 'attr' => ['inputmode' => 'numeric', 'autocomplete' => 'off', 'placeholder' => '978…'],
             ])
             ->add('author', TextType::class, [

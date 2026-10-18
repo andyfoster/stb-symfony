@@ -64,6 +64,8 @@ up to date when adding a workflow.
   (`LISTING_VIEW`, `LISTING_EDIT`): anyone sees live listings, sellers and admins the rest.
   `ListingFormType` (create/edit at `/sell`, `/listings/{id}/edit`) clears `book` before
   validation unless the category is Textbooks; `ListingEditor` saves, publishes and deletes.
+- ISBN lookup: `BookLookup` asks Open Library, then Google Books (no keys), caching answers in
+  `cache.app`; `/sell/lookup-isbn` serves the `isbn-lookup` Stimulus controller.
 - Home page (`ListingController`, `/`): a GET `ListingFilterType` form with an empty block
   prefix (clean `?q=&type=&category=&maxPrice=` URLs) binds to the `App\Search\ListingFilter`
   DTO, and `ListingRepository::findByFilter()` builds the query. Results sit in the
@@ -84,7 +86,8 @@ up to date when adding a workflow.
   field with `data-controller="csrf-protection"`, and tests send `Sec-Fetch-Site: same-origin`.
   In the test env Messenger's `async` transport is `in-memory://` (assert with
   `assertQueuedEmailCount()`) and `cache.app` is an array, so throttling resets per request
-  (test rate limits through the service). `tests/DatabaseTestTrait.php` boots the SQLite
+  (test rate limits through the service). Outside HTTP calls (book APIs) get canned
+  answers from `tests/MockHttpResponses.php`. `tests/DatabaseTestTrait.php` boots the SQLite
   client and creates users and listings; new tests log in with `loginUser()`.
 - `HealthController` (`/up`) is the Kamal proxy healthcheck; keep it dependency-free.
 

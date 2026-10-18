@@ -20,12 +20,21 @@
             </div>
         </div>
 
-        <fieldset class="book-fields" data-listing-form-target="book">
+        <fieldset class="book-fields" data-listing-form-target="book" data-controller="isbn-lookup" data-isbn-lookup-url-value="{{ path('app_listing_isbn_lookup') }}">
             <legend>Textbook details</legend>
-            <div class="form-field">{{ form_row(form.book.isbn) }}</div>
-            <div class="form-field">{{ form_row(form.book.author) }}</div>
+            <div class="form-field">
+                {{ form_label(form.book.isbn) }}
+                <div class="input-with-button">
+                    {{ form_widget(form.book.isbn, {attr: {'data-isbn-lookup-target': 'isbn', 'data-action': 'keydown.enter->isbn-lookup#lookup:prevent'}}) }}
+                    <button class="button button-small button-outline" type="button" data-action="isbn-lookup#lookup" data-isbn-lookup-target="button">Look up</button>
+                </div>
+                <p class="lookup-status" data-isbn-lookup-target="status" role="status" aria-live="polite"></p>
+                {{ form_help(form.book.isbn) }}
+                {{ form_errors(form.book.isbn) }}
+            </div>
+            <div class="form-field">{{ form_row(form.book.author, {attr: {'data-isbn-lookup-target': 'author'}}) }}</div>
             <div class="form-grid">
-                <div class="form-field">{{ form_row(form.book.edition) }}</div>
+                <div class="form-field">{{ form_row(form.book.edition, {attr: {'data-isbn-lookup-target': 'edition'}}) }}</div>
                 <div class="form-field">{{ form_row(form.book.courseCode) }}</div>
             </div>
         </fieldset>
