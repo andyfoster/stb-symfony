@@ -7,14 +7,13 @@ use App\Enum\ListingType;
 use App\Search\ListingFilter;
 use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\Extension\Core\Type\EnumType;
-use Symfony\Component\Form\Extension\Core\Type\IntegerType;
 use Symfony\Component\Form\Extension\Core\Type\SearchType;
 use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\OptionsResolver\OptionsResolver;
 
 /**
  * GET form for the home page filters. No block prefix, so the query string
- * stays readable (?q=chem&category=textbooks).
+ * stays readable (?q=chem&type=wanted&categories[]=textbooks).
  */
 class ListingFilterType extends AbstractType
 {
@@ -26,24 +25,21 @@ class ListingFilterType extends AbstractType
                 'required' => false,
                 'attr' => ['placeholder' => 'Search by title, author, paper or ISBN'],
             ])
+            // Rendered as the "For sale" / "Wanted" tabs above the results.
             ->add('type', EnumType::class, [
                 'class' => ListingType::class,
-                'label' => 'Show',
-                'required' => false,
-                'placeholder' => 'Everything',
+                'expanded' => true,
+                'empty_data' => ListingType::ForSale->value,
                 'choice_label' => static fn (ListingType $type): string => $type->label(),
             ])
-            ->add('category', EnumType::class, [
+            ->add('categories', EnumType::class, [
                 'class' => Category::class,
-                'label' => 'Category',
+                'label' => 'Categories',
+                'property_path' => 'categories',
                 'required' => false,
-                'placeholder' => 'All categories',
+                'multiple' => true,
+                'expanded' => true,
                 'choice_label' => static fn (Category $category): string => $category->label(),
-            ])
-            ->add('maxPrice', IntegerType::class, [
-                'label' => 'Max price ($)',
-                'required' => false,
-                'attr' => ['min' => 0, 'placeholder' => 'Any'],
             ]);
     }
 

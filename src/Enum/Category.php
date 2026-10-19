@@ -2,28 +2,25 @@
 
 namespace App\Enum;
 
+/**
+ * Kept short on purpose: few enough to show as one row of filters.
+ */
 enum Category: string
 {
     case Textbooks = 'textbooks';
-    case CourseGear = 'course_gear';
-    case Electronics = 'electronics';
-    case Furniture = 'furniture';
-    case FlatAndKitchen = 'flat_and_kitchen';
+    case StudyAndTech = 'study_and_tech';
+    case FlatAndHome = 'flat_and_home';
     case BikesAndTransport = 'bikes_and_transport';
-    case Clothing = 'clothing';
-    case Other = 'other';
+    case ClothesAndOther = 'other';
 
     public function label(): string
     {
         return match ($this) {
             self::Textbooks => 'Textbooks',
-            self::CourseGear => 'Course gear',
-            self::Electronics => 'Electronics',
-            self::Furniture => 'Furniture',
-            self::FlatAndKitchen => 'Flat & kitchen',
+            self::StudyAndTech => 'Study & tech',
+            self::FlatAndHome => 'Flat & home',
             self::BikesAndTransport => 'Bikes & transport',
-            self::Clothing => 'Clothing',
-            self::Other => 'Other',
+            self::ClothesAndOther => 'Clothes & other',
         };
     }
 }

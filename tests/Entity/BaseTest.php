@@ -26,7 +26,7 @@ final class BaseTest extends KernelTestCase
     {
         $listing = (new Listing())
             ->setType(ListingType::ForSale)
-            ->setCategory(Category::Furniture)
+            ->setCategory(Category::FlatAndHome)
             ->setTitle('Bookshelf')
             ->setUpdatedAt(new \DateTimeImmutable('-1 day'));
         $this->manager->persist($listing);

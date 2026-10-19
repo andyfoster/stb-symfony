@@ -54,21 +54,21 @@ class AppFixtures extends Fixture
             [$sale, Category::Textbooks, 'Calculus: Early Transcendentals', 'Solid copy, no missing pages. Great for MATH160 and MATH170.', 70, Condition::Good, 'Dundas Street', ['Stewart', '9th', '9781337613927', 'MATH160, MATH170'], 4],
             [$sale, Category::Textbooks, 'Introduction to Java Programming', 'Barely opened, lectures covered everything.', 45, Condition::LikeNew, 'Union Street', ['Liang', '12th', '9780136520238', 'COMP160'], 6],
             [$wanted, Category::Textbooks, 'Lehninger Principles of Biochemistry', 'Looking for 7th or 8th edition for BIOC192.', null, null, 'North Dunedin', ['Nelson & Cox', '8th', '9781319228002', 'BIOC192'], 7],
-            [$sale, Category::CourseGear, 'Lab coat (size M)', 'Worn for one year of chem labs. Washed, no stains.', 20, Condition::Good, 'Castle Street', null, 2],
-            [$sale, Category::CourseGear, 'Casio fx-82AU Plus II calculator', 'Approved for exams. Comes with its cover.', 15, Condition::Good, 'Clyde Street', null, 5],
-            [$wanted, Category::CourseGear, 'Safety glasses for labs', 'Any pair that meets the lab requirements.', 10, null, 'Campus', null, 1],
-            [$sale, Category::Electronics, 'Electric blanket (queen)', 'Essential for a Dunedin winter. All settings work.', 35, Condition::Good, 'Leith Street', null, 0],
-            [$sale, Category::Electronics, 'Oil column heater', 'Seven fins, three heat settings and a timer.', 40, Condition::Fair, 'Hyde Street', null, 4],
-            [$wanted, Category::Electronics, 'Second monitor for study', '24 inch or bigger, HDMI. Can pick up.', 80, null, 'North Dunedin', null, 2],
-            [$sale, Category::Furniture, 'Desk and office chair', 'Moving out, want them gone together. Desk is 120 cm wide.', 60, Condition::Fair, 'Dundas Street', null, 3],
-            [$sale, Category::Furniture, 'Bookshelf (5 shelves)', 'Flat-pack, already assembled. Can help carry it.', 0, Condition::WellUsed, 'Castle Street', null, 8],
-            [$wanted, Category::Furniture, 'Single bed frame', 'Moving into a new flat in February.', 50, null, 'Anywhere in Dunedin', null, 5],
-            [$sale, Category::FlatAndKitchen, 'Rice cooker', 'Makes enough for a flat of five.', 25, Condition::Good, 'Albany Street', null, 1],
-            [$sale, Category::FlatAndKitchen, 'Box of kitchen gear', 'Pots, pans, cutlery and a few mugs. Perfect for a first flat.', 30, Condition::WellUsed, 'Union Street', null, 9],
+            [$sale, Category::StudyAndTech, 'Lab coat (size M)', 'Worn for one year of chem labs. Washed, no stains.', 20, Condition::Good, 'Castle Street', null, 2],
+            [$sale, Category::StudyAndTech, 'Casio fx-82AU Plus II calculator', 'Approved for exams. Comes with its cover.', 15, Condition::Good, 'Clyde Street', null, 5],
+            [$wanted, Category::StudyAndTech, 'Safety glasses for labs', 'Any pair that meets the lab requirements.', 10, null, 'Campus', null, 1],
+            [$sale, Category::StudyAndTech, 'Electric blanket (queen)', 'Essential for a Dunedin winter. All settings work.', 35, Condition::Good, 'Leith Street', null, 0],
+            [$sale, Category::StudyAndTech, 'Oil column heater', 'Seven fins, three heat settings and a timer.', 40, Condition::Fair, 'Hyde Street', null, 4],
+            [$wanted, Category::StudyAndTech, 'Second monitor for study', '24 inch or bigger, HDMI. Can pick up.', 80, null, 'North Dunedin', null, 2],
+            [$sale, Category::FlatAndHome, 'Desk and office chair', 'Moving out, want them gone together. Desk is 120 cm wide.', 60, Condition::Fair, 'Dundas Street', null, 3],
+            [$sale, Category::FlatAndHome, 'Bookshelf (5 shelves)', 'Flat-pack, already assembled. Can help carry it.', 0, Condition::WellUsed, 'Castle Street', null, 8],
+            [$wanted, Category::FlatAndHome, 'Single bed frame', 'Moving into a new flat in February.', 50, null, 'Anywhere in Dunedin', null, 5],
+            [$sale, Category::FlatAndHome, 'Rice cooker', 'Makes enough for a flat of five.', 25, Condition::Good, 'Albany Street', null, 1],
+            [$sale, Category::FlatAndHome, 'Box of kitchen gear', 'Pots, pans, cutlery and a few mugs. Perfect for a first flat.', 30, Condition::WellUsed, 'Union Street', null, 9],
             [$sale, Category::BikesAndTransport, 'Commuter bike with lights and lock', 'Medium frame, new tyres this year. Handles the hills fine.', 180, Condition::Good, 'North East Valley', null, 2],
             [$wanted, Category::BikesAndTransport, 'Bike helmet', 'Medium size, must be in good condition.', 25, null, 'Campus', null, 6],
-            [$sale, Category::Clothing, 'Puffer jacket (size L)', 'Warm and waterproof. Too big for me.', 70, Condition::LikeNew, 'Leith Street', null, 3],
-            [$sale, Category::Other, 'Two tickets to the Toga Party', 'Can no longer make it, selling at face value.', 30, Condition::New, 'Campus', null, 0],
+            [$sale, Category::ClothesAndOther, 'Puffer jacket (size L)', 'Warm and waterproof. Too big for me.', 70, Condition::LikeNew, 'Leith Street', null, 3],
+            [$sale, Category::ClothesAndOther, 'Two tickets to the Toga Party', 'Can no longer make it, selling at face value.', 30, Condition::New, 'Campus', null, 0],
         ];
 
         foreach ($examples as $i => [$type, $category, $title, $description, $price, $condition, $location, $book, $daysAgo]) {
@@ -104,11 +104,11 @@ class AppFixtures extends Fixture
             ->setTitle('Organic Chemistry (Clayden)')->setPriceCents(6500)->setCondition(Condition::Good)
             ->setBook($this->book('Clayden, Greeves & Warren', '2nd', '9780199270293', 'CHEM202')));
         $manager->persist((new Listing())
-            ->setSeller($sam)->setType($sale)->setCategory(Category::Furniture)
+            ->setSeller($sam)->setType($sale)->setCategory(Category::FlatAndHome)
             ->setTitle('Standing lamp')->setPriceCents(1500)->setCondition(Condition::Fair)->setLocation('Castle Street')
             ->publish(SiteSettings::DEFAULT_LISTING_LIFETIME_DAYS, new \DateTimeImmutable('-40 days')));
         $manager->persist((new Listing())
-            ->setSeller($sam)->setType($sale)->setCategory(Category::Electronics)
+            ->setSeller($sam)->setType($sale)->setCategory(Category::StudyAndTech)
             ->setTitle('Bluetooth speaker')->setPriceCents(2000)->setCondition(Condition::Good)
             ->publish(SiteSettings::DEFAULT_LISTING_LIFETIME_DAYS, new \DateTimeImmutable('-50 days')));
         $manager->persist((new Listing())

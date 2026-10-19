@@ -365,14 +365,18 @@ h1,h2,h3 {
 }
 
 .filter-bar {
-    margin:32px 0 16px
+    margin:32px 0 0
+}
+
+.filter-search {
+    position:relative
 }
 
 .filter-search input {
     display:block;
     width:100%;
     height:56px;
-    padding:0 20px;
+    padding:0 104px 0 20px;
     border:1px solid var(--field);
     border-radius:8px;
     font-size:18px;
@@ -385,34 +389,30 @@ h1,h2,h3 {
     box-shadow:0 0 0 3px rgb(11 58 159 / 14%)
 }
 
-.filter-search input::placeholder,.filter-field input::placeholder {
+.filter-search input::placeholder {
     color:#8b93a3
 }
 
-.filter-options {
-    display:flex;
-    justify-content:center;
-    flex-wrap:wrap;
-    gap:8px;
-    margin-top:12px
-}
-
-.filter-field input,.filter-field select {
-    height:36px;
-    padding:0 10px;
-    border:1px solid var(--line);
+.filter-submit {
+    position:absolute;
+    top:8px;
+    right:8px;
+    bottom:8px;
+    padding:0 18px;
+    border:0;
     border-radius:6px;
-    background:var(--white);
-    color:var(--muted);
-    font-size:14px
+    background:var(--blue);
+    color:var(--white);
+    font-weight:600;
+    cursor:pointer
 }
 
-.filter-price input {
-    width:130px
+.filter-submit:hover {
+    background:var(--blue-dark)
 }
 
-.filter-field ul,.filter-search ul {
-    margin:4px 0 0;
+.filter-bar > ul {
+    margin:6px 0 0;
     padding:0;
     list-style:none;
     color:var(--red);
@@ -420,12 +420,170 @@ h1,h2,h3 {
     text-align:left
 }
 
-.filter-actions .button {
-    height:36px
+/* Categories: a row of toggles, any number on at once */
+.category-pills {
+    display:flex;
+    flex-wrap:wrap;
+    justify-content:center;
+    gap:8px;
+    min-width:0;
+    margin:14px 0 0;
+    padding:0;
+    border:0
 }
 
-.tagline {
-    color:var(--muted)
+.pill-input {
+    position:absolute;
+    opacity:0;
+    width:1px;
+    height:1px
+}
+
+.pill {
+    display:inline-flex;
+    align-items:center;
+    gap:6px;
+    padding:6px 14px;
+    border:1px solid var(--field);
+    border-radius:999px;
+    background:var(--white);
+    color:var(--navy);
+    font-size:14px;
+    cursor:pointer;
+    user-select:none
+}
+
+.pill:hover {
+    border-color:var(--blue);
+    color:var(--blue)
+}
+
+.pill-input:checked + .pill {
+    border-color:var(--blue);
+    background:var(--blue);
+    color:var(--white)
+}
+
+.pill-input:checked + .pill::before {
+    content:'';
+    width:9px;
+    height:5px;
+    border-left:2px solid currentColor;
+    border-bottom:2px solid currentColor;
+    transform:translateY(-1px) rotate(-45deg)
+}
+
+.pill-input:focus-visible + .pill {
+    outline:2px solid var(--blue);
+    outline-offset:2px
+}
+
+/* For sale / Wanted tabs and the list/grid switch */
+.results-bar {
+    display:flex;
+    justify-content:space-between;
+    align-items:flex-end;
+    gap:16px;
+    border-bottom:1px solid var(--navy)
+}
+
+.tabs {
+    display:flex;
+    gap:4px
+}
+
+.tab {
+    position:relative;
+    display:inline-flex;
+    align-items:center;
+    gap:8px;
+    padding:10px 16px;
+    color:var(--muted);
+    font-weight:600;
+    cursor:pointer
+}
+
+.tab input {
+    position:absolute;
+    opacity:0;
+    width:1px;
+    height:1px
+}
+
+.tab:hover {
+    color:var(--blue)
+}
+
+.tab:has(input:checked) {
+    color:var(--navy);
+    box-shadow:inset 0 -3px 0 var(--blue)
+}
+
+.tab:has(input:focus-visible) {
+    outline:2px solid var(--blue);
+    outline-offset:-2px
+}
+
+.tab .count {
+    min-width:22px;
+    padding:0 7px;
+    border-radius:11px;
+    background:var(--blue-tint);
+    color:var(--blue);
+    font-size:12px;
+    line-height:20px;
+    text-align:center
+}
+
+.view-switch {
+    display:flex;
+    gap:2px;
+    margin-bottom:6px;
+    padding:2px;
+    border:1px solid var(--line);
+    border-radius:7px
+}
+
+.view-button {
+    display:grid;
+    place-items:center;
+    width:32px;
+    height:28px;
+    padding:0;
+    border:0;
+    border-radius:5px;
+    background:none;
+    color:var(--muted);
+    cursor:pointer
+}
+
+.view-button svg {
+    width:18px;
+    height:18px;
+    fill:none;
+    stroke:currentColor;
+    stroke-width:2;
+    stroke-linecap:round;
+    stroke-linejoin:round
+}
+
+.view-button:hover {
+    color:var(--blue)
+}
+
+.view-button[aria-pressed=true] {
+    background:var(--blue-tint);
+    color:var(--blue)
+}
+
+.results-note {
+    padding:12px 0 0;
+    color:var(--muted);
+    font-size:14px
+}
+
+.results-note .clear-link {
+    margin-left:10px
 }
 
 .section-heading {
@@ -635,6 +793,92 @@ turbo-frame[aria-busy=true] .listing-grid {
 .badge-wanted {
     background:var(--gold);
     color:var(--navy)
+}
+
+/* Grid view: the same listings as cards */
+.view-grid .listing-grid {
+    display:grid;
+    grid-template-columns:repeat(auto-fill,minmax(230px,1fr));
+    gap:20px;
+    padding-top:20px;
+    border-top:0
+}
+
+.view-grid .listing-card {
+    flex-direction:column;
+    gap:12px;
+    padding:0 0 14px;
+    border:1px solid var(--line);
+    border-radius:8px;
+    overflow:hidden;
+    background:var(--white)
+}
+
+.view-grid .listing-card:nth-child(even) {
+    background:var(--white)
+}
+
+.view-grid .listing-card:hover {
+    border-color:var(--blue);
+    background:var(--white)
+}
+
+.view-grid .listing-wanted {
+    border-top:3px solid var(--gold)
+}
+
+.view-grid .card-photo,.view-grid .card-icon {
+    width:100%;
+    height:auto;
+    aspect-ratio:4/3;
+    border:0;
+    border-radius:0;
+    box-shadow:none
+}
+
+.view-grid .card-icon {
+    background:var(--blue-tint)
+}
+
+.view-grid .card-icon svg {
+    width:56px;
+    height:56px;
+    stroke-width:1.2
+}
+
+.view-grid .card-main,.view-grid .card-side {
+    width:100%;
+    padding:0 14px
+}
+
+.view-grid .listing-card h3 {
+    font-size:16px
+}
+
+.view-grid .listing-description {
+    display:none
+}
+
+.view-grid .card-side {
+    display:flex;
+    justify-content:space-between;
+    align-items:baseline;
+    margin-top:auto;
+    text-align:left
+}
+
+.view-grid .card-side .card-footer {
+    flex-direction:row;
+    gap:0 10px;
+    font-size:13px
+}
+
+.view-grid .card-side .card-footer span {
+    display:none
+}
+
+.view-grid .listing-price {
+    font-size:18px
 }
 
 .empty-state {
@@ -1613,14 +1857,38 @@ turbo-frame[aria-busy=true] .listing-grid {
 
     .filter-search input {
         height:50px;
-        padding:0 14px;
+        padding:0 88px 0 14px;
         font-size:16px
     }
 
-    .filter-field,.filter-field select,.filter-price input {
-        flex:1 1 40%;
-        width:100%
+    .filter-submit {
+        padding:0 12px
     }
+
+    .category-pills {
+        justify-content:flex-start;
+        flex-wrap:nowrap;
+        overflow-x:auto;
+        padding-bottom:4px
+    }
+
+    .pill {
+        white-space:nowrap
+    }
+
+    .view-grid .listing-grid {
+        grid-template-columns:repeat(2,minmax(0,1fr));
+        gap:12px
+    }
+
+    .view-grid .card-main {
+        flex-basis:auto
+    }
+
+    .view-grid .card-side {
+        padding-left:14px
+    }
+
 
     .listing-card {
         flex-wrap:wrap;

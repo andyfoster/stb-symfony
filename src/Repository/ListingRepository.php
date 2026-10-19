@@ -5,8 +5,10 @@ namespace App\Repository;
 use App\Entity\Listing;
 use App\Entity\User;
 use App\Enum\ListingStatus;
+use App\Enum\ListingType;
 use App\Search\ListingFilter;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
+use Doctrine\ORM\QueryBuilder;
 use Doctrine\Persistence\ManagerRegistry;
 
 /**
@@ -20,14 +22,13 @@ class ListingRepository extends ServiceEntityRepository
     }
 
     /**
-     * Live listings (active, not expired) matching the filter.
+     * Live listings (active, not expired) on the filter's tab that match it.
      *
      * @return Listing[] most recently published or refreshed first
      */
     public function findByFilter(ListingFilter $filter, ?\DateTimeImmutable $now = null): array
     {
-        $qb = $this->createQueryBuilder('l')
-            ->leftJoin('l.book', 'b')
+        return $this->liveMatching($filter, $now)
             ->addSelect('b')
             ->leftJoin('b.papers', 'bp')
             ->addSelect('bp')
@@ -35,13 +36,46 @@ class ListingRepository extends ServiceEntityRepository
             ->addSelect('s')
             ->leftJoin('l.photos', 'p')
             ->addSelect('p')
+            ->andWhere('l.type = :type')
+            ->setParameter('type', $filter->type)
+            ->orderBy('l.publishedAt', 'DESC')
+            ->addOrderBy('l.id', 'DESC')
+            ->addOrderBy('bp.code', 'ASC')
+            ->getQuery()
+            ->getResult();
+    }
+
+    /**
+     * How many listings match the search on each tab.
+     *
+     * @return array<string, int> by ListingType value, e.g. ['for_sale' => 12, 'wanted' => 3]
+     */
+    public function countByType(ListingFilter $filter, ?\DateTimeImmutable $now = null): array
+    {
+        $counts = array_fill_keys(array_map(static fn (ListingType $type): string => $type->value, ListingType::cases()), 0);
+        $rows = $this->liveMatching($filter, $now)
+            ->select('l.type AS type', 'COUNT(l.id) AS listings')
+            ->groupBy('l.type')
+            ->getQuery()
+            ->getArrayResult();
+
+        foreach ($rows as $row) {
+            $type = $row['type'] instanceof ListingType ? $row['type']->value : (string) $row['type'];
+            $counts[$type] = (int) $row['listings'];
+        }
+
+        return $counts;
+    }
+
+    /** Live listings matching the search and categories, on either tab. */
+    private function liveMatching(ListingFilter $filter, ?\DateTimeImmutable $now): QueryBuilder
+    {
+        $qb = $this->createQueryBuilder('l')
+            ->leftJoin('l.book', 'b')
             ->andWhere('l.status = :active')
             ->andWhere('l.expiresAt > :now')
             ->setParameter('active', ListingStatus::Active)
-            ->setParameter('now', $now ?? new \DateTimeImmutable())
-            ->orderBy('l.publishedAt', 'DESC')
-            ->addOrderBy('l.id', 'DESC')
-            ->addOrderBy('bp.code', 'ASC');
+            ->setParameter('now', $now ?? new \DateTimeImmutable());
 
         $q = trim((string) $filter->q);
         if ('' !== $q) {
@@ -58,19 +92,11 @@ class ListingRepository extends ServiceEntityRepository
                 ->setParameter('isbn', '%'.addcslashes(str_replace(['-', ' '], '', $q), '%_').'%');
         }
 
-        if (null !== $filter->type) {
-            $qb->andWhere('l.type = :type')->setParameter('type', $filter->type);
+        if ([] !== $filter->categories) {
+            $qb->andWhere('l.category IN (:categories)')->setParameter('categories', $filter->categories);
         }
 
-        if (null !== $filter->category) {
-            $qb->andWhere('l.category = :category')->setParameter('category', $filter->category);
-        }
-
-        if (null !== $filter->maxPrice) {
-            $qb->andWhere('l.priceCents <= :maxPrice')->setParameter('maxPrice', $filter->maxPrice * 100);
-        }
-
-        return $qb->getQuery()->getResult();
+        return $qb;
     }
 
     /**

@@ -11,14 +11,27 @@ use Symfony\Component\Validator\Constraints as Assert;
  */
 final class ListingFilter
 {
+    /**
+     * @param list<Category> $categories none means every category
+     */
     public function __construct(
         #[Assert\Length(max: 100)]
         public ?string $q = null,
-        public ?ListingType $type = null,
-        public ?Category $category = null,
-        /** Whole dollars. */
-        #[Assert\PositiveOrZero]
-        public ?int $maxPrice = null,
+        /** Which tab: things for sale, or things people want. */
+        public ListingType $type = ListingType::ForSale,
+        public array $categories = [],
     ) {
+    }
+
+    /** Anything narrowing the list beyond the tab. */
+    public function isNarrowed(): bool
+    {
+        return '' !== trim((string) $this->q) || [] !== $this->categories;
+    }
+
+    /** The same search on the other tab. */
+    public function withType(ListingType $type): self
+    {
+        return new self($this->q, $type, $this->categories);
     }
 }

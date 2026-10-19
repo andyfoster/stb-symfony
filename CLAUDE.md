@@ -50,7 +50,7 @@ up to date when adding a workflow.
   requests), and builds the schema from all mapped entities with `SchemaTool`. Keep DQL
   portable between SQLite and Postgres (e.g. `LOWER(...) LIKE`, not `ILIKE`).
 - Tests assert on template CSS classes and copy (`.listing-card .card-link`, `.listing-price`,
-  `.course-code`, `.empty-state`, `#listings .count`), so markup changes usually need test updates.
+  `.course-code`, `.empty-state`, `.tab`), so markup changes usually need test updates.
 
 ## Architecture
 
@@ -100,11 +100,18 @@ up to date when adding a workflow.
   sets an account's password to `Password1!`, or to `--password=...`, for people who can't get
   the reset email. Tell them to change it.
 - Home page (`ListingController`, `/`): a GET `ListingFilterType` form with an empty block
-  prefix (clean `?q=&type=&category=&maxPrice=` URLs) binds to the `App\Search\ListingFilter`
-  DTO, and `ListingRepository::findByFilter()` builds the query. Results sit in the
-  `<turbo-frame id="listings">`; the `filter-form` Stimulus controller auto-submits into it so
-  the search box keeps focus. The controller passes `$form->createView()` deliberately, so
-  invalid filters render with 200 and the full list rather than a 422.
+  prefix (clean `?q=&type=wanted&categories[]=textbooks` URLs) binds to the
+  `App\Search\ListingFilter` DTO: a search, the tab (`type`, for sale by default) and any number
+  of categories (toggle pills). `ListingRepository::findByFilter()` lists one tab and
+  `countByType()` counts both for the tab badges. Results sit in the `<turbo-frame id="listings">`;
+  the "For sale" / "Wanted" tab radios are inside it but belong to the form via
+  `form="listing-filters"`, which is why the `filter-form` controller sits on a wrapper around both.
+  It auto-submits into the frame so the search box keeps focus. The `view-toggle` controller
+  switches rows and a card grid (`.view-grid`) and remembers the choice in localStorage. The
+  controller passes `$form->createView()` deliberately, so invalid filters render with 200 and
+  the full list rather than a 422.
+- Categories (`App\Enum\Category`) are deliberately few (five) so they fit as one row of pills;
+  merge rather than add.
 - Accounts: `User` (table `app_user`) is identified by email, always stored lower-case;
   `UserRepository::loadUserByIdentifier()` is the provider's loader, so lookups are
   case-insensitive. `password` is nullable so later social (OAuth) or magic-link (`login_link`)

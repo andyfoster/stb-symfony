@@ -34,14 +34,15 @@ final class ListingController extends AbstractController
         $form = $this->createForm(ListingFilterType::class, $filter);
         $form->handleRequest($request);
 
-        // Invalid filters (e.g. a negative price) show their errors and fall back to everything.
+        // Invalid filters (e.g. an unknown category) show their errors and fall back to everything.
         $applied = $form->isSubmitted() && !$form->isValid() ? new ListingFilter() : $filter;
 
         return $this->render('listing/index.html.twig', [
             // A view, not the form, so a bad filter doesn't turn the page into a 422.
             'form' => $form->createView(),
+            'filter' => $applied,
             'listings' => $listings->findByFilter($applied),
-            'filtered' => $form->isSubmitted() && $form->isValid() && $filter != new ListingFilter(),
+            'counts' => $listings->countByType($applied),
         ]);
     }
 

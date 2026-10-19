@@ -74,7 +74,7 @@ final class ListingCreateTest extends WebTestCase
         $this->client->submitForm('Save draft', [
             'listing_form[type]' => 'for_sale',
             'listing_form[title]' => 'Desk lamp',
-            'listing_form[category]' => 'furniture',
+            'listing_form[category]' => 'flat_and_home',
         ]);
 
         self::assertResponseRedirects('/account/listings');
@@ -101,7 +101,7 @@ final class ListingCreateTest extends WebTestCase
         $this->client->submitForm('Publish listing', [
             'listing_form[type]' => 'wanted',
             'listing_form[title]' => 'Single bed frame',
-            'listing_form[category]' => 'furniture',
+            'listing_form[category]' => 'flat_and_home',
             // Left over from picking Textbooks first; ignored, so no author is needed.
             'listing_form[book][isbn]' => '9780137542970',
         ]);

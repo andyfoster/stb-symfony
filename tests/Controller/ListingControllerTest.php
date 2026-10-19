@@ -32,83 +32,96 @@ final class ListingControllerTest extends WebTestCase
                 ->addPaper(new Paper('chem191'))->addPaper(new Paper('CHEM111'))));
         $manager->persist($this->listing(ListingType::Wanted, Category::Textbooks, 'Psychology for PSYC111', 5000, '-2 days',
             (new BookDetails())->setAuthor('Gleitman')));
-        $manager->persist($this->listing(ListingType::ForSale, Category::Furniture, 'Desk and office chair', 6000, '-3 days'));
-        $manager->persist($this->listing(ListingType::ForSale, Category::Furniture, 'Bookshelf', 0, '-4 days'));
-        $manager->persist($this->listing(ListingType::Wanted, Category::Electronics, 'Second monitor', null, '-5 days'));
+        $manager->persist($this->listing(ListingType::ForSale, Category::FlatAndHome, 'Desk and office chair', 6000, '-3 days'));
+        $manager->persist($this->listing(ListingType::ForSale, Category::FlatAndHome, 'Bookshelf', 0, '-4 days'));
+        $manager->persist($this->listing(ListingType::Wanted, Category::StudyAndTech, 'Second monitor', null, '-5 days'));
         $manager->flush();
         // Like a fresh request: nothing loaded yet.
         $manager->clear();
     }
 
-    public function testHomePageListsEverythingNewestFirst(): void
+    public function testHomePageShowsThingsForSaleNewestFirst(): void
     {
         $this->client->request('GET', '/');
 
         self::assertResponseIsSuccessful();
         self::assertPageTitleContains('ScarfieTextbooks');
-        self::assertSelectorTextContains('#listings .count', '5');
-        self::assertSame(
-            ['Chemistry: The Central Science', 'Psychology for PSYC111', 'Desk and office chair', 'Bookshelf', 'Second monitor'],
-            $this->titles(),
-        );
+        self::assertSame(['Chemistry: The Central Science', 'Desk and office chair', 'Bookshelf'], $this->titles());
+        self::assertSame(['For sale 3', 'Wanted 2'], $this->tabs());
+        self::assertSelectorExists('input[name="type"][value="for_sale"][checked]');
+        self::assertSelectorNotExists('.results-note');
 
         $chemistry = $this->client->getCrawler()->filter('.listing-card')->first();
         self::assertStringContainsString('$95', $chemistry->filter('.listing-price')->text());
         self::assertSame(['CHEM111', 'CHEM191'], $chemistry->filter('.course-code')->each(static fn ($node) => $node->text()));
-        // Only wanted listings are marked; for sale is the default.
         self::assertCount(0, $chemistry->filter('.badge'));
-        self::assertSelectorTextContains('.listing-wanted .badge', 'Wanted');
-
-        self::assertSelectorTextContains('.listing-wanted .listing-price', 'Budget up to $50');
         self::assertAnySelectorTextContains('.listing-price', 'Free');
+    }
+
+    public function testWantedTab(): void
+    {
+        $this->client->request('GET', '/', ['type' => 'wanted']);
+
+        self::assertSame(['Psychology for PSYC111', 'Second monitor'], $this->titles());
+        self::assertSelectorExists('input[name="type"][value="wanted"][checked]');
+        self::assertSelectorTextContains('.listing-wanted .badge', 'Wanted');
+        self::assertSelectorTextContains('.listing-wanted .listing-price', 'Budget up to $50');
         self::assertAnySelectorTextContains('.listing-price', 'Name your price');
     }
 
-    public function testFilterBySearchTypeCategoryAndPrice(): void
+    public function testSearchAndCategories(): void
     {
         $this->client->request('GET', '/', ['q' => 'chem 111']);
         self::assertSame(['Chemistry: The Central Science'], $this->titles());
 
         $this->client->request('GET', '/', ['q' => 'CHEM191']);
         self::assertSame(['Chemistry: The Central Science'], $this->titles());
-        self::assertSelectorTextContains('.clear-link', 'Clear filters');
-
-        $this->client->request('GET', '/', ['q' => 'gleitman']);
-        self::assertSame(['Psychology for PSYC111'], $this->titles());
+        self::assertSelectorTextContains('.results-note', '1 match for “CHEM191”');
+        self::assertSelectorTextContains('.clear-link', 'Clear');
 
         $this->client->request('GET', '/', ['q' => '978-0137-542970']);
         self::assertSame(['Chemistry: The Central Science'], $this->titles());
 
-        $this->client->request('GET', '/', ['type' => 'wanted']);
-        self::assertSame(['Psychology for PSYC111', 'Second monitor'], $this->titles());
+        // The search applies to both tabs, and their counts follow it.
+        $this->client->request('GET', '/', ['q' => 'gleitman']);
+        self::assertSame([], $this->titles());
+        self::assertSame(['For sale 0', 'Wanted 1'], $this->tabs());
+        self::assertSelectorTextContains('.empty-state', 'or look at the other tab');
+        $this->client->request('GET', '/', ['q' => 'gleitman', 'type' => 'wanted']);
+        self::assertSame(['Psychology for PSYC111'], $this->titles());
 
-        $this->client->request('GET', '/', ['type' => 'for_sale', 'category' => 'furniture']);
+        // Any number of categories.
+        $this->client->request('GET', '/', ['categories' => ['flat_and_home']]);
         self::assertSame(['Desk and office chair', 'Bookshelf'], $this->titles());
-
-        $this->client->request('GET', '/', ['maxPrice' => '60']);
-        self::assertSame(['Psychology for PSYC111', 'Desk and office chair', 'Bookshelf'], $this->titles());
+        $this->client->request('GET', '/', ['categories' => ['flat_and_home', 'textbooks']]);
+        self::assertSame(['Chemistry: The Central Science', 'Desk and office chair', 'Bookshelf'], $this->titles());
+        self::assertSelectorExists('input[name="categories[]"][value="textbooks"][checked]');
+        $this->client->request('GET', '/', ['categories' => ['study_and_tech'], 'type' => 'wanted']);
+        self::assertSame(['Second monitor'], $this->titles());
     }
 
     public function testFilterFormSubmitsAsGet(): void
     {
         $crawler = $this->client->request('GET', '/');
-        $this->client->submit($crawler->selectButton('Filter')->form(['category' => 'electronics']));
+        $form = $crawler->selectButton('Search')->form();
+        $form['categories'][0]->tick();
+        $this->client->submit($form, ['q' => 'desk']);
 
         self::assertResponseIsSuccessful();
-        self::assertStringContainsString('category=electronics', (string) $this->client->getRequest()->getQueryString());
-        self::assertSame(['Second monitor'], $this->titles());
+        self::assertStringContainsString('q=desk', urldecode((string) $this->client->getRequest()->getQueryString()));
+        self::assertSame([], $this->titles(), 'Textbooks only, so the desk is filtered out.');
     }
 
     public function testNoMatchesAndInvalidFilters(): void
     {
         $this->client->request('GET', '/', ['q' => 'unicycle']);
         self::assertSame([], $this->titles());
-        self::assertSelectorTextContains('.empty-state', 'Nothing matches those filters.');
+        self::assertSelectorTextContains('.empty-state', 'Nothing matches that.');
 
         // Invalid values show an error and fall back to the full list.
-        $this->client->request('GET', '/', ['maxPrice' => '-5', 'category' => 'spaceships']);
+        $this->client->request('GET', '/', ['categories' => ['spaceships']]);
         self::assertResponseIsSuccessful();
-        self::assertCount(5, $this->titles());
+        self::assertCount(3, $this->titles());
         self::assertSelectorExists('.filter-bar ul li');
     }
 
@@ -124,6 +137,12 @@ final class ListingControllerTest extends WebTestCase
             ->setBook($book)
             ->setCreatedAt(new \DateTimeImmutable($created))
             ->publish(42, new \DateTimeImmutable($created));
+    }
+
+    /** @return string[] e.g. "For sale 3" */
+    private function tabs(): array
+    {
+        return $this->client->getCrawler()->filter('.tab')->each(static fn ($node) => $node->text());
     }
 
     /** @return string[] */

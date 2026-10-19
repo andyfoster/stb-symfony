@@ -39,7 +39,7 @@ final class PhotoTest extends WebTestCase
         $this->post('/sell', [
             'type' => 'for_sale',
             'title' => 'Desk lamp',
-            'category' => 'furniture',
+            'category' => 'flat_and_home',
         ], [$this->image(2400, 1800), $this->image(400, 300)]);
 
         self::assertResponseRedirects();
@@ -64,7 +64,7 @@ final class PhotoTest extends WebTestCase
     {
         $alex = $this->createUser('alex@example.com', verified: false);
         $this->client->loginUser($alex);
-        $this->post('/sell', ['type' => 'for_sale', 'title' => 'Desk lamp', 'category' => 'furniture'], [$this->image(800, 600)]);
+        $this->post('/sell', ['type' => 'for_sale', 'title' => 'Desk lamp', 'category' => 'flat_and_home'], [$this->image(800, 600)]);
         $photo = $this->photos()[0];
 
         // The seller can see their own photos, with a note about why others can't.
@@ -87,7 +87,7 @@ final class PhotoTest extends WebTestCase
     {
         $this->client->loginUser($this->createUser('sam@example.com'));
 
-        $this->post('/sell', ['type' => 'for_sale', 'title' => 'Desk lamp', 'category' => 'furniture'], array_map(fn () => $this->image(200, 200), range(1, 5)));
+        $this->post('/sell', ['type' => 'for_sale', 'title' => 'Desk lamp', 'category' => 'flat_and_home'], array_map(fn () => $this->image(200, 200), range(1, 5)));
 
         self::assertResponseStatusCodeSame(422);
         self::assertSelectorTextContains('.photo-panel', 'You can add up to 4 photos.');
@@ -98,7 +98,7 @@ final class PhotoTest extends WebTestCase
     {
         $sam = $this->createUser('sam@example.com');
         $this->client->loginUser($sam);
-        $this->post('/sell', ['type' => 'for_sale', 'title' => 'Desk lamp', 'category' => 'furniture'], [$this->image(200, 200), $this->image(300, 300)]);
+        $this->post('/sell', ['type' => 'for_sale', 'title' => 'Desk lamp', 'category' => 'flat_and_home'], [$this->image(200, 200), $this->image(300, 300)]);
         [$first, $second] = $this->photos();
         $id = $first->getListing()->getId();
 
