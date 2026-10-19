@@ -24,7 +24,7 @@ class PaperRepository extends ServiceEntityRepository
     public function search(string $term, int $limit = 10): array
     {
         $term = trim($term);
-        if ('' === $term) {
+        if ($term === '') {
             return [];
         }
 
@@ -33,8 +33,8 @@ class PaperRepository extends ServiceEntityRepository
         return $this->createQueryBuilder('p')
             ->addSelect('CASE WHEN p.code LIKE :code THEN 0 ELSE 1 END AS HIDDEN codeFirst')
             ->andWhere('p.code LIKE :code OR LOWER(p.title) LIKE :title')
-            ->setParameter('code', addcslashes($code, '%_').'%')
-            ->setParameter('title', '%'.addcslashes(mb_strtolower($term), '%_').'%')
+            ->setParameter('code', addcslashes($code, '%_') . '%')
+            ->setParameter('title', '%' . addcslashes(mb_strtolower($term), '%_') . '%')
             ->orderBy('codeFirst', 'ASC')
             ->addOrderBy('p.official', 'DESC')
             ->addOrderBy('p.code', 'ASC')

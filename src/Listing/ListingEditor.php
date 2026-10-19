@@ -19,8 +19,7 @@ class ListingEditor
         private readonly EntityManagerInterface $manager,
         private readonly PhotoStorage $photos,
         private readonly SiteSettingsProvider $settings,
-    ) {
-    }
+    ) {}
 
     /**
      * @param UploadedFile[] $newPhotos

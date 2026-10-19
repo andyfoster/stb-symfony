@@ -13,22 +13,26 @@ use Symfony\Component\Console\Style\SymfonyStyle;
 /**
  * Makes an account an admin (or not), e.g. to set up the first admin in production.
  */
-#[AsCommand(name: 'app:user:promote', description: 'Give an account admin access (or take it away with --demote)')]
+#[AsCommand(
+    name: 'app:user:promote',
+    description: 'Give an account admin access (or take it away with --demote)',
+)]
 final class PromoteUserCommand
 {
     public function __construct(
         private readonly UserRepository $users,
         private readonly EntityManagerInterface $manager,
-    ) {
-    }
+    ) {}
 
     public function __invoke(
         SymfonyStyle $io,
-        #[Argument('Email address of the account')] string $email,
-        #[Option('Remove admin access instead')] bool $demote = false,
+        #[Argument('Email address of the account')]
+        string $email,
+        #[Option('Remove admin access instead')]
+        bool $demote = false,
     ): int {
         $user = $this->users->findOneByEmail($email);
-        if (null === $user) {
+        if ($user === null) {
             $io->error(\sprintf('There is no account for %s.', $email));
 
             return Command::FAILURE;

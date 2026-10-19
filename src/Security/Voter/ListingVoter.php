@@ -20,9 +20,7 @@ final class ListingVoter extends Voter
     public const string VIEW = 'LISTING_VIEW';
     public const string EDIT = 'LISTING_EDIT';
 
-    public function __construct(private readonly AccessDecisionManagerInterface $decisions)
-    {
-    }
+    public function __construct(private readonly AccessDecisionManagerInterface $decisions) {}
 
     protected function supports(string $attribute, mixed $subject): bool
     {
@@ -31,7 +29,7 @@ final class ListingVoter extends Voter
 
     protected function voteOnAttribute(string $attribute, mixed $subject, TokenInterface $token, ?Vote $vote = null): bool
     {
-        if (self::VIEW === $attribute && $subject->isLive()) {
+        if ($attribute === self::VIEW && $subject->isLive()) {
             return true;
         }
 

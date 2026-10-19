@@ -12,8 +12,7 @@ final class SendExpiryRemindersHandler
     public function __construct(
         private readonly ExpiryReminder $reminder,
         private readonly LoggerInterface $logger,
-    ) {
-    }
+    ) {}
 
     public function __invoke(SendExpiryReminders $message): void
     {

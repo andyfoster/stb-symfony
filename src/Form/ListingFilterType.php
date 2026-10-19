@@ -21,34 +21,34 @@ class ListingFilterType extends AbstractType
     {
         $builder
             ->add('q', SearchType::class, [
-                'label' => 'Search',
+                'label'    => 'Search',
                 'required' => false,
-                'attr' => ['placeholder' => 'Search by title, author, paper or ISBN'],
+                'attr'     => ['placeholder' => 'Search by title, author, paper or ISBN'],
             ])
             // Rendered as the "For sale" / "Wanted" tabs above the results.
             ->add('type', EnumType::class, [
-                'class' => ListingType::class,
-                'expanded' => true,
-                'empty_data' => ListingType::ForSale->value,
-                'choice_label' => static fn (ListingType $type): string => $type->label(),
+                'class'        => ListingType::class,
+                'expanded'     => true,
+                'empty_data'   => ListingType::ForSale->value,
+                'choice_label' => static fn(ListingType $type): string => $type->label(),
             ])
             ->add('categories', EnumType::class, [
-                'class' => Category::class,
-                'label' => 'Categories',
+                'class'         => Category::class,
+                'label'         => 'Categories',
                 'property_path' => 'categories',
-                'required' => false,
-                'multiple' => true,
-                'expanded' => true,
-                'choice_label' => static fn (Category $category): string => $category->label(),
+                'required'      => false,
+                'multiple'      => true,
+                'expanded'      => true,
+                'choice_label'  => static fn(Category $category): string => $category->label(),
             ]);
     }
 
     public function configureOptions(OptionsResolver $resolver): void
     {
         $resolver->setDefaults([
-            'data_class' => ListingFilter::class,
-            'method' => 'GET',
-            'csrf_protection' => false,
+            'data_class'         => ListingFilter::class,
+            'method'             => 'GET',
+            'csrf_protection'    => false,
             'allow_extra_fields' => true,
         ]);
     }

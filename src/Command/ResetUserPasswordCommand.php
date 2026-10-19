@@ -25,16 +25,17 @@ final class ResetUserPasswordCommand
         private readonly UserRepository $users,
         private readonly UserPasswordHasherInterface $hasher,
         private readonly EntityManagerInterface $manager,
-    ) {
-    }
+    ) {}
 
     public function __invoke(
         SymfonyStyle $io,
-        #[Argument('Email address of the account')] string $email,
-        #[Option('The new password')] string $password = self::DEFAULT_PASSWORD,
+        #[Argument('Email address of the account')]
+        string $email,
+        #[Option('The new password')]
+        string $password = self::DEFAULT_PASSWORD,
     ): int {
         $user = $this->users->findOneByEmail($email);
-        if (null === $user) {
+        if ($user === null) {
             $io->error(\sprintf('There is no account for %s.', $email));
 
             return Command::FAILURE;
@@ -43,7 +44,7 @@ final class ResetUserPasswordCommand
         $user->setPassword($this->hasher->hashPassword($user, $password));
         $this->manager->flush();
 
-        $io->success(\sprintf('%s can now log in with %s. Ask them to change it.', $user->getEmail(), self::DEFAULT_PASSWORD === $password ? '"'.self::DEFAULT_PASSWORD.'"' : 'the new password'));
+        $io->success(\sprintf('%s can now log in with %s. Ask them to change it.', $user->getEmail(), $password === self::DEFAULT_PASSWORD ? '"' . self::DEFAULT_PASSWORD . '"' : 'the new password'));
 
         return Command::SUCCESS;
     }

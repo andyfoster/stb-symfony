@@ -25,16 +25,15 @@ class SellerMessenger
         private readonly RateLimiterFactoryInterface $perIpLimiter,
         #[Target('contact_seller_listing.limiter')]
         private readonly RateLimiterFactoryInterface $perListingLimiter,
-    ) {
-    }
+    ) {}
 
     /**
      * Uses up one message from the sender's allowance; false when they've sent too many.
      */
     public function allow(Request $request, Listing $listing, Message $message): bool
     {
-        $perIp = $this->perIpLimiter->create((string) $request->getClientIp())->consume();
-        $perListing = $this->perListingLimiter->create($listing->getId().'|'.$message->getSenderEmail())->consume();
+        $perIp      = $this->perIpLimiter->create((string) $request->getClientIp())->consume();
+        $perListing = $this->perListingLimiter->create($listing->getId() . '|' . $message->getSenderEmail())->consume();
 
         return $perIp->isAccepted() && $perListing->isAccepted();
     }

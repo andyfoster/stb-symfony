@@ -16,19 +16,19 @@ class ProfileFormType extends AbstractType
     {
         $builder
             ->add('displayName', TextType::class, [
-                'label' => 'Display name',
+                'label'      => 'Display name',
                 'empty_data' => '',
-                'attr' => ['autocomplete' => 'nickname', 'maxlength' => 80],
+                'attr'       => ['autocomplete' => 'nickname', 'maxlength' => 80],
             ])
             ->add('phone', TelType::class, [
-                'label' => 'Cellphone',
+                'label'    => 'Cellphone',
                 'required' => false,
-                'attr' => ['autocomplete' => 'tel', 'placeholder' => '021 123 4567'],
+                'attr'     => ['autocomplete' => 'tel', 'placeholder' => '021 123 4567'],
             ])
             ->add('showPhone', CheckboxType::class, [
-                'label' => 'Show my number on my listings',
+                'label'    => 'Show my number on my listings',
                 'required' => false,
-                'help' => 'People can always message you through the site. Your email address is never shown.',
+                'help'     => 'People can always message you through the site. Your email address is never shown.',
             ]);
     }
 

@@ -18,21 +18,19 @@ use Symfony\Component\OptionsResolver\OptionsResolver;
  */
 class PaperTagsType extends AbstractType
 {
-    public function __construct(private readonly PaperCatalog $catalog)
-    {
-    }
+    public function __construct(private readonly PaperCatalog $catalog) {}
 
     public function buildForm(FormBuilderInterface $builder, array $options): void
     {
         $builder->addModelTransformer(new CallbackTransformer(
-            static fn (?iterable $papers): string => implode(', ', array_map(
-                static fn (Paper $paper): string => (string) $paper->getCode(),
-                null === $papers ? [] : [...$papers],
+            static fn(?iterable $papers): string => implode(', ', array_map(
+                static fn(Paper $paper): string => (string) $paper->getCode(),
+                $papers === null ? [] : [...$papers],
             )),
             function (?string $text): array {
                 $papers = [];
                 foreach (preg_split('/[,;&\/\n]+|\s+and\s+/i', (string) $text) ?: [] as $code) {
-                    if ('' === trim($code)) {
+                    if (trim($code) === '') {
                         continue;
                     }
                     try {
@@ -51,9 +49,9 @@ class PaperTagsType extends AbstractType
     public function configureOptions(OptionsResolver $resolver): void
     {
         $resolver->setDefaults([
-            'required' => false,
+            'required'     => false,
             'by_reference' => false,
-            'empty_data' => '',
+            'empty_data'   => '',
         ]);
     }
 

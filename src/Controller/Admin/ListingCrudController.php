@@ -44,7 +44,7 @@ final class ListingCrudController extends AbstractCrudController
     public function configureActions(Actions $actions): Actions
     {
         $view = Action::new('viewOnSite', 'View on site', 'fa fa-eye')
-            ->linkToRoute('app_listing_show', static fn (Listing $listing): array => ['id' => $listing->getId()]);
+            ->linkToRoute('app_listing_show', static fn(Listing $listing): array => ['id' => $listing->getId()]);
 
         return $actions
             ->disable(Action::NEW)
@@ -61,14 +61,14 @@ final class ListingCrudController extends AbstractCrudController
     {
         yield IdField::new('id')->hideOnForm();
         yield TextField::new('title');
-        yield AssociationField::new('seller')->setDisabled()->formatValue(static fn ($value, Listing $listing): string => (string) $listing->getSeller()?->getEmail());
+        yield AssociationField::new('seller')->setDisabled()->formatValue(static fn($value, Listing $listing): string => (string) $listing->getSeller()?->getEmail());
         yield ChoiceField::new('status')->setChoices(ListingStatus::cases())
-            ->setFormTypeOption('choice_label', static fn (ListingStatus $status): string => $status->label())
+            ->setFormTypeOption('choice_label', static fn(ListingStatus $status): string => $status->label())
             ->renderAsBadges(['draft' => 'secondary', 'active' => 'success', 'sold' => 'info']);
         yield ChoiceField::new('type')->setChoices(ListingType::cases())
-            ->setFormTypeOption('choice_label', static fn (ListingType $type): string => $type->label())->hideOnIndex();
+            ->setFormTypeOption('choice_label', static fn(ListingType $type): string => $type->label())->hideOnIndex();
         yield ChoiceField::new('category')->setChoices(Category::cases())
-            ->setFormTypeOption('choice_label', static fn (Category $category): string => $category->label());
+            ->setFormTypeOption('choice_label', static fn(Category $category): string => $category->label());
         yield MoneyField::new('priceCents', 'Price')->setCurrency('NZD')->setStoredAsCents()->setRequired(false);
         yield TextareaField::new('description')->hideOnIndex();
         yield DateTimeField::new('publishedAt')->hideOnForm();

@@ -23,13 +23,12 @@ final class ListingFilter
         /** Which tab: things for sale, or things people want. */
         public ListingType $type = ListingType::ForSale,
         public array $categories = [],
-    ) {
-    }
+    ) {}
 
     /** Anything narrowing the list beyond the tab. */
     public function isNarrowed(): bool
     {
-        return '' !== trim((string) $this->q) || [] !== $this->categories;
+        return trim((string) $this->q) !== '' || $this->categories !== [];
     }
 
     /** The same search on the other tab. */
@@ -46,12 +45,12 @@ final class ListingFilter
     /** The same search, on either tab (for the tab counts). */
     public function matchesSearchAndCategories(Listing $listing): bool
     {
-        if ([] !== $this->categories && !\in_array($listing->getCategory(), $this->categories, true)) {
+        if ($this->categories !== [] && !\in_array($listing->getCategory(), $this->categories, true)) {
             return false;
         }
 
         $q = mb_strtolower(trim((string) $this->q));
-        if ('' === $q) {
+        if ($q === '') {
             return true;
         }
 

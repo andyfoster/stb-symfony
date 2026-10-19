@@ -22,18 +22,18 @@ class RegistrationFormType extends AbstractType
         $builder
             ->add('displayName', TextType::class, [
                 'label' => 'Your name',
-                'help' => 'Shown to other students on your listings.',
-                'attr' => ['autocomplete' => 'name'],
+                'help'  => 'Shown to other students on your listings.',
+                'attr'  => ['autocomplete' => 'name'],
             ])
             ->add('email', EmailType::class, [
                 'label' => 'Email',
-                'attr' => ['autocomplete' => 'email'],
+                'attr'  => ['autocomplete' => 'email'],
             ])
             ->add('plainPassword', PasswordType::class, [
-                'label' => 'Password',
-                'mapped' => false,
-                'help' => 'At least 8 characters.',
-                'attr' => ['autocomplete' => 'new-password'],
+                'label'       => 'Password',
+                'mapped'      => false,
+                'help'        => 'At least 8 characters.',
+                'attr'        => ['autocomplete' => 'new-password'],
                 'constraints' => [
                     new Assert\NotBlank(message: 'Choose a password.'),
                     // 4096 is Symfony's maximum for hashing.

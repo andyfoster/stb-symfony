@@ -95,7 +95,7 @@ class Message extends Base
 
     public function setSenderName(?string $senderName): static
     {
-        $this->senderName = null === $senderName ? null : trim($senderName);
+        $this->senderName = $senderName === null ? null : trim($senderName);
 
         return $this;
     }
@@ -107,7 +107,7 @@ class Message extends Base
 
     public function setSenderEmail(?string $senderEmail): static
     {
-        $this->senderEmail = null === $senderEmail ? null : mb_strtolower(trim($senderEmail));
+        $this->senderEmail = $senderEmail === null ? null : mb_strtolower(trim($senderEmail));
 
         return $this;
     }
@@ -119,7 +119,7 @@ class Message extends Base
 
     public function setBody(?string $body): static
     {
-        $this->body = null === $body ? null : trim($body);
+        $this->body = $body === null ? null : trim($body);
 
         return $this;
     }
@@ -150,7 +150,7 @@ class Message extends Base
 
     public function isRead(): bool
     {
-        return null !== $this->readAt;
+        return $this->readAt !== null;
     }
 
     public function markRead(): static

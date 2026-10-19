@@ -43,20 +43,20 @@ final class PlaceholderPhotos
      */
     public function for(Listing $listing, int $variant = 0): File
     {
-        $image = imagecreatetruecolor(1200, 900);
+        $image       = imagecreatetruecolor(1200, 900);
         [$r, $g, $b] = self::COVERS[abs(crc32((string) $listing->getTitle())) % \count(self::COVERS)];
 
         // A table-top background, a little different per photo.
         $shade = 236 - 10 * $variant;
         imagefill($image, 0, 0, imagecolorallocate($image, $shade, $shade - 4, $shade - 12));
 
-        if (Category::Textbooks === $listing->getCategory()) {
+        if ($listing->getCategory() === Category::Textbooks) {
             $this->drawBook($image, $listing, [$r, $g, $b], $variant);
         } else {
             $this->drawCard($image, $listing, [$r, $g, $b]);
         }
 
-        $path = tempnam(sys_get_temp_dir(), 'stb-placeholder').'.png';
+        $path = tempnam(sys_get_temp_dir(), 'stb-placeholder') . '.png';
         imagepng($image, $path);
 
         return new File($path);
@@ -66,10 +66,10 @@ final class PlaceholderPhotos
     private function drawBook(\GdImage $image, Listing $listing, array $rgb, int $variant): void
     {
         [$r, $g, $b] = $rgb;
-        $x = 330 + 30 * $variant;
-        $y = 90;
-        $width = 540;
-        $height = 720;
+        $x           = 330 + 30 * $variant;
+        $y           = 90;
+        $width       = 540;
+        $height      = 720;
 
         // Shadow, cover, spine and page edge.
         imagefilledrectangle($image, $x + 18, $y + 18, $x + $width + 18, $y + $height + 18, imagecolorallocatealpha($image, 0, 0, 0, 90));
@@ -78,10 +78,10 @@ final class PlaceholderPhotos
         imagefilledrectangle($image, $x + $width - 8, $y + 8, $x + $width, $y + $height - 8, imagecolorallocate($image, 246, 242, 230));
 
         $white = imagecolorallocate($image, 255, 255, 255);
-        $gold = imagecolorallocate($image, 255, 205, 0);
+        $gold  = imagecolorallocate($image, 255, 205, 0);
         imagefilledrectangle($image, $x + 70, $y + 90, $x + 190, $y + 98, $gold);
 
-        if (0 !== $variant) {
+        if ($variant !== 0) {
             // The "back cover": just a barcode block.
             imagefilledrectangle($image, $x + 330, $y + 560, $x + 480, $y + 650, $white);
 
@@ -91,8 +91,8 @@ final class PlaceholderPhotos
         $bottom = $this->text($image, (string) $listing->getTitle(), 40, $white, $x + 70, $y + 170, $width - 130);
         if (null !== $book = $listing->getBook()) {
             $this->text($image, (string) $book->getAuthor(), 20, imagecolorallocatealpha($image, 255, 255, 255, 30), $x + 70, $bottom + 30, $width - 130);
-            if (null !== $book->getEdition()) {
-                $this->text($image, $book->getEdition().' edition', 20, $gold, $x + 70, $y + $height - 80, $width - 130);
+            if ($book->getEdition() !== null) {
+                $this->text($image, $book->getEdition() . ' edition', 20, $gold, $x + 70, $y + $height - 80, $width - 130);
             }
         }
     }
@@ -104,7 +104,7 @@ final class PlaceholderPhotos
         imagefilledrectangle($image, 0, 620, 1200, 900, imagecolorallocate($image, $r, $g, $b));
         imagefilledellipse($image, 600, 380, 420, 420, imagecolorallocate($image, min(255, $r + 120), min(255, $g + 120), min(255, $b + 120)));
         $label = $listing->getCategory()?->label() ?? '';
-        $box = null === $this->font ? [0, 0, 8 * \strlen($label)] : imagettfbbox(30, 0, $this->font, $label);
+        $box   = $this->font === null ? [0, 0, 8 * \strlen($label)] : imagettfbbox(30, 0, $this->font, $label);
         $this->text($image, $label, 30, imagecolorallocate($image, $r, $g, $b), (int) (600 - ($box[2] - $box[0]) / 2), 360, 400);
         $this->text($image, (string) $listing->getTitle(), 44, imagecolorallocate($image, 255, 255, 255), 80, 690, 1040);
     }
@@ -114,7 +114,7 @@ final class PlaceholderPhotos
      */
     private function text(\GdImage $image, string $text, int $size, int $colour, int $x, int $y, int $width): int
     {
-        if (null === $this->font) {
+        if ($this->font === null) {
             // No TrueType font: GD's built-in one, unwrapped.
             imagestring($image, 5, $x, $y, $text, $colour);
 
@@ -124,9 +124,9 @@ final class PlaceholderPhotos
         $line = '';
         $y += $size;
         foreach (explode(' ', $text) as $word) {
-            $try = '' === $line ? $word : $line.' '.$word;
+            $try = $line === '' ? $word : $line . ' ' . $word;
             $box = imagettfbbox($size, 0, $this->font, $try);
-            if ('' !== $line && $box[2] - $box[0] > $width) {
+            if ($line !== '' && $width < $box[2] - $box[0]) {
                 imagettftext($image, $size, 0, $x, $y, $colour, $this->font, $line);
                 $y += (int) ($size * 1.4);
                 $line = $word;

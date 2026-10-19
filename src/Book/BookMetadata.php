@@ -17,6 +17,5 @@ final readonly class BookMetadata
         public ?string $edition = null,
         public ?string $publishedYear = null,
         public string $source = '',
-    ) {
-    }
+    ) {}
 }

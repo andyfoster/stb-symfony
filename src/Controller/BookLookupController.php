@@ -21,32 +21,35 @@ final class BookLookupController extends AbstractController
     #[Route('/sell/lookup-isbn', name: 'app_listing_isbn_lookup', methods: ['GET'])]
     #[IsGranted('ROLE_USER')]
     public function lookup(
-        #[MapQueryParameter] string $isbn,
+        #[MapQueryParameter]
+        string $isbn,
         BookLookup $books,
-        #[CurrentUser] User $user,
-        #[Target('isbn_lookup.limiter')] RateLimiterFactoryInterface $limiter,
+        #[CurrentUser]
+        User $user,
+        #[Target('isbn_lookup.limiter')]
+        RateLimiterFactoryInterface $limiter,
     ): JsonResponse {
         if (!$limiter->create((string) $user->getId())->consume()->isAccepted()) {
             return $this->json(['error' => 'Too many lookups. Wait a minute and try again.'], 429);
         }
 
-        if (null === BookLookup::normalise($isbn)) {
+        if (BookLookup::normalise($isbn) === null) {
             return $this->json(['error' => 'That doesn’t look like an ISBN.'], 400);
         }
 
         $book = $books->find($isbn);
-        if (null === $book) {
+        if ($book === null) {
             return $this->json(['error' => 'We couldn’t find that ISBN. Fill the details in yourself.'], 404);
         }
 
         return $this->json([
-            'isbn' => $book->isbn,
+            'isbn'  => $book->isbn,
             'title' => $book->title,
             // BookDetails::$author holds up to 255 characters.
-            'author' => mb_strimwidth(implode(', ', $book->authors), 0, 255, '…'),
+            'author'  => mb_strimwidth(implode(', ', $book->authors), 0, 255, '…'),
             'edition' => $book->edition,
-            'year' => $book->publishedYear,
-            'source' => $book->source,
+            'year'    => $book->publishedYear,
+            'source'  => $book->source,
         ]);
     }
 }

@@ -18,8 +18,7 @@ class PaperCatalog
     public function __construct(
         private readonly PaperRepository $papers,
         private readonly EntityManagerInterface $manager,
-    ) {
-    }
+    ) {}
 
     /**
      * @throws \InvalidArgumentException when it isn't a paper code
@@ -34,7 +33,7 @@ class PaperCatalog
         }
 
         $paper = $this->papers->findOneBy(['code' => $normalised]);
-        if (null === $paper) {
+        if ($paper === null) {
             $paper = new Paper($normalised);
             $this->manager->persist($paper);
             $this->pending[$normalised] = $paper;
@@ -46,14 +45,14 @@ class PaperCatalog
     /**
      * Imports a CSV of "code,title" rows with a header row.
      *
+     * @throws \RuntimeException when the file can't be read
      * @return array{added: int, updated: int, skipped: int}
      *
-     * @throws \RuntimeException when the file can't be read
      */
     public function importCsv(string $file): array
     {
         $handle = is_readable($file) ? fopen($file, 'r') : false;
-        if (false === $handle) {
+        if ($handle === false) {
             throw new \RuntimeException(\sprintf('Can’t read %s.', $file));
         }
 
@@ -82,14 +81,14 @@ class PaperCatalog
         $counts = ['added' => 0, 'updated' => 0, 'skipped' => 0];
         foreach ($rows as $row) {
             $code = Paper::normalise((string) ($row[0] ?? ''));
-            if (null === $code) {
+            if ($code === null) {
                 ++$counts['skipped'];
                 continue;
             }
 
             $title = trim((string) ($row[1] ?? '')) ?: null;
             $paper = $this->papers->findOneBy(['code' => $code]) ?? $this->pending[$code] ?? null;
-            if (null === $paper) {
+            if ($paper === null) {
                 $this->manager->persist($this->pending[$code] = new Paper($code, $title, official: true));
                 ++$counts['added'];
             } else {

@@ -14,9 +14,7 @@ use Symfony\Component\Security\Http\Attribute\IsGranted;
 #[IsGranted('ROLE_ADMIN')]
 final class DashboardController extends AbstractDashboardController
 {
-    public function __construct(private readonly SiteSettingsProvider $settings)
-    {
-    }
+    public function __construct(private readonly SiteSettingsProvider $settings) {}
 
     public function index(): Response
     {

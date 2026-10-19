@@ -17,8 +17,7 @@ class TurnstileType extends AbstractType
     public function __construct(
         #[Autowire('%env(TURNSTILE_SITE_KEY)%')]
         private readonly string $siteKey,
-    ) {
-    }
+    ) {}
 
     public function buildView(FormView $view, FormInterface $form, array $options): void
     {
@@ -28,10 +27,10 @@ class TurnstileType extends AbstractType
     public function configureOptions(OptionsResolver $resolver): void
     {
         $resolver->setDefaults([
-            'mapped' => false,
-            'label' => false,
-            'compound' => false,
-            'constraints' => [new Turnstile()],
+            'mapped'         => false,
+            'label'          => false,
+            'compound'       => false,
+            'constraints'    => [new Turnstile()],
             'error_bubbling' => false,
         ]);
     }

@@ -8,16 +8,16 @@ namespace App\Enum;
  */
 enum ListingStatus: string
 {
-    case Draft = 'draft';
+    case Draft  = 'draft';
     case Active = 'active';
-    case Sold = 'sold';
+    case Sold   = 'sold';
 
     public function label(): string
     {
         return match ($this) {
-            self::Draft => 'Draft',
+            self::Draft  => 'Draft',
             self::Active => 'Active',
-            self::Sold => 'Sold',
+            self::Sold   => 'Sold',
         };
     }
 }

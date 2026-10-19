@@ -29,8 +29,7 @@ final class ResetPasswordController extends AbstractController
     public function __construct(
         private ResetPasswordHelperInterface $resetPasswordHelper,
         private EntityManagerInterface $entityManager,
-    ) {
-    }
+    ) {}
 
     #[Route('', name: 'app_forgot_password', methods: ['GET', 'POST'])]
     public function request(Request $request, UserRepository $users, MailerInterface $mailer): Response
@@ -71,7 +70,7 @@ final class ResetPasswordController extends AbstractController
 
         $token = $this->getTokenFromSession();
 
-        if (null === $token) {
+        if ($token === null) {
             throw $this->createNotFoundException('No reset password token found in the URL or in the session.');
         }
 
@@ -107,7 +106,7 @@ final class ResetPasswordController extends AbstractController
 
     private function sendResetEmail(?User $user, MailerInterface $mailer): RedirectResponse
     {
-        if (null === $user) {
+        if ($user === null) {
             return $this->redirectToRoute('app_check_email');
         }
 

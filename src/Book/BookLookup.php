@@ -24,8 +24,7 @@ class BookLookup
         private readonly HttpClientInterface $httpClient,
         private readonly CacheInterface $cache,
         private readonly LoggerInterface $logger,
-    ) {
-    }
+    ) {}
 
     /** Digits (and a trailing X) only, or null if it can't be an ISBN-10 or ISBN-13. */
     public static function normalise(string $isbn): ?string
@@ -38,17 +37,17 @@ class BookLookup
     public function find(string $isbn): ?BookMetadata
     {
         $isbn = self::normalise($isbn);
-        if (null === $isbn) {
+        if ($isbn === null) {
             return null;
         }
 
-        return $this->cache->get('book_lookup_'.$isbn, function (ItemInterface $item) use ($isbn): ?BookMetadata {
+        return $this->cache->get('book_lookup_' . $isbn, function (ItemInterface $item) use ($isbn): ?BookMetadata {
             $this->failed = false;
-            $book = $this->fromOpenLibrary($isbn) ?? $this->fromGoogleBooks($isbn);
+            $book         = $this->fromOpenLibrary($isbn) ?? $this->fromGoogleBooks($isbn);
             $item->expiresAfter(match (true) {
-                null !== $book => 30 * 86400,
-                $this->failed => 300,
-                default => 86400,
+                $book !== null => 30 * 86400,
+                $this->failed  => 300,
+                default        => 86400,
             });
 
             return $book;
@@ -58,21 +57,21 @@ class BookLookup
     private function fromOpenLibrary(string $isbn): ?BookMetadata
     {
         $data = $this->fetch(self::OPEN_LIBRARY_URL, [
-            'bibkeys' => 'ISBN:'.$isbn,
-            'format' => 'json',
-            'jscmd' => 'data',
+            'bibkeys' => 'ISBN:' . $isbn,
+            'format'  => 'json',
+            'jscmd'   => 'data',
         ]);
-        $book = $data['ISBN:'.$isbn] ?? null;
+        $book = $data['ISBN:' . $isbn] ?? null;
         if (!\is_array($book) || empty($book['title'])) {
             return null;
         }
 
-        $title = trim($book['title'].(empty($book['subtitle']) ? '' : ': '.$book['subtitle']));
+        $title = trim($book['title'] . (empty($book['subtitle']) ? '' : ': ' . $book['subtitle']));
 
         return new BookMetadata(
             isbn: $isbn,
             title: $title,
-            authors: self::authors(array_map(static fn (array $a): string => (string) ($a['name'] ?? ''), $book['authors'] ?? [])),
+            authors: self::authors(array_map(static fn(array $a): string => (string) ($a['name'] ?? ''), $book['authors'] ?? [])),
             edition: self::edition($book['edition_name'] ?? null),
             publishedYear: self::year($book['publish_date'] ?? null),
             source: 'Open Library',
@@ -81,13 +80,13 @@ class BookLookup
 
     private function fromGoogleBooks(string $isbn): ?BookMetadata
     {
-        $data = $this->fetch(self::GOOGLE_BOOKS_URL, ['q' => 'isbn:'.$isbn]);
+        $data = $this->fetch(self::GOOGLE_BOOKS_URL, ['q' => 'isbn:' . $isbn]);
         $book = $data['items'][0]['volumeInfo'] ?? null;
         if (!\is_array($book) || empty($book['title'])) {
             return null;
         }
 
-        $title = trim($book['title'].(empty($book['subtitle']) ? '' : ': '.$book['subtitle']));
+        $title = trim($book['title'] . (empty($book['subtitle']) ? '' : ': ' . $book['subtitle']));
 
         return new BookMetadata(
             isbn: $isbn,
@@ -108,7 +107,7 @@ class BookLookup
     {
         try {
             return $this->httpClient->request('GET', $url, [
-                'query' => $query,
+                'query'   => $query,
                 'timeout' => 8,
                 'headers' => ['User-Agent' => 'ScarfieTextbooks (https://stb.gitforked.com)'],
             ])->toArray();
@@ -133,7 +132,7 @@ class BookLookup
         $authors = [];
         foreach ($names as $name) {
             $name = trim((string) preg_replace('/\s+/', ' ', (string) $name));
-            if ('' !== $name && !str_contains($name, ';')) {
+            if ($name !== '' && !str_contains($name, ';')) {
                 $authors[mb_strtolower($name)] ??= $name;
             }
         }
@@ -146,11 +145,11 @@ class BookLookup
     {
         $edition = trim((string) preg_replace('/\s*(edition|ed\.?)$/i', '', (string) $edition));
 
-        return '' === $edition ? null : mb_substr($edition, 0, 50);
+        return $edition === '' ? null : mb_substr($edition, 0, 50);
     }
 
     private static function year(?string $date): ?string
     {
-        return null !== $date && preg_match('/\b(\d{4})\b/', $date, $m) ? $m[1] : null;
+        return $date !== null && preg_match('/\b(\d{4})\b/', $date, $m) ? $m[1] : null;
     }
 }

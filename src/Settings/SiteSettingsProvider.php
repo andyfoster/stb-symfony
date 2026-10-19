@@ -16,17 +16,16 @@ class SiteSettingsProvider
     public function __construct(
         private readonly SiteSettingsRepository $repository,
         private readonly EntityManagerInterface $manager,
-    ) {
-    }
+    ) {}
 
     public function get(): SiteSettings
     {
-        if (null !== $this->settings) {
+        if ($this->settings !== null) {
             return $this->settings;
         }
 
         $settings = $this->repository->findOneBy([], ['id' => 'ASC']);
-        if (null === $settings) {
+        if ($settings === null) {
             $settings = new SiteSettings();
             $this->manager->persist($settings);
             $this->manager->flush();

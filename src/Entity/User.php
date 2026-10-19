@@ -133,8 +133,8 @@ class User extends Base implements UserInterface, PasswordAuthenticatedUserInter
 
     public function setPhone(?string $phone): static
     {
-        $phone = null === $phone ? null : trim($phone);
-        $this->phone = '' === $phone ? null : $phone;
+        $phone       = $phone === null ? null : trim($phone);
+        $this->phone = $phone === '' ? null : $phone;
 
         return $this;
     }
@@ -178,8 +178,8 @@ class User extends Base implements UserInterface, PasswordAuthenticatedUserInter
      */
     public function __serialize(): array
     {
-        $data = (array) $this;
-        $data["\0".self::class."\0password"] = null === $this->password ? null : hash('crc32c', $this->password);
+        $data                                    = (array) $this;
+        $data["\0" . self::class . "\0password"] = $this->password === null ? null : hash('crc32c', $this->password);
 
         return $data;
     }

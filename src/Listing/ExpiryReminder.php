@@ -19,8 +19,7 @@ class ExpiryReminder
         private readonly ListingRepository $listings,
         private readonly EntityManagerInterface $manager,
         private readonly MailerInterface $mailer,
-    ) {
-    }
+    ) {}
 
     /**
      * @return int how many sellers were emailed
@@ -39,7 +38,7 @@ class ExpiryReminder
             $seller = $listings[0]->getSeller();
             $this->mailer->send((new TemplatedEmail())
                 ->to(new Address((string) $seller->getEmail(), (string) $seller->getDisplayName()))
-                ->subject(1 === \count($listings)
+                ->subject(\count($listings) === 1
                     ? \sprintf('“%s” expires soon', $listings[0]->getTitle())
                     : \sprintf('%d of your listings expire soon', \count($listings)))
                 ->htmlTemplate('emails/expiry_reminder.html.twig')

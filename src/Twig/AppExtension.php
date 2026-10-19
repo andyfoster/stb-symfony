@@ -2,8 +2,8 @@
 
 namespace App\Twig;
 
-use App\Entity\User;
 use App\Entity\Listing;
+use App\Entity\User;
 use App\Repository\MessageRepository;
 use App\Search\ListingFilter;
 use Symfony\Bundle\SecurityBundle\Security;
@@ -14,8 +14,7 @@ final class AppExtension
     public function __construct(
         private readonly MessageRepository $messages,
         private readonly Security $security,
-    ) {
-    }
+    ) {}
 
     /** For the "Messages" badge in the header. */
     #[AsTwigFunction('unread_message_count')]

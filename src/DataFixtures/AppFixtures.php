@@ -26,21 +26,20 @@ class AppFixtures extends Fixture
         private PaperCatalog $papers,
         private PhotoStorage $photos,
         private PlaceholderPhotos $placeholders,
-    ) {
-    }
+    ) {}
 
     public function load(ObjectManager $manager): void
     {
         // Dev-only logins, all with the password "password":
         // sam@example.com (verified, shows their phone), alex@example.com (unverified,
         // so their photos stay hidden) and admin@example.com (sees the admin panel).
-        $sam = $this->user($manager, 'sam@example.com', 'Sam', verified: true)->setPhone('021 555 0123')->setShowPhone(true);
+        $sam  = $this->user($manager, 'sam@example.com', 'Sam', verified: true)->setPhone('021 555 0123')->setShowPhone(true);
         $alex = $this->user($manager, 'alex@example.com', 'Alex', verified: false);
         $this->user($manager, 'admin@example.com', 'Admin', verified: true)->setAdmin(true);
         $manager->persist(new SiteSettings());
-        $this->papers->importCsv(__DIR__.'/../../data/otago-papers.csv');
+        $this->papers->importCsv(__DIR__ . '/../../data/otago-papers.csv');
 
-        $sale = ListingType::ForSale;
+        $sale   = ListingType::ForSale;
         $wanted = ListingType::Wanted;
 
         // [type, category, title, description, price ($), condition, book [author, edition, isbn, papers], days ago]
@@ -77,21 +76,21 @@ class AppFixtures extends Fixture
                 ->setCategory($category)
                 ->setTitle($title)
                 ->setDescription($description)
-                ->setPriceCents(null === $price ? null : $price * 100)
+                ->setPriceCents($price === null ? null : $price * 100)
                 ->setCondition($condition)
-                ->setSeller(0 === $i % 3 ? $alex : $sam);
+                ->setSeller($i % 3 === 0 ? $alex : $sam);
 
             $createdAt = new \DateTimeImmutable(\sprintf('-%d days -%d minutes', $daysAgo, $i));
             $listing->setCreatedAt($createdAt)->publish(SiteSettings::DEFAULT_LISTING_LIFETIME_DAYS, $createdAt);
 
-            if (null !== $book) {
+            if ($book !== null) {
                 [$author, $edition, $isbn, $papers] = $book;
                 $listing->setBook($this->book($author, $edition, $isbn, $papers));
             }
 
             // Most listings get stand-in photos; textbooks get a second one.
-            if (2 !== $i % 3) {
-                $this->addPhotos($listing, null !== $book ? 2 : 1);
+            if ($i % 3 !== 2) {
+                $this->addPhotos($listing, $book !== null ? 2 : 1);
             }
 
             $manager->persist($listing);
@@ -121,7 +120,7 @@ class AppFixtures extends Fixture
         $manager->flush();
         $samsListings = array_values(array_filter(
             $manager->getRepository(Listing::class)->findBy(['seller' => $sam], ['publishedAt' => 'DESC']),
-            static fn (Listing $listing): bool => $listing->isLive(),
+            static fn(Listing $listing): bool => $listing->isLive(),
         ));
         foreach ([
             ['Jess', 'jess@example.com', 'Hi! Is this still available? I could pick it up tomorrow after my 12 o’clock lecture.', '-2 hours', false],

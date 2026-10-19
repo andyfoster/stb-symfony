@@ -7,20 +7,20 @@ namespace App\Enum;
  */
 enum Category: string
 {
-    case Textbooks = 'textbooks';
-    case StudyAndTech = 'study_and_tech';
-    case FlatAndHome = 'flat_and_home';
+    case Textbooks         = 'textbooks';
+    case StudyAndTech      = 'study_and_tech';
+    case FlatAndHome       = 'flat_and_home';
     case BikesAndTransport = 'bikes_and_transport';
-    case ClothesAndOther = 'other';
+    case ClothesAndOther   = 'other';
 
     public function label(): string
     {
         return match ($this) {
-            self::Textbooks => 'Textbooks',
-            self::StudyAndTech => 'Study & tech',
-            self::FlatAndHome => 'Flat & home',
+            self::Textbooks         => 'Textbooks',
+            self::StudyAndTech      => 'Study & tech',
+            self::FlatAndHome       => 'Flat & home',
             self::BikesAndTransport => 'Bikes & transport',
-            self::ClothesAndOther => 'Clothes & other',
+            self::ClothesAndOther   => 'Clothes & other',
         };
     }
 }

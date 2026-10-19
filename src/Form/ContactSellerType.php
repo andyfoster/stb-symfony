@@ -27,25 +27,25 @@ class ContactSellerType extends AbstractType
 
         $builder
             ->add('senderName', TextType::class, [
-                'label' => 'Your name',
+                'label'    => 'Your name',
                 'disabled' => $known,
-                'attr' => ['autocomplete' => 'name', 'maxlength' => 80],
+                'attr'     => ['autocomplete' => 'name', 'maxlength' => 80],
             ])
             ->add('senderEmail', EmailType::class, [
-                'label' => 'Your email',
-                'help' => 'The seller replies to this address.',
+                'label'    => 'Your email',
+                'help'     => 'The seller replies to this address.',
                 'disabled' => $known,
-                'attr' => ['autocomplete' => 'email', 'maxlength' => 180],
+                'attr'     => ['autocomplete' => 'email', 'maxlength' => 180],
             ])
             ->add('body', TextareaType::class, [
                 'label' => 'Message',
-                'attr' => ['rows' => 5, 'maxlength' => 5000, 'placeholder' => 'Hi, is this still available?'],
+                'attr'  => ['rows' => 5, 'maxlength' => 5000, 'placeholder' => 'Hi, is this still available?'],
             ])
             ->add(self::HONEYPOT, TextType::class, [
-                'label' => 'Leave this empty',
-                'mapped' => false,
+                'label'    => 'Leave this empty',
+                'mapped'   => false,
                 'required' => false,
-                'attr' => ['autocomplete' => 'off', 'tabindex' => '-1'],
+                'attr'     => ['autocomplete' => 'off', 'tabindex' => '-1'],
                 'row_attr' => ['class' => 'honeypot', 'aria-hidden' => 'true'],
             ]);
 
@@ -57,8 +57,8 @@ class ContactSellerType extends AbstractType
     public function configureOptions(OptionsResolver $resolver): void
     {
         $resolver->setDefaults([
-            'data_class' => Message::class,
-            'captcha' => true,
+            'data_class'   => Message::class,
+            'captcha'      => true,
             'known_sender' => false,
         ]);
         $resolver->setAllowedTypes('captcha', 'bool');

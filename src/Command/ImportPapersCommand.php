@@ -21,12 +21,12 @@ final class ImportPapersCommand
         private readonly PaperCatalog $catalog,
         #[Autowire('%kernel.project_dir%/data/otago-papers.csv')]
         private readonly string $defaultFile,
-    ) {
-    }
+    ) {}
 
     public function __invoke(
         SymfonyStyle $io,
-        #[Argument('CSV file with code,title rows (defaults to data/otago-papers.csv)')] ?string $file = null,
+        #[Argument('CSV file with code,title rows (defaults to data/otago-papers.csv)')]
+        ?string $file = null,
     ): int {
         try {
             $counts = $this->catalog->importCsv($file ?? $this->defaultFile);

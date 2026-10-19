@@ -17,8 +17,8 @@ final class PaperController extends AbstractController
     #[Route('/papers/search', name: 'app_paper_search', methods: ['GET'])]
     public function search(PaperRepository $papers, #[MapQueryParameter] string $q = ''): JsonResponse
     {
-        $response = $this->json(array_map(static fn (Paper $paper): array => [
-            'code' => $paper->getCode(),
+        $response = $this->json(array_map(static fn(Paper $paper): array => [
+            'code'  => $paper->getCode(),
             'title' => $paper->getTitle(),
         ], $papers->search($q)));
 

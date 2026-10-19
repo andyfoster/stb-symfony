@@ -31,7 +31,7 @@ class PhotoStorage
 
     public function add(Listing $listing, File $file): ListingPhoto
     {
-        $name = bin2hex(random_bytes(16));
+        $name  = bin2hex(random_bytes(16));
         $image = ImageManager::usingDriver(Driver::class)->decodePath($file->getPathname());
         $this->filesystem->mkdir(\dirname($this->path($name, 'large')));
 

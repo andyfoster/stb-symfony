@@ -35,54 +35,54 @@ class ListingFormType extends AbstractType
 
         $builder
             ->add('type', EnumType::class, [
-                'class' => ListingType::class,
-                'label' => 'I want to',
-                'expanded' => true,
-                'choice_label' => static fn (ListingType $type): string => ListingType::ForSale === $type ? 'Sell something' : 'Find something',
+                'class'        => ListingType::class,
+                'label'        => 'I want to',
+                'expanded'     => true,
+                'choice_label' => static fn(ListingType $type): string => $type === ListingType::ForSale ? 'Sell something' : 'Find something',
             ])
             ->add('title', TextType::class, [
-                'label' => 'Title',
+                'label'      => 'Title',
                 'empty_data' => '',
-                'attr' => ['placeholder' => 'e.g. CHEM191 Textbook + lab manual', 'maxlength' => 255],
+                'attr'       => ['placeholder' => 'e.g. CHEM191 Textbook + lab manual', 'maxlength' => 255],
             ])
             ->add('category', EnumType::class, [
-                'class' => Category::class,
-                'label' => 'Category',
-                'choice_label' => static fn (Category $category): string => $category->label(),
+                'class'        => Category::class,
+                'label'        => 'Category',
+                'choice_label' => static fn(Category $category): string => $category->label(),
             ])
             ->add('priceCents', MoneyType::class, [
-                'label' => 'Price (NZD)',
+                'label'    => 'Price (NZD)',
                 'required' => false,
-                'divisor' => 100,
-                'input' => 'integer',
+                'divisor'  => 100,
+                'input'    => 'integer',
                 'currency' => false,
-                'html5' => true,
-                'help' => 'Leave blank for “make an offer”. 0 means free.',
-                'attr' => ['min' => 0, 'step' => '0.01', 'placeholder' => '0.00'],
+                'html5'    => true,
+                'help'     => 'Leave blank for “make an offer”. 0 means free.',
+                'attr'     => ['min' => 0, 'step' => '0.01', 'placeholder' => '0.00'],
             ])
             ->add('condition', EnumType::class, [
-                'class' => Condition::class,
-                'label' => 'Condition',
-                'expanded' => true,
-                'required' => false,
-                'placeholder' => false,
-                'choice_label' => static fn (Condition $condition): string => $condition->label(),
-                'choice_attr' => static fn (Condition $condition): array => ['data-description' => $condition->description()],
+                'class'        => Condition::class,
+                'label'        => 'Condition',
+                'expanded'     => true,
+                'required'     => false,
+                'placeholder'  => false,
+                'choice_label' => static fn(Condition $condition): string => $condition->label(),
+                'choice_attr'  => static fn(Condition $condition): array => ['data-description' => $condition->description()],
             ])
             ->add('description', TextareaType::class, [
-                'label' => 'Description',
+                'label'    => 'Description',
                 'required' => false,
-                'attr' => ['rows' => 6, 'placeholder' => 'Condition, edition, reason for selling, and included extras'],
+                'attr'     => ['rows' => 6, 'placeholder' => 'Condition, edition, reason for selling, and included extras'],
             ])
             ->add('book', BookDetailsFormType::class, [
                 'label' => false,
             ])
             ->add('photos', FileType::class, [
-                'label' => \sprintf('Photos (up to %d)', Listing::MAX_PHOTOS),
-                'mapped' => false,
-                'required' => false,
-                'multiple' => true,
-                'attr' => ['accept' => 'image/jpeg,image/png,image/webp'],
+                'label'       => \sprintf('Photos (up to %d)', Listing::MAX_PHOTOS),
+                'mapped'      => false,
+                'required'    => false,
+                'multiple'    => true,
+                'attr'        => ['accept' => 'image/jpeg,image/png,image/webp'],
                 'constraints' => [
                     new Assert\All([
                         new Assert\Image(
@@ -96,30 +96,30 @@ class ListingFormType extends AbstractType
 
         if (!$listing->getPhotos()->isEmpty()) {
             $builder->add('removePhotos', ChoiceType::class, [
-                'label' => 'Remove photos',
-                'mapped' => false,
-                'required' => false,
-                'multiple' => true,
-                'expanded' => true,
-                'choices' => $listing->getPhotos()->toArray(),
-                'choice_value' => static fn (?ListingPhoto $photo): string => (string) $photo?->getId(),
-                'choice_label' => static fn (ListingPhoto $photo, int $index): string => \sprintf('Photo %d', $index + 1),
+                'label'        => 'Remove photos',
+                'mapped'       => false,
+                'required'     => false,
+                'multiple'     => true,
+                'expanded'     => true,
+                'choices'      => $listing->getPhotos()->toArray(),
+                'choice_value' => static fn(?ListingPhoto $photo): string => (string) $photo?->getId(),
+                'choice_label' => static fn(ListingPhoto $photo, int $index): string => \sprintf('Photo %d', $index + 1),
             ]);
         }
 
         $builder
             ->add('publish', SubmitType::class, ['label' => $listing->isLive() ? 'Save changes' : 'Publish listing'])
-            ->add('saveDraft', SubmitType::class, ['label' => $listing->isDraft() || null === $listing->getId() ? 'Save draft' : 'Move to drafts']);
+            ->add('saveDraft', SubmitType::class, ['label' => $listing->isDraft() || $listing->getId() === null ? 'Save draft' : 'Move to drafts']);
 
         // Before validation: only textbooks keep book details, so other
         // categories don't need an author and don't get a book row.
         $builder->addEventListener(FormEvents::POST_SUBMIT, static function (FormEvent $event): void {
             $listing = $event->getData();
-            if ($listing instanceof Listing && Category::Textbooks !== $listing->getCategory()) {
+            if ($listing instanceof Listing && $listing->getCategory() !== Category::Textbooks) {
                 $listing->setBook(null);
             }
             // Wanted listings don't have a condition (the field is hidden for them).
-            if ($listing instanceof Listing && ListingType::Wanted === $listing->getType()) {
+            if ($listing instanceof Listing && $listing->getType() === ListingType::Wanted) {
                 $listing->setCondition(null);
             }
         }, 10);
@@ -130,7 +130,7 @@ class ListingFormType extends AbstractType
             $listing = $event->getData();
 
             $removing = $form->has('removePhotos') ? \count($form->get('removePhotos')->getData() ?? []) : 0;
-            $adding = \count(array_filter($form->get('photos')->getData() ?? []));
+            $adding   = \count(array_filter($form->get('photos')->getData() ?? []));
             if ($listing->getPhotos()->count() - $removing + $adding > Listing::MAX_PHOTOS) {
                 $form->get('photos')->addError(new FormError(\sprintf('You can add up to %d photos.', Listing::MAX_PHOTOS)));
             }

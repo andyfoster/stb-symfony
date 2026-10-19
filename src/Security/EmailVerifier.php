@@ -21,8 +21,7 @@ class EmailVerifier
         private VerifyEmailHelperInterface $helper,
         private MailerInterface $mailer,
         private EntityManagerInterface $entityManager,
-    ) {
-    }
+    ) {}
 
     public function sendConfirmation(User $user): void
     {
@@ -38,9 +37,9 @@ class EmailVerifier
             ->subject('Confirm your ScarfieTextbooks email')
             ->htmlTemplate('registration/confirmation_email.html.twig')
             ->context([
-                'user' => $user,
-                'signedUrl' => $signature->getSignedUrl(),
-                'expiresAtMessageKey' => $signature->getExpirationMessageKey(),
+                'user'                 => $user,
+                'signedUrl'            => $signature->getSignedUrl(),
+                'expiresAtMessageKey'  => $signature->getExpirationMessageKey(),
                 'expiresAtMessageData' => $signature->getExpirationMessageData(),
             ]));
     }

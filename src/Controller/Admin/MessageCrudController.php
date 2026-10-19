@@ -55,7 +55,7 @@ final class MessageCrudController extends AbstractCrudController
         yield TextField::new('senderName', 'From');
         yield EmailField::new('senderEmail', 'Email');
         yield TextField::new('senderIp', 'IP');
-        yield AssociationField::new('recipient', 'To')->formatValue(static fn ($value, Message $message): string => (string) $message->getRecipient()?->getEmail());
+        yield AssociationField::new('recipient', 'To')->formatValue(static fn($value, Message $message): string => (string) $message->getRecipient()?->getEmail());
         yield AssociationField::new('listing');
         yield TextareaField::new('body')->hideOnIndex();
         yield DateTimeField::new('readAt', 'Read')->hideOnIndex();

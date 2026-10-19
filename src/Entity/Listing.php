@@ -157,25 +157,25 @@ class Listing extends Base
 
     public function isDraft(): bool
     {
-        return ListingStatus::Draft === $this->status;
+        return $this->status === ListingStatus::Draft;
     }
 
     public function isSold(): bool
     {
-        return ListingStatus::Sold === $this->status;
+        return $this->status === ListingStatus::Sold;
     }
 
     public function isExpired(?\DateTimeImmutable $now = null): bool
     {
-        return ListingStatus::Active === $this->status
-            && null !== $this->expiresAt
+        return $this->status === ListingStatus::Active
+            && $this->expiresAt !== null
             && $this->expiresAt <= ($now ?? new \DateTimeImmutable());
     }
 
     /** Active and not expired: what everyone can see and search. */
     public function isLive(?\DateTimeImmutable $now = null): bool
     {
-        return ListingStatus::Active === $this->status && !$this->isExpired($now);
+        return $this->status === ListingStatus::Active && !$this->isExpired($now);
     }
 
     /**
@@ -186,8 +186,8 @@ class Listing extends Base
     {
         $now ??= new \DateTimeImmutable();
 
-        return ListingStatus::Active === $this->status
-            && null !== $this->expiresAt
+        return $this->status === ListingStatus::Active
+            && $this->expiresAt !== null
             && $this->expiresAt <= $now->modify(\sprintf('+%d days', self::REFRESH_WINDOW_DAYS));
     }
 
@@ -195,9 +195,9 @@ class Listing extends Base
     public function publish(int $days, ?\DateTimeImmutable $now = null): static
     {
         $now ??= new \DateTimeImmutable();
-        $this->status = ListingStatus::Active;
-        $this->publishedAt = $now;
-        $this->expiresAt = $now->modify(\sprintf('+%d days', $days));
+        $this->status               = ListingStatus::Active;
+        $this->publishedAt          = $now;
+        $this->expiresAt            = $now->modify(\sprintf('+%d days', $days));
         $this->expiryReminderSentAt = null;
 
         return $this;
@@ -332,6 +332,6 @@ class Listing extends Base
     /** Photos are only shown to the public once the seller has confirmed their email. */
     public function arePhotosPublic(): bool
     {
-        return true === $this->seller?->isVerified();
+        return $this->seller?->isVerified() === true;
     }
 }

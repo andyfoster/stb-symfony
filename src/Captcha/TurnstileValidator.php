@@ -24,8 +24,7 @@ class TurnstileValidator extends ConstraintValidator
         private readonly LoggerInterface $logger,
         #[Autowire('%env(TURNSTILE_SECRET_KEY)%')]
         private readonly string $secretKey,
-    ) {
-    }
+    ) {}
 
     public function validate(mixed $value, Constraint $constraint): void
     {
@@ -33,7 +32,7 @@ class TurnstileValidator extends ConstraintValidator
             throw new UnexpectedTypeException($constraint, Turnstile::class);
         }
 
-        if (!\is_string($value) || '' === $value || !$this->verify($value)) {
+        if (!\is_string($value) || $value === '' || !$this->verify($value)) {
             $this->context->buildViolation($constraint->message)->addViolation();
         }
     }
@@ -43,7 +42,7 @@ class TurnstileValidator extends ConstraintValidator
         try {
             $result = $this->httpClient->request('POST', self::VERIFY_URL, [
                 'body' => array_filter([
-                    'secret' => $this->secretKey,
+                    'secret'   => $this->secretKey,
                     'response' => $token,
                     'remoteip' => $this->requestStack->getCurrentRequest()?->getClientIp(),
                 ]),

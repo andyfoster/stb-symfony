@@ -21,9 +21,7 @@ use SymfonyCasts\Bundle\VerifyEmail\Exception\VerifyEmailExceptionInterface;
 
 final class RegistrationController extends AbstractController
 {
-    public function __construct(private EmailVerifier $emailVerifier)
-    {
-    }
+    public function __construct(private EmailVerifier $emailVerifier) {}
 
     #[Route('/register', name: 'app_register', methods: ['GET', 'POST'])]
     public function register(Request $request, UserPasswordHasherInterface $hasher, EntityManagerInterface $entityManager, Security $security): Response
@@ -59,7 +57,7 @@ final class RegistrationController extends AbstractController
     {
         $user = $users->find($request->query->getInt('id'));
 
-        if (null === $user) {
+        if ($user === null) {
             return $this->redirectToRoute('app_listings');
         }
 

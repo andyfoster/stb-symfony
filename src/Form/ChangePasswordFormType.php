@@ -16,13 +16,13 @@ class ChangePasswordFormType extends AbstractType
     public function buildForm(FormBuilderInterface $builder, array $options): void
     {
         $builder->add('plainPassword', RepeatedType::class, [
-            'type' => PasswordType::class,
-            'options' => ['attr' => ['autocomplete' => 'new-password']],
-            'first_options' => ['label' => 'New password', 'help' => 'At least 8 characters.'],
-            'second_options' => ['label' => 'Repeat password'],
+            'type'            => PasswordType::class,
+            'options'         => ['attr' => ['autocomplete' => 'new-password']],
+            'first_options'   => ['label' => 'New password', 'help' => 'At least 8 characters.'],
+            'second_options'  => ['label' => 'Repeat password'],
             'invalid_message' => 'The passwords don’t match.',
-            'mapped' => false,
-            'constraints' => [
+            'mapped'          => false,
+            'constraints'     => [
                 new Assert\NotBlank(message: 'Choose a password.'),
                 new Assert\Length(min: 8, max: 4096, minMessage: 'Use at least {{ limit }} characters.'),
             ],

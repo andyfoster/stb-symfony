@@ -33,7 +33,7 @@ final class SiteSettingsCrudController extends AbstractCrudController
     {
         return $actions
             ->disable(Action::NEW, Action::DELETE, Action::INDEX, Action::DETAIL, Action::SAVE_AND_RETURN)
-            ->update(Crud::PAGE_EDIT, Action::SAVE_AND_CONTINUE, static fn (Action $action): Action => $action->setLabel('Save settings'));
+            ->update(Crud::PAGE_EDIT, Action::SAVE_AND_CONTINUE, static fn(Action $action): Action => $action->setLabel('Save settings'));
     }
 
     public function configureFields(string $pageName): iterable

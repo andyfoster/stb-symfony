@@ -36,10 +36,10 @@ class Paper extends Base
     public function __construct(?string $code = null, ?string $title = null, bool $official = false)
     {
         parent::__construct();
-        if (null !== $code) {
+        if ($code !== null) {
             $this->setCode($code);
         }
-        $this->title = $title;
+        $this->title    = $title;
         $this->official = $official;
     }
 

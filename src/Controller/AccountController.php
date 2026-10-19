@@ -31,11 +31,11 @@ final class AccountController extends AbstractController
         $mine = $listings->findBySeller($user);
 
         return $this->render('account/overview.html.twig', [
-            'live' => array_filter($mine, static fn (Listing $listing): bool => $listing->isLive()),
-            'refreshable' => array_filter($mine, static fn (Listing $listing): bool => $listing->canRefresh()),
-            'drafts' => array_filter($mine, static fn (Listing $listing): bool => $listing->isDraft()),
-            'messages' => \array_slice($messages->findInbox($user), 0, 3),
-            'unread' => $messages->countUnread($user),
+            'live'        => array_filter($mine, static fn(Listing $listing): bool => $listing->isLive()),
+            'refreshable' => array_filter($mine, static fn(Listing $listing): bool => $listing->canRefresh()),
+            'drafts'      => array_filter($mine, static fn(Listing $listing): bool => $listing->isDraft()),
+            'messages'    => \array_slice($messages->findInbox($user), 0, 3),
+            'unread'      => $messages->countUnread($user),
         ]);
     }
 
@@ -64,7 +64,7 @@ final class AccountController extends AbstractController
     public function listings(ListingRepository $listings, SiteSettingsProvider $settings, #[CurrentUser] User $user): Response
     {
         return $this->render('account/listings.html.twig', [
-            'listings' => $listings->findBySeller($user),
+            'listings'      => $listings->findBySeller($user),
             'lifetime_days' => $settings->listingLifetimeDays(),
         ]);
     }

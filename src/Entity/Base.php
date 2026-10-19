@@ -76,8 +76,8 @@ abstract class Base
     {
         $name = $this->getEntityType();
 
-        if (null !== $this->id) {
-            $name .= ' '.$this->id;
+        if ($this->id !== null) {
+            $name .= ' ' . $this->id;
         }
 
         return $name;
