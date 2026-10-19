@@ -4,9 +4,7 @@
 
 {% block body %}
     <div class="listing-form-page">
-        <a class="back-link" href="{{ path('app_account_listings') }}">← My listings</a>
         <div class="form-heading">
-            <span class="status">{{ listing.status.label }}</span>
             <h1>Edit listing</h1>
         </div>
         {{ include('listing/_form.html.twig') }}

@@ -317,26 +317,102 @@ h1,h2,h3 {
     color:var(--blue)
 }
 
-/* Messages at the top of the page */
+/* Messages: success and error flashes are toasts at the bottom left */
 .page-shell {
     min-height:calc(100vh - 180px)
 }
 
+.toasts {
+    position:fixed;
+    left:20px;
+    bottom:20px;
+    z-index:100;
+    display:flex;
+    flex-direction:column;
+    gap:8px;
+    max-width:min(420px,calc(100vw - 40px))
+}
+
 .flash {
-    margin-top:20px;
     padding:10px 14px;
     border-left:3px solid var(--green);
     background:#f1f8f4;
     color:var(--green)
 }
 
-.flash-error {
+.toast {
+    display:flex;
+    align-items:flex-start;
+    gap:12px;
+    padding:12px 12px 12px 16px;
+    border:0;
+    border-radius:8px;
+    background:var(--navy);
+    color:var(--white);
+    box-shadow:0 10px 30px rgb(20 33 61 / 25%);
+    animation:toast-in .25s ease-out
+}
+
+.toast::before {
+    content:'';
+    flex:none;
+    width:8px;
+    height:8px;
+    margin-top:8px;
+    border-radius:50%;
+    background:#4ade80
+}
+
+.toast.flash-error::before {
+    background:#f87171
+}
+
+.toast span {
+    flex:1
+}
+
+.toast-close {
+    flex:none;
+    padding:0 4px;
+    border:0;
+    background:none;
+    color:inherit;
+    font-size:20px;
+    line-height:1;
+    opacity:.7;
+    cursor:pointer
+}
+
+.toast-close:hover {
+    opacity:1
+}
+
+.toast-leaving {
+    animation:toast-out .2s ease-in forwards
+}
+
+@keyframes toast-in {
+    from {
+        opacity:0;
+        transform:translateY(12px)
+    }
+}
+
+@keyframes toast-out {
+    to {
+        opacity:0;
+        transform:translateX(-20px)
+    }
+}
+
+.flash-error:not(.toast) {
     border-left-color:var(--red);
     background:#fdf3f2;
     color:var(--red)
 }
 
 .flash-notice {
+    margin-top:16px;
     display:flex;
     flex-wrap:wrap;
     align-items:center;
@@ -351,7 +427,7 @@ h1,h2,h3 {
 .hero {
     max-width:760px;
     margin:0 auto;
-    padding:64px 0 40px;
+    padding:44px 0 32px;
     text-align:center
 }
 
@@ -898,31 +974,35 @@ turbo-frame[aria-busy=true] .listing-grid {
 
 /* Listing page */
 .listing-page {
-    padding-top:24px
+    padding-top:32px
 }
 
 .owner-bar {
-    display:flex;
-    flex-wrap:wrap;
-    justify-content:space-between;
-    gap:8px 20px;
-    margin-top:16px;
-    padding:10px 14px;
-    background:var(--blue-tint);
-    font-size:15px
+    margin-bottom:20px;
+    padding-bottom:20px;
+    border-bottom:1px solid #d9e1f0
+}
+
+.owner-bar .status {
+    margin-right:4px
 }
 
 .owner-actions {
     display:flex;
-    gap:16px
+    flex-wrap:wrap;
+    align-items:center;
+    gap:10px 14px;
+    margin-top:12px
 }
 
-.owner-actions .nav-link {
-    font-weight:600
+.owner-actions form {
+    margin:0
 }
 
 .photo-notice {
-    margin-top:8px
+    margin-top:12px;
+    color:#7a5d00;
+    font-size:14px
 }
 
 .listing-layout {
@@ -949,28 +1029,116 @@ turbo-frame[aria-busy=true] .listing-grid {
 
 .gallery {
     display:grid;
-    grid-template-columns:repeat(3,minmax(0,1fr));
+    grid-template-columns:repeat(4,minmax(0,1fr));
     gap:8px;
     margin:24px 0
 }
 
-.gallery a:first-child {
+.gallery-item {
+    display:block;
+    overflow:hidden;
+    border-radius:6px;
+    background:var(--blue-tint);
+    cursor:zoom-in
+}
+
+.gallery-item:first-child {
     grid-column:1/-1
 }
 
-.gallery img {
+.gallery-item img {
     display:block;
     width:100%;
-    aspect-ratio:4/3;
-    border-radius:6px;
+    aspect-ratio:1;
     object-fit:cover;
-    background:var(--blue-tint)
+    transition:transform .2s
 }
 
-.gallery a:first-child img {
-    aspect-ratio:auto;
-    max-height:520px;
+.gallery-item:first-child img {
+    aspect-ratio:4/3;
+    max-height:520px
+}
+
+.gallery-item:hover img {
+    transform:scale(1.03)
+}
+
+.lightbox {
+    width:100vw;
+    max-width:100vw;
+    height:100vh;
+    max-height:100vh;
+    margin:0;
+    padding:0;
+    border:0;
+    background:rgb(10 16 30 / 92%)
+}
+
+.lightbox::backdrop {
+    background:rgb(10 16 30 / 60%)
+}
+
+.lightbox[open] {
+    display:grid;
+    place-items:center
+}
+
+.lightbox img {
+    max-width:calc(100vw - 140px);
+    max-height:calc(100vh - 100px);
+    border-radius:4px;
     object-fit:contain
+}
+
+.lightbox-nav,.lightbox-close {
+    position:absolute;
+    display:grid;
+    place-items:center;
+    border:0;
+    background:rgb(255 255 255 / 12%);
+    color:var(--white);
+    cursor:pointer
+}
+
+.lightbox-nav:hover,.lightbox-close:hover {
+    background:rgb(255 255 255 / 24%)
+}
+
+.lightbox-nav {
+    top:50%;
+    width:48px;
+    height:48px;
+    margin-top:-24px;
+    border-radius:50%;
+    font-size:30px;
+    line-height:1
+}
+
+.lightbox-prev {
+    left:20px
+}
+
+.lightbox-next {
+    right:20px
+}
+
+.lightbox-close {
+    top:16px;
+    right:16px;
+    width:40px;
+    height:40px;
+    border-radius:50%;
+    font-size:24px
+}
+
+.lightbox-count {
+    position:absolute;
+    bottom:20px;
+    left:0;
+    right:0;
+    color:rgb(255 255 255 / 80%);
+    font-size:14px;
+    text-align:center
 }
 
 .listing-facts {
@@ -1060,11 +1228,11 @@ turbo-frame[aria-busy=true] .listing-grid {
 .form-page {
     max-width:480px;
     margin:0 auto;
-    padding-top:40px
+    padding-top:32px
 }
 
 .form-heading {
-    margin:20px 0 24px
+    margin:0 0 20px
 }
 
 .form-heading h1 {
@@ -1186,7 +1354,7 @@ turbo-frame[aria-busy=true] .listing-grid {
 
 /* Listing form */
 .listing-form-page {
-    padding-top:40px
+    padding-top:32px
 }
 
 .listing-form {
@@ -1351,6 +1519,16 @@ turbo-frame[aria-busy=true] .listing-grid {
     background:rgb(255 255 255 / 92%);
     color:var(--navy);
     font-size:12px
+}
+
+.photo-remove-new {
+    border:0;
+    cursor:pointer
+}
+
+.photo-remove-new:hover {
+    background:var(--white);
+    color:var(--red)
 }
 
 .photo-slot-removed img {
@@ -1935,6 +2113,33 @@ turbo-frame[aria-busy=true] .listing-grid {
 
     .listing-description {
         white-space:normal
+    }
+
+    .lightbox img {
+        max-width:100vw;
+        max-height:80vh;
+        border-radius:0
+    }
+
+    .lightbox-nav {
+        top:auto;
+        bottom:16px;
+        margin:0
+    }
+
+    .lightbox-count {
+        bottom:30px
+    }
+
+    .gallery {
+        grid-template-columns:repeat(3,minmax(0,1fr))
+    }
+
+    .toasts {
+        left:12px;
+        right:12px;
+        bottom:12px;
+        max-width:none
     }
 
     .form-panel {

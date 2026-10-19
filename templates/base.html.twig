@@ -56,8 +56,20 @@
             </div>
         </header>
         <main id="main" class="page-shell">
-            {% for message in app.flashes('success') %}<div class="flash" role="status">{{ message }}</div>{% endfor %}
-            {% for message in app.flashes('error') %}<div class="flash flash-error" role="alert">{{ message }}</div>{% endfor %}
+            <div class="toasts">
+                {% for message in app.flashes('success') %}
+                    <div class="flash toast" role="status" data-controller="toast">
+                        <span>{{ message }}</span>
+                        <button class="toast-close" type="button" data-action="toast#close" aria-label="Dismiss">×</button>
+                    </div>
+                {% endfor %}
+                {% for message in app.flashes('error') %}
+                    <div class="flash flash-error toast" role="alert" data-controller="toast" data-toast-delay-value="9000">
+                        <span>{{ message }}</span>
+                        <button class="toast-close" type="button" data-action="toast#close" aria-label="Dismiss">×</button>
+                    </div>
+                {% endfor %}
+            </div>
             {% if app.user and not app.user.verified %}
                 <form class="flash flash-notice" method="post" action="{{ path('app_verify_resend') }}">
                     <span>Please confirm your email address. Check your inbox for the link we sent to {{ app.user.email }}.</span>

@@ -53,7 +53,7 @@
     <div class="listing-form-side">
         <div class="form-panel photo-panel" data-controller="photo-slots" data-photo-slots-max-value="{{ constant('App\\Entity\\Listing::MAX_PHOTOS') }}" data-photo-slots-existing-value="{{ listing.photos|length }}" data-action="photo-slots:changed->listing-form#score">
             {{ form_label(form.photos) }}
-            {{ form_widget(form.photos, {attr: {'data-photo-slots-target': 'input', 'data-action': 'photo-slots#preview'}}) }}
+            {{ form_widget(form.photos, {attr: {'data-photo-slots-target': 'input'}}) }}
             {{ form_errors(form.photos) }}
 
             <div class="photo-slots">
@@ -67,7 +67,7 @@
                 {% endfor %}
                 {% for i in (listing.photos|length + 1)..constant('App\\Entity\\Listing::MAX_PHOTOS') %}
                     <label class="photo-slot photo-slot-empty" for="{{ form.photos.vars.id }}" data-photo-slots-target="slot" data-action="dragover->photo-slots#dragOver dragleave->photo-slots#dragLeave drop->photo-slots#drop">
-                        <span>Drop photo here</span>
+                        <span>Add photo</span>
                     </label>
                 {% endfor %}
             </div>

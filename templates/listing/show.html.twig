@@ -1,6 +1,33 @@
 {% extends 'base.html.twig' %}
 {% import 'listing/_macros.html.twig' as m %}
 
+{# For the seller (and admins): where the listing stands, and what they can do about it. #}
+{% macro owner_status(listing) %}
+    {% set state = listing.draft ? 'draft' : (listing.sold ? 'sold' : (listing.expired ? 'expired' : 'live')) %}
+    <div class="owner-bar">
+        <p>
+            <span class="status status-{{ state }}">{{ state|capitalize }}</span>
+            {% if state == 'draft' %}Only you can see it.
+            {% elseif state == 'sold' %}Hidden from everyone else.
+            {% elseif state == 'expired' %}Since {{ listing.expiresAt|date('j M Y') }}.
+            {% else %}Until {{ listing.expiresAt|date('j M Y') }}.{% endif %}
+        </p>
+        <div class="owner-actions">
+            <a class="button button-small" href="{{ path('app_listing_edit', {id: listing.id}) }}">{{ state == 'draft' ? 'Edit & publish' : 'Edit' }}</a>
+            {% if listing.canRefresh %}
+                <form method="post" action="{{ path('app_listing_refresh', {id: listing.id}) }}">
+                    <input type="hidden" name="_csrf_token" data-controller="csrf-protection" value="{{ csrf_token('submit') }}">
+                    <button class="button button-small button-outline" type="submit">Refresh</button>
+                </form>
+            {% endif %}
+            <a class="nav-link" href="{{ path('app_account_listings') }}">My listings</a>
+        </div>
+        {% if listing.photos|length and not listing.arePhotosPublic %}
+            <p class="photo-notice">Your photos are hidden from other people until you confirm your email address.</p>
+        {% endif %}
+    </div>
+{% endmacro %}
+
 {% block title %}{{ listing.title }} · ScarfieTextbooks{% endblock %}
 
 {% block body %}
@@ -9,31 +36,6 @@
     {% set photos = listing.arePhotosPublic or owner ? listing.photos : [] %}
 
     <div class="listing-page">
-        <a class="back-link" href="{{ path('app_listings') }}">← Back to listings</a>
-
-        {% if owner %}
-            <div class="owner-bar">
-                <span>
-                    {% if listing.draft %}
-                        <strong>Draft.</strong> Only you can see this listing.
-                    {% elseif listing.sold %}
-                        <strong>Sold.</strong> This listing is hidden from everyone else.
-                    {% elseif listing.expired %}
-                        <strong>Expired</strong> on {{ listing.expiresAt|date('j M Y') }}. Refresh it from My listings to put it back up.
-                    {% else %}
-                        <strong>Live</strong> until {{ listing.expiresAt|date('j M Y') }}.
-                    {% endif %}
-                </span>
-                <span class="owner-actions">
-                    <a class="nav-link" href="{{ path('app_listing_edit', {id: listing.id}) }}">Edit</a>
-                    <a class="nav-link" href="{{ path('app_account_listings') }}">My listings</a>
-                </span>
-            </div>
-            {% if listing.photos|length and not listing.arePhotosPublic %}
-                <p class="flash flash-notice photo-notice">Your photos are hidden from other people until you confirm your email address.</p>
-            {% endif %}
-        {% endif %}
-
         <div class="listing-layout">
             <article class="listing-detail">
                 <p class="listing-kicker">{{ listing.category.label }}{% if wanted %} <span class="badge badge-wanted">Wanted</span>{% endif %}</p>
@@ -41,12 +43,22 @@
                 <p class="listing-price">{{ m.price(listing) }}</p>
 
                 {% if photos|length %}
-                    <div class="gallery gallery-{{ photos|length }}">
+                    <div class="gallery" data-controller="gallery">
                         {% for photo in photos %}
-                            <a href="{{ path('app_photo', {id: photo.id, size: 'large'}) }}" target="_blank" rel="noopener">
+                            <a class="gallery-item" href="{{ path('app_photo', {id: photo.id, size: 'large'}) }}" data-gallery-target="item" data-action="gallery#open" data-gallery-index-param="{{ loop.index0 }}">
                                 <img src="{{ path('app_photo', {id: photo.id, size: loop.first ? 'large' : 'thumb'}) }}" alt="Photo {{ loop.index }} of {{ listing.title }}" loading="{{ loop.first ? 'eager' : 'lazy' }}">
                             </a>
                         {% endfor %}
+
+                        <dialog class="lightbox" data-gallery-target="dialog" data-action="click->gallery#backdrop keydown->gallery#key" aria-label="Photos of {{ listing.title }}">
+                            <img data-gallery-target="image" alt="">
+                            {% if photos|length > 1 %}
+                                <button class="lightbox-nav lightbox-prev" type="button" data-action="gallery#previous" aria-label="Previous photo">‹</button>
+                                <button class="lightbox-nav lightbox-next" type="button" data-action="gallery#next" aria-label="Next photo">›</button>
+                                <p class="lightbox-count" data-gallery-target="count"></p>
+                            {% endif %}
+                            <button class="lightbox-close" type="button" data-action="gallery#close" aria-label="Close">×</button>
+                        </dialog>
                     </div>
                 {% endif %}
 
@@ -74,8 +86,10 @@
                     <p class="muted">This listing was imported from the old site and can’t be contacted here.</p>
                 {% elseif owner and seller.id == app.user.id %}
                     <h2 id="contact-title">Your listing</h2>
+                    {{ _self.owner_status(listing) }}
                     <p class="muted">Messages people send you show up in <a class="inline-link" href="{{ path('app_account_messages') }}">your messages</a> and your email.</p>
                 {% else %}
+                    {% if owner %}{{ _self.owner_status(listing) }}{% endif %}
                     <h2 id="contact-title">{{ wanted ? 'Got one?' : 'Interested?' }} Message {{ seller.displayName }}</h2>
 
                     {% if seller.publicPhone %}

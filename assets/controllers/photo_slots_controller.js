@@ -1,9 +1,11 @@
 import { Controller } from '@hotwired/stimulus';
 
 /*
- * Turns the multiple file input into drop slots with previews. Files dropped
- * on a slot are added to the input with DataTransfer, so the form still posts
- * a normal multipart upload (and works without JavaScript).
+ * Turns the multiple file input into drop slots with previews. Each pick or
+ * drop adds photos to the next free slots (a file input on its own would
+ * replace the earlier ones), and each new photo can be removed again. The
+ * chosen files are put back on the input with DataTransfer, so the form still
+ * posts a normal multipart upload, and works without JavaScript.
  */
 export default class extends Controller {
     static targets = ['input', 'slot'];
@@ -13,16 +15,23 @@ export default class extends Controller {
         this.files = new DataTransfer();
         this.urls = [];
         this.inputTarget.classList.add('visually-hidden');
+        this.inputTarget.addEventListener('change', this.picked);
     }
 
     disconnect() {
+        this.inputTarget.removeEventListener('change', this.picked);
         this.urls.forEach((url) => URL.revokeObjectURL(url));
     }
 
-    // Files picked with the file dialog (replaces what the input holds).
+    // The file dialog only knows about this pick, so add it to what's chosen already.
+    picked = () => {
+        const picked = [...this.inputTarget.files];
+        this.add(picked);
+    };
+
+    // Ticking "Remove" on an existing photo frees a slot.
     preview() {
-        this.files = new DataTransfer();
-        this.add(this.inputTarget.files);
+        this.add([]);
     }
 
     dragOver(event) {
@@ -37,30 +46,43 @@ export default class extends Controller {
     drop(event) {
         event.preventDefault();
         event.currentTarget.classList.remove('photo-slot-over');
-        this.add(event.dataTransfer.files);
+        this.add([...event.dataTransfer.files]);
     }
 
-    add(fileList) {
-        const room = this.maxValue - this.keptCount();
-        for (const file of fileList) {
-            if (!file.type.startsWith('image/') || this.files.files.length >= room) continue;
-            if (![...this.files.files].some((f) => f.name === file.name && f.size === file.size)) {
-                this.files.items.add(file);
-            }
+    remove(event) {
+        event.preventDefault();
+        event.stopPropagation();
+        const keep = [...this.files.files].filter((_, i) => i !== Number(event.params.index));
+        this.files = new DataTransfer();
+        keep.forEach((file) => this.files.items.add(file));
+        this.add([]);
+    }
+
+    add(newFiles) {
+        const room = Math.min(this.slotTargets.length, this.maxValue - this.keptCount());
+        const chosen = [...this.files.files];
+        for (const file of newFiles) {
+            if (!file.type.startsWith('image/')) continue;
+            if (chosen.some((f) => f.name === file.name && f.size === file.size)) continue;
+            chosen.push(file);
         }
+
+        this.files = new DataTransfer();
+        chosen.slice(0, Math.max(room, 0)).forEach((file) => this.files.items.add(file));
         this.inputTarget.files = this.files.files;
-        this.render();
+        this.render(chosen.length > room);
     }
 
     keptCount() {
-        const removed = this.element.querySelectorAll('input[type=checkbox]:checked').length;
+        let kept = this.existingValue;
         this.element.querySelectorAll('input[type=checkbox]').forEach((box) => {
             box.closest('.photo-slot')?.classList.toggle('photo-slot-removed', box.checked);
+            if (box.checked) kept -= 1;
         });
-        return this.existingValue - removed;
+        return kept;
     }
 
-    render() {
+    render(tooMany) {
         this.urls.forEach((url) => URL.revokeObjectURL(url));
         this.urls = [];
         const files = [...this.files.files];
@@ -72,11 +94,19 @@ export default class extends Controller {
             if (file) {
                 const url = URL.createObjectURL(file);
                 this.urls.push(url);
-                slot.innerHTML = `<img src="${url}" alt="">`;
+                slot.innerHTML = `<img src="${url}" alt="">
+                    <button type="button" class="photo-remove photo-remove-new" data-action="photo-slots#remove"
+                        data-photo-slots-index-param="${i}" aria-label="Remove this photo">Remove</button>`;
             } else {
-                slot.innerHTML = '<span>Drop photo here</span>';
+                slot.innerHTML = '<span>Add photo</span>';
             }
         });
+
+        this.element.querySelector('.photo-limit')?.remove();
+        if (tooMany) {
+            this.slotTargets.at(-1)?.closest('.photo-slots')?.insertAdjacentHTML('afterend',
+                `<p class="form-help photo-limit">You can add up to ${this.maxValue} photos, so the rest were left out.</p>`);
+        }
 
         this.dispatch('changed');
     }
