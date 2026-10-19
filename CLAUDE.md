@@ -96,6 +96,9 @@ up to date when adding a workflow.
   `access_control`); the "Admin" menu link only renders for admins. EasyAdmin 5's API differs
   from 4: read `vendor/easycorp/easyadmin-bundle/skills/easyadmin/SKILL.md` first.
   `task user:promote -- email` (or `prod:user:promote`) grants the role.
+- `task user:reset-password -- email` (or `prod:user:reset-password`, `app:user:reset-password`)
+  sets an account's password to `Password1!`, or to `--password=...`, for people who can't get
+  the reset email. Tell them to change it.
 - Home page (`ListingController`, `/`): a GET `ListingFilterType` form with an empty block
   prefix (clean `?q=&type=&category=&maxPrice=` URLs) binds to the `App\Search\ListingFilter`
   DTO, and `ListingRepository::findByFilter()` builds the query. Results sit in the

@@ -201,6 +201,11 @@ tasks:
     cmds:
       - symfony console app:papers:import {{.CLI_ARGS}}
 
+  user:reset-password:
+    desc: 'Reset an account''s password to Password1! (task user:reset-password -- sam@example.com; --password=... for another)'
+    cmds:
+      - symfony console app:user:reset-password {{.CLI_ARGS}}
+
   user:promote:
     desc: 'Make an account an admin (task user:promote -- sam@example.com; add --demote to undo)'
     cmds:
@@ -284,6 +289,12 @@ tasks:
     deps: [prod:env]
     cmds:
       - kamal console app:papers:import
+
+  prod:user:reset-password:
+    desc: 'Reset a production account''s password to Password1! (task prod:user:reset-password -- them@example.com)'
+    deps: [prod:env]
+    cmds:
+      - kamal console app:user:reset-password {{.CLI_ARGS}}
 
   prod:user:promote:
     desc: 'Make a production account an admin (task prod:user:promote -- you@example.com)'
