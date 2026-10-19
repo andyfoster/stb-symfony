@@ -165,7 +165,12 @@ up to date when adding a workflow.
   is git-ignored and skipped by `composer install --no-scripts`) and `asset-map:compile` at
   build time. Caddy config is `Caddyfile`.
 - Listing photos live in the `stb_uploads` Docker volume, mounted on the `web` role at
-  `/app/var/uploads`. Nothing backs it up yet.
+  `/app/var/uploads`. Nothing backs it up automatically; `task prod:uploads:backup` downloads it.
+- Production database: `task prod:db:shell` (psql in `stb-db`, live data), `prod:db:logs`, and
+  `prod:db:dump`, which saves a `pg_dump --format=custom` to `var/backups/` (git-ignored). Dumps
+  and the photo backup stream over plain `ssh` to `Taskfile.yml`'s `PROD_SSH` (keep it in step with
+  `config/deploy.yml`), because `kamal ... exec` adds its own lines to the output.
+  `task db:restore -- var/backups/….dump` loads a dump into the local Docker database.
 - Migrations are not run on deploy (all `.kamal/hooks` are samples); run `task prod:migrate`
   after `task deploy`. Migrations create `messenger_messages`; `task prod:messenger:setup`
   (`messenger:setup-transports`, idempotent) makes sure it exists, since `auto_setup=0`.

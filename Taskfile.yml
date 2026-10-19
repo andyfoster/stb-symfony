@@ -7,6 +7,9 @@ version: '3'
 
 vars:
   URL: https://127.0.0.1:8000
+  # The production server (config/deploy.yml: servers, and Kamal's default ssh user, root).
+  PROD_SSH: root@89.167.96.7
+  BACKUPS: var/backups
 
 tasks:
   default:
@@ -129,6 +132,16 @@ tasks:
     cmds:
       - docker compose exec database psql -U scarfietextbooks -d scarfietextbooks
 
+  db:restore:
+    desc: 'Replace the local database with a dump, e.g. from prod:db:dump (task db:restore -- var/backups/stb-….dump)'
+    prompt: Replace everything in the local database with this dump?
+    preconditions:
+      - sh: test -f "{{.CLI_ARGS}}"
+        msg: 'Pass the dump file: task db:restore -- var/backups/stb-20261019-0900.dump'
+    cmds:
+      - docker compose exec -T database pg_restore -U scarfietextbooks -d scarfietextbooks --clean --if-exists --no-owner --no-privileges < "{{.CLI_ARGS}}"
+      - echo "Restored {{.CLI_ARGS}}. Production users' passwords work locally too; reset them with task user:reset-password if needed."
+
   db:seed:
     desc: Replace all data with the example listings and their stand-in photos (src/DataFixtures)
     cmds:
@@ -242,6 +255,37 @@ tasks:
     desc: Show whether the production Postgres container is running
     cmds:
       - kamal accessory details db
+
+  prod:db:shell:
+    desc: Open psql on the production database (stb-db). Careful, it's live data.
+    interactive: true
+    cmds:
+      - kamal accessory exec db --interactive --reuse "psql -U stb -d stb"
+
+  prod:db:logs:
+    desc: Follow the production Postgres (stb-db) logs
+    cmds:
+      - kamal accessory logs db -f
+
+  prod:db:dump:
+    desc: 'Download a backup of the production database to var/backups (pg_dump custom format; restore with pg_restore or task db:restore)'
+    vars:
+      FILE: '{{.BACKUPS}}/stb-{{now | date "20060102-1504"}}.dump'
+    cmds:
+      - mkdir -p {{.BACKUPS}}
+      # Straight from docker over ssh: kamal's own output would end up in the file.
+      - ssh {{.PROD_SSH}} "docker exec stb-db pg_dump -U stb -d stb --format=custom" > {{.FILE}}
+      - test -s {{.FILE}}
+      - echo "Saved {{.FILE}} ($(du -h {{.FILE}} | cut -f1))"
+
+  prod:uploads:backup:
+    desc: Download the production listing photos (the stb_uploads volume) to var/backups
+    vars:
+      FILE: '{{.BACKUPS}}/stb-uploads-{{now | date "20060102-1504"}}.tar.gz'
+    cmds:
+      - mkdir -p {{.BACKUPS}}
+      - ssh {{.PROD_SSH}} "tar -C /var/lib/docker/volumes/stb_uploads/_data -cz ." > {{.FILE}}
+      - echo "Saved {{.FILE}} ($(du -h {{.FILE}} | cut -f1))"
 
   deploy:
     desc: Build and deploy to production with Kamal
