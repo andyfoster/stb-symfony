@@ -3,7 +3,9 @@
 {% set photo = listing.arePhotosPublic ? listing.photos|first : null %}
 <article class="listing-card {{ wanted ? 'listing-wanted' : '' }}">
     {% if photo %}
-        <img class="card-photo" src="{{ path('app_photo', {id: photo.id, size: 'thumb'}) }}" alt="" loading="lazy" width="72" height="72">
+        <img class="card-photo" src="{{ path('app_photo', {id: photo.id, size: 'thumb'}) }}" alt="" loading="lazy" width="80" height="80">
+    {% else %}
+        <span class="card-icon card-icon-{{ listing.category.value }}" title="{{ listing.category.label }}">{{ m.category_icon(listing.category) }}</span>
     {% endif %}
 
     <div class="card-main">
@@ -15,13 +17,18 @@
             {% if listing.book %}
                 <span>{{ listing.book.author }}</span>
                 {% if listing.book.edition %}<span>{{ listing.book.edition }} edition</span>{% endif %}
-                {% if listing.book.courseCode %}<span class="course-code">{{ listing.book.courseCode }}</span>{% endif %}
             {% else %}
                 <span>{{ listing.category.label }}</span>
             {% endif %}
-            {% if listing.condition %}<span>{{ listing.condition.label }}</span>{% endif %}
         </p>
         {% if listing.description %}<p class="listing-description">{{ listing.description }}</p>{% endif %}
+        {% set papers = listing.book ? listing.book.papers : [] %}
+        {% if papers|length or listing.condition %}
+            <p class="card-tags">
+                {% for paper in papers %}<span class="course-code">{{ paper.code }}</span>{% endfor %}
+                {% if listing.condition %}<span class="condition">{{ listing.condition.label }}</span>{% endif %}
+            </p>
+        {% endif %}
     </div>
 
     <div class="card-side">

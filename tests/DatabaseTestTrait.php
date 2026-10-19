@@ -4,10 +4,12 @@ namespace App\Tests;
 
 use App\Entity\BookDetails;
 use App\Entity\Listing;
+use App\Entity\Paper;
 use App\Entity\User;
 use App\Enum\Category;
 use App\Enum\Condition;
 use App\Enum\ListingType;
+use App\Listing\PaperCatalog;
 use Doctrine\ORM\EntityManagerInterface;
 use Doctrine\ORM\Tools\SchemaTool;
 use Symfony\Bundle\FrameworkBundle\KernelBrowser;
@@ -45,6 +47,12 @@ trait DatabaseTestTrait
         return $user;
     }
 
+    /** A paper by code, added to the list if it's new. */
+    private function paper(string $code): Paper
+    {
+        return static::getContainer()->get(PaperCatalog::class)->get($code);
+    }
+
     private function createListing(User $seller, string $title = 'Chemistry: The Central Science', ?string $published = 'now', Category $category = Category::Textbooks): Listing
     {
         $listing = (new Listing())
@@ -56,7 +64,7 @@ trait DatabaseTestTrait
             ->setCondition(Condition::Good);
 
         if (Category::Textbooks === $category) {
-            $listing->setBook((new BookDetails())->setAuthor('Brown & LeMay')->setCourseCode('CHEM191'));
+            $listing->setBook((new BookDetails())->setAuthor('Brown & LeMay')->addPaper($this->paper('CHEM191')));
         }
 
         if (null !== $published) {

@@ -2,6 +2,8 @@
 
 namespace App\Entity;
 
+use Doctrine\Common\Collections\ArrayCollection;
+use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\Validator\Constraints as Assert;
 
@@ -25,10 +27,22 @@ class BookDetails extends Base
     #[Assert\Isbn]
     private ?string $isbn = null;
 
-    /** University paper code, e.g. CHEM191. */
-    #[ORM\Column(length: 20, nullable: true)]
-    #[Assert\Length(max: 20)]
-    private ?string $courseCode = null;
+    /**
+     * Otago papers the book is for, e.g. CHEM191 and CHEM192.
+     *
+     * @var Collection<int, Paper>
+     */
+    #[ORM\ManyToMany(targetEntity: Paper::class, cascade: ['persist'])]
+    #[ORM\OrderBy(['code' => \SortDirection::Ascending])]
+    #[Assert\Count(max: 8, maxMessage: 'Add up to {{ limit }} papers.')]
+    #[Assert\Valid]
+    private Collection $papers;
+
+    public function __construct()
+    {
+        parent::__construct();
+        $this->papers = new ArrayCollection();
+    }
 
     public function getAuthor(): ?string
     {
@@ -66,14 +80,26 @@ class BookDetails extends Base
         return $this;
     }
 
-    public function getCourseCode(): ?string
+    /**
+     * @return Collection<int, Paper>
+     */
+    public function getPapers(): Collection
     {
-        return $this->courseCode;
+        return $this->papers;
     }
 
-    public function setCourseCode(?string $courseCode): static
+    public function addPaper(Paper $paper): static
     {
-        $this->courseCode = $courseCode === null ? null : strtoupper($courseCode);
+        if (!$this->papers->contains($paper)) {
+            $this->papers->add($paper);
+        }
+
+        return $this;
+    }
+
+    public function removePaper(Paper $paper): static
+    {
+        $this->papers->removeElement($paper);
 
         return $this;
     }

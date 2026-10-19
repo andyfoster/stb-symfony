@@ -2,6 +2,7 @@
 
 namespace App\Controller;
 
+use App\Entity\Listing;
 use App\Entity\Message;
 use App\Entity\User;
 use App\Form\ProfileFormType;
@@ -21,8 +22,25 @@ use Symfony\Component\Security\Http\Attribute\IsGranted;
 #[IsGranted('ROLE_USER')]
 final class AccountController extends AbstractController
 {
-    #[Route('', name: 'app_account', methods: ['GET', 'POST'])]
-    public function profile(Request $request, EntityManagerInterface $manager, #[CurrentUser] User $user): Response
+    /**
+     * The dashboard: what needs doing, at a glance.
+     */
+    #[Route('', name: 'app_account', methods: ['GET'])]
+    public function overview(ListingRepository $listings, MessageRepository $messages, #[CurrentUser] User $user): Response
+    {
+        $mine = $listings->findBySeller($user);
+
+        return $this->render('account/overview.html.twig', [
+            'live' => array_filter($mine, static fn (Listing $listing): bool => $listing->isLive()),
+            'refreshable' => array_filter($mine, static fn (Listing $listing): bool => $listing->canRefresh()),
+            'drafts' => array_filter($mine, static fn (Listing $listing): bool => $listing->isDraft()),
+            'messages' => \array_slice($messages->findInbox($user), 0, 3),
+            'unread' => $messages->countUnread($user),
+        ]);
+    }
+
+    #[Route('/details', name: 'app_account_details', methods: ['GET', 'POST'])]
+    public function details(Request $request, EntityManagerInterface $manager, #[CurrentUser] User $user): Response
     {
         $form = $this->createForm(ProfileFormType::class, $user);
         $form->handleRequest($request);
@@ -31,7 +49,7 @@ final class AccountController extends AbstractController
             $manager->flush();
             $this->addFlash('success', 'Your details are saved.');
 
-            return $this->redirectToRoute('app_account', [], Response::HTTP_SEE_OTHER);
+            return $this->redirectToRoute('app_account_details', [], Response::HTTP_SEE_OTHER);
         }
 
         if ($form->isSubmitted()) {
@@ -39,7 +57,7 @@ final class AccountController extends AbstractController
             $manager->refresh($user);
         }
 
-        return $this->render('account/profile.html.twig', ['form' => $form]);
+        return $this->render('account/details.html.twig', ['form' => $form]);
     }
 
     #[Route('/listings', name: 'app_account_listings', methods: ['GET'])]

@@ -9,7 +9,7 @@ use Intervention\Image\Encoders\WebpEncoder;
 use Intervention\Image\ImageManager;
 use Symfony\Component\DependencyInjection\Attribute\Autowire;
 use Symfony\Component\Filesystem\Filesystem;
-use Symfony\Component\HttpFoundation\File\UploadedFile;
+use Symfony\Component\HttpFoundation\File\File;
 
 /**
  * Saves listing photos to disk (a Kamal volume in production). Each upload is
@@ -29,7 +29,7 @@ class PhotoStorage
         $this->filesystem = new Filesystem();
     }
 
-    public function add(Listing $listing, UploadedFile $file): ListingPhoto
+    public function add(Listing $listing, File $file): ListingPhoto
     {
         $name = bin2hex(random_bytes(16));
         $image = ImageManager::usingDriver(Driver::class)->decodePath($file->getPathname());

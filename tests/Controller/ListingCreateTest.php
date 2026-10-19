@@ -43,7 +43,8 @@ final class ListingCreateTest extends WebTestCase
             'listing_form[description]' => 'No writing inside.',
             'listing_form[book][isbn]' => '978-0137542970',
             'listing_form[book][author]' => 'Brown & LeMay',
-            'listing_form[book][courseCode]' => 'chem191',
+            // Typed in by hand: a known paper and one that isn't in the list yet.
+            'listing_form[book][papers]' => 'chem 191, CHEM111',
         ]);
 
         $listing = $this->onlyListing();
@@ -60,7 +61,8 @@ final class ListingCreateTest extends WebTestCase
 
         $this->client->request('GET', '/');
         self::assertSelectorTextContains('.listing-card .card-link', 'Chemistry: The Central Science');
-        self::assertSelectorTextContains('.listing-card .course-code', 'CHEM191');
+        self::assertAnySelectorTextContains('.listing-card .course-code', 'CHEM191');
+        self::assertAnySelectorTextContains('.listing-card .course-code', 'CHEM111');
         self::assertSelectorTextContains('.listing-card .listing-price', '$85.50');
     }
 

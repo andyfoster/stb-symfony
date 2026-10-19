@@ -1,0 +1,19 @@
+{% extends 'account/_layout.html.twig' %}
+
+{% block title %}Your details · ScarfieTextbooks{% endblock %}
+
+{% block account %}
+    <h1 class="dashboard-title">Your details</h1>
+    <p class="muted">Signed in as {{ app.user.email }}{% if not app.user.verified %}, which isn’t confirmed yet{% endif %}.</p>
+
+    {{ form_start(form, {attr: {class: 'dashboard-form', novalidate: 'novalidate'}}) }}
+        <div class="form-field">{{ form_row(form.displayName) }}</div>
+        <div class="form-field">{{ form_row(form.phone) }}</div>
+        <div class="checkbox-field">{{ form_widget(form.showPhone) }} {{ form_label(form.showPhone) }}</div>
+        {{ form_help(form.showPhone) }}
+        <div class="form-actions">
+            <button class="button" type="submit">Save</button>
+            <a class="cancel-link" href="{{ path('app_forgot_password') }}">Change your password</a>
+        </div>
+    {{ form_end(form) }}
+{% endblock %}

@@ -29,6 +29,8 @@ class ListingRepository extends ServiceEntityRepository
         $qb = $this->createQueryBuilder('l')
             ->leftJoin('l.book', 'b')
             ->addSelect('b')
+            ->leftJoin('b.papers', 'bp')
+            ->addSelect('bp')
             ->leftJoin('l.seller', 's')
             ->addSelect('s')
             ->leftJoin('l.photos', 'p')
@@ -38,7 +40,8 @@ class ListingRepository extends ServiceEntityRepository
             ->setParameter('active', ListingStatus::Active)
             ->setParameter('now', $now ?? new \DateTimeImmutable())
             ->orderBy('l.publishedAt', 'DESC')
-            ->addOrderBy('l.id', 'DESC');
+            ->addOrderBy('l.id', 'DESC')
+            ->addOrderBy('bp.code', 'ASC');
 
         $q = trim((string) $filter->q);
         if ('' !== $q) {
@@ -46,10 +49,12 @@ class ListingRepository extends ServiceEntityRepository
                 'LOWER(l.title) LIKE :q',
                 'LOWER(l.description) LIKE :q',
                 'LOWER(b.author) LIKE :q',
-                'LOWER(b.courseCode) LIKE :q',
                 'b.isbn LIKE :isbn',
+                // "chem 191" finds CHEM191, without narrowing the papers fetched for display.
+                'EXISTS (SELECT qp.id FROM App\Entity\Paper qp WHERE qp MEMBER OF b.papers AND qp.code LIKE :code)',
             ))
                 ->setParameter('q', '%'.addcslashes(mb_strtolower($q), '%_').'%')
+                ->setParameter('code', '%'.addcslashes(strtoupper((string) preg_replace('/\s+/', '', $q)), '%_').'%')
                 ->setParameter('isbn', '%'.addcslashes(str_replace(['-', ' '], '', $q), '%_').'%');
         }
 

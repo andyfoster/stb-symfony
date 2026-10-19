@@ -32,10 +32,10 @@ class BookDetailsFormType extends AbstractType
                 'required' => false,
                 'attr' => ['placeholder' => 'e.g. 12th'],
             ])
-            ->add('courseCode', TextType::class, [
-                'label' => 'Paper code (optional)',
-                'required' => false,
-                'attr' => ['placeholder' => 'FINC203, HUBS191'],
+            ->add('papers', PaperTagsType::class, [
+                'label' => 'Papers (optional)',
+                'help' => 'The Otago papers it’s for, like CHEM191. Add as many as you like.',
+                'attr' => ['placeholder' => 'CHEM191, CHEM192', 'autocomplete' => 'off'],
             ]);
     }
 

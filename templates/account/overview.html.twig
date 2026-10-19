@@ -1,0 +1,51 @@
+{% extends 'account/_layout.html.twig' %}
+
+{% block title %}Your dashboard · ScarfieTextbooks{% endblock %}
+
+{% block account %}
+    <h1 class="dashboard-title">Kia ora, {{ app.user.displayName }}</h1>
+
+    <dl class="dashboard-stats">
+        <div>
+            <dt>Live listings</dt>
+            <dd><a href="{{ path('app_account_listings') }}">{{ live|length }}</a></dd>
+        </div>
+        <div>
+            <dt>Unread messages</dt>
+            <dd><a href="{{ path('app_account_messages') }}">{{ unread }}</a></dd>
+        </div>
+        <div>
+            <dt>Drafts</dt>
+            <dd><a href="{{ path('app_account_listings') }}">{{ drafts|length }}</a></dd>
+        </div>
+    </dl>
+
+    {% if refreshable|length %}
+        <section class="dashboard-section">
+            <h2>Expiring soon</h2>
+            <p class="muted">Still selling? Refresh {{ refreshable|length == 1 ? 'it' : 'them' }} to keep {{ refreshable|length == 1 ? 'it' : 'them' }} up and back at the top of the list.</p>
+            <ul class="dashboard-list">
+                {% for listing in refreshable %}
+                    <li>
+                        <a href="{{ path('app_listing_show', {id: listing.id}) }}">{{ listing.title }}</a>
+                        <span class="muted">{{ listing.expired ? 'Expired' : 'Expires' }} {{ listing.expiresAt|date('j M') }}</span>
+                        <form method="post" action="{{ path('app_listing_refresh', {id: listing.id}) }}">
+                            <input type="hidden" name="_csrf_token" data-controller="csrf-protection" value="{{ csrf_token('submit') }}">
+                            <button class="button button-small" type="submit">Refresh</button>
+                        </form>
+                    </li>
+                {% endfor %}
+            </ul>
+        </section>
+    {% endif %}
+
+    <section class="dashboard-section">
+        <h2>Latest messages</h2>
+        {% if messages|length %}
+            {{ include('account/_message_list.html.twig') }}
+            <p class="dashboard-more"><a href="{{ path('app_account_messages') }}">All messages</a></p>
+        {% else %}
+            <p class="muted">No messages yet. When someone asks about one of your listings, it shows up here and in your email.</p>
+        {% endif %}
+    </section>
+{% endblock %}

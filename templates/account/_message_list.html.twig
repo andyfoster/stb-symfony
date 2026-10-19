@@ -1,0 +1,12 @@
+<ul class="message-list">
+    {% for message in messages %}
+        <li class="message-row {{ message.read ? '' : 'message-unread' }}">
+            <a href="{{ path('app_account_message', {id: message.id}) }}">
+                <span class="message-from">{{ message.senderName }}</span>
+                <span class="message-about">{{ message.listing ? message.listing.title : 'Deleted listing' }}</span>
+                <span class="message-snippet">{{ message.body }}</span>
+                <time datetime="{{ message.createdAt|date('c') }}">{{ message.createdAt|date('j M') }}</time>
+            </a>
+        </li>
+    {% endfor %}
+</ul>

@@ -32,7 +32,8 @@ up to date when adding a workflow.
 - `.env` holds the local Docker `DATABASE_URL`, so plain `bin/console` works as well as
   `symfony console` (which injects the same values from Docker, plus `MAILER_DSN` for Mailpit).
 - Example data lives in `src/DataFixtures/AppFixtures.php` (DoctrineFixturesBundle, dev/test
-  only). `task db:seed` wipes and reloads it.
+  only). `task db:seed` wipes and reloads it, including generated stand-in photos
+  (`PlaceholderPhotos`: book covers for textbooks) and a few messages in Sam's inbox.
 - Mailer/Notifier messages are routed to the Doctrine `async` Messenger transport
   (`auto_setup=0`, tables created by `messenger:setup-transports`). `symfony serve` (so
   `task start`) also runs a `messenger:consume async` worker, configured in
@@ -68,18 +69,29 @@ up to date when adding a workflow.
   stops repeats until the next publish/refresh. `task reminders:send` runs it now.
   `ListingFormType` (create/edit at `/sell`, `/listings/{id}/edit`) clears `book` before
   validation unless the category is Textbooks; `ListingEditor` saves, publishes and deletes.
+- Otago papers: `BookDetails::papers` is many-to-many with `Paper` (code like CHEM191, optional
+  title, `official` when it came from Otago's list). `data/otago-papers.csv` is a starter list
+  (Otago's site blocks scripted downloads); load the full list with `task papers:import -- file.csv`
+  (`app:papers:import`, `PaperCatalog::importCsv()`, safe to rerun). On the form, `PaperTagsType`
+  is a comma-separated text field that the `paper-tags` Stimulus controller turns into tags with
+  suggestions from `/papers/search`; codes not in the list are added as unofficial papers, which
+  admins can review under Papers in `/admin`. Search matches paper codes with or without spaces.
 - ISBN lookup: `BookLookup` asks Open Library, then Google Books (no keys), caching answers in
   `cache.app`; `/sell/lookup-isbn` serves the `isbn-lookup` Stimulus controller.
 - Photos (max 4, `ListingPhoto`): `PhotoStorage` re-encodes uploads to WebP (strips EXIF) in
   `large`/`thumb` sizes under `UPLOAD_DIR` (default `var/uploads`), outside `public/`.
   `PhotoController` (`/photos/{id}/{size}`) serves them only when the seller's email is
   verified, or to the seller and admins. Needs the `gd` extension.
+- Account dashboard: everything about your account is under `/account` (`AccountController`,
+  templates extend `account/_layout.html.twig` for the sidebar): overview (`app_account`),
+  My listings, Messages and Your details (`app_account_details`).
 - Contact the seller: `ContactSellerType` on the listing page posts to
   `/listings/{id}/contact`; `SellerMessenger` rate-limits (`config/packages/rate_limiter.yaml`),
   saves a `Message` for the seller's inbox (`/account/messages`) and emails them with Reply-To
   set to the sender. Guests and unverified users get Cloudflare Turnstile (`App\Captcha`, keys in
   `TURNSTILE_SITE_KEY`/`TURNSTILE_SECRET_KEY`; `.env` has Cloudflare's always-pass test keys),
-  and a hidden `website` honeypot field. Sellers can show their phone (`User::showPhone`).
+  and a hidden `website` honeypot field. Sellers can show their phone (`User::showPhone`) and set
+  it under Your details.
 - Admin: EasyAdmin 5 at `/admin` (`src/Controller/Admin`, `ROLE_ADMIN`, also in
   `access_control`); the "Admin" menu link only renders for admins. EasyAdmin 5's API differs
   from 4: read `vendor/easycorp/easyadmin-bundle/skills/easyadmin/SKILL.md` first.
@@ -110,8 +122,9 @@ up to date when adding a workflow.
 - `HealthController` (`/up`) is the Kamal proxy healthcheck; keep it dependency-free.
 - Styling is hand-written CSS in `assets/styles/app.css` (no framework, system fonts only),
   kept deliberately quiet: white pages, navy text, blue (`--blue`) for links and buttons, and
-  gold (`--gold`) only for the monospaced wordmark and "Wanted" listings. Listings are plain
-  rows (title and details left, price right); avoid adding cards, shadows or all-caps labels.
+  gold (`--gold`) only for the monospaced wordmark and "Wanted" listings (which also get a gold
+  left edge). Listings are tiger-striped rows: a photo or category icon, title and details, paper
+  and condition tags, price on the right. Avoid adding cards, shadows or all-caps labels.
 - The project `php.ini` (read by the Symfony CLI) raises upload limits to match the dockerfile
   and gives dev cache warmup enough memory for EasyAdmin's templates.
 

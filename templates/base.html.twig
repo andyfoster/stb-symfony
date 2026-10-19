@@ -34,9 +34,9 @@
                                 {% if unread %}<span class="nav-badge" aria-label="{{ unread }} unread">{{ unread }}</span>{% endif %}
                             </summary>
                             <ul class="nav-menu-list">
+                                <li><a href="{{ path('app_account') }}">Dashboard</a></li>
                                 <li><a href="{{ path('app_account_listings') }}">My listings</a></li>
                                 <li><a href="{{ path('app_account_messages') }}">Messages{% if unread %} <span class="nav-badge">{{ unread }}</span>{% endif %}</a></li>
-                                <li><a href="{{ path('app_account') }}">Account</a></li>
                                 {% if is_granted('ROLE_ADMIN') %}
                                     <li><a class="nav-admin" href="{{ path('admin') }}" data-turbo="false">Admin</a></li>
                                 {% endif %}

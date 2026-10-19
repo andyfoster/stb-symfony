@@ -33,9 +33,12 @@
                 {{ form_errors(form.book.isbn) }}
             </div>
             <div class="form-field">{{ form_row(form.book.author, {attr: {'data-isbn-lookup-target': 'author'}}) }}</div>
-            <div class="form-grid">
-                <div class="form-field">{{ form_row(form.book.edition, {attr: {'data-isbn-lookup-target': 'edition'}}) }}</div>
-                <div class="form-field">{{ form_row(form.book.courseCode) }}</div>
+            <div class="form-field field-narrow">{{ form_row(form.book.edition, {attr: {'data-isbn-lookup-target': 'edition'}}) }}</div>
+            <div class="form-field" data-controller="paper-tags" data-paper-tags-url-value="{{ path('app_paper_search') }}">
+                {{ form_label(form.book.papers) }}
+                {{ form_widget(form.book.papers, {attr: {'data-paper-tags-target': 'input'}}) }}
+                {{ form_help(form.book.papers) }}
+                {{ form_errors(form.book.papers) }}
             </div>
         </fieldset>
 
