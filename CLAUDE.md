@@ -134,7 +134,9 @@ up to date when adding a workflow.
 - `HealthController` (`/up`) is the Kamal proxy healthcheck; keep it dependency-free.
 - Success and error flashes render as toasts at the bottom left (`toast` Stimulus controller,
   they dismiss themselves); keep the `.flash` / `.flash-error` classes, tests assert on them.
-  Listing photos open in a `<dialog>` lightbox (`gallery` controller). The photo slots on the
+  Listing photos are small tiles that open in a `<dialog>` lightbox (`gallery` controller), and
+  the contact form sits in a `<dialog>` popup (`modal` controller, reopened automatically when
+  the form has errors; Turnstile renders once the popup opens). The photo slots on the
   listing form (`photo-slots`) add each pick to the next free slot and put the files back on
   the input with DataTransfer. Pages don't have "Back to …" links; the header and dashboard
   sidebar cover navigation.

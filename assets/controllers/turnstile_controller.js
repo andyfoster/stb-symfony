@@ -22,7 +22,24 @@ function loadTurnstile() {
 export default class extends Controller {
     static values = { siteKey: String, fieldName: String };
 
-    async connect() {
+    connect() {
+        // Inside a closed popup, wait until it opens: the widget needs to be visible to render.
+        const dialog = this.element.closest('dialog');
+        if (dialog && !dialog.open) {
+            this.observer = new MutationObserver(() => {
+                if (dialog.open) {
+                    this.observer.disconnect();
+                    this.render();
+                }
+            });
+            this.observer.observe(dialog, { attributes: true, attributeFilter: ['open'] });
+        } else {
+            this.render();
+        }
+    }
+
+    async render() {
+        if (this.widgetId !== undefined) return;
         const turnstile = await loadTurnstile();
         if (!this.element.isConnected) return;
         this.widgetId = turnstile.render(this.element, {
@@ -33,6 +50,7 @@ export default class extends Controller {
     }
 
     disconnect() {
+        this.observer?.disconnect();
         if (this.widgetId !== undefined) window.turnstile?.remove(this.widgetId);
     }
 }

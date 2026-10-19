@@ -65,8 +65,18 @@ final class ContactSellerTest extends WebTestCase
 
         self::assertResponseStatusCodeSame(422);
         self::assertSelectorTextContains('.contact-panel', 'Please confirm you’re not a robot');
+        // The form is in a popup, which opens again so the error can be fixed.
+        self::assertSelectorExists('[data-controller="modal"][data-modal-open-value="true"]');
         self::assertQueuedEmailCount(0);
         self::assertCount(0, $this->manager->getRepository(Message::class)->findAll());
+    }
+
+    public function testFormStartsClosed(): void
+    {
+        $this->client->request('GET', '/listings/'.$this->listing->getId());
+
+        self::assertSelectorTextContains('.contact-open', 'Message Sam');
+        self::assertSelectorExists('[data-controller="modal"][data-modal-open-value="false"]');
     }
 
     public function testMissingCaptchaSendsNothing(): void

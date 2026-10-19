@@ -46,7 +46,7 @@
                     <div class="gallery" data-controller="gallery">
                         {% for photo in photos %}
                             <a class="gallery-item" href="{{ path('app_photo', {id: photo.id, size: 'large'}) }}" data-gallery-target="item" data-action="gallery#open" data-gallery-index-param="{{ loop.index0 }}">
-                                <img src="{{ path('app_photo', {id: photo.id, size: loop.first ? 'large' : 'thumb'}) }}" alt="Photo {{ loop.index }} of {{ listing.title }}" loading="{{ loop.first ? 'eager' : 'lazy' }}">
+                                <img src="{{ path('app_photo', {id: photo.id, size: 'thumb'}) }}" alt="Photo {{ loop.index }} of {{ listing.title }}">
                             </a>
                         {% endfor %}
 
@@ -99,15 +99,32 @@
                     {% endif %}
 
                     {% if listing.live %}
-                        {{ form_start(contact, {attr: {class: 'contact-form', novalidate: 'novalidate'}}) }}
-                            <div class="form-field">{{ form_row(contact.senderName) }}</div>
-                            <div class="form-field">{{ form_row(contact.senderEmail) }}</div>
-                            <div class="form-field">{{ form_row(contact.body) }}</div>
-                            {{ form_row(contact.website) }}
-                            {% if contact.children.captcha is defined %}<div class="form-field">{{ form_row(contact.captcha) }}</div>{% endif %}
-                            <button class="button contact-send" type="submit">Send message</button>
-                            <p class="form-help">Your email goes to the seller so they can reply. We don’t show it on the site.</p>
-                        {{ form_end(contact) }}
+                        {# Opens by itself when the form comes back with something to fix. #}
+                        <div data-controller="modal" data-modal-open-value="{{ contact.vars.submitted and not contact.vars.valid ? 'true' : 'false' }}">
+                            <button class="button contact-open" type="button" data-action="modal#open">Message {{ seller.displayName }}</button>
+                            <p class="form-help">They’ll get it by email and reply to you directly.</p>
+
+                            <dialog class="modal" data-modal-target="dialog" data-action="click->modal#backdrop" aria-labelledby="contact-modal-title">
+                                <div class="modal-header">
+                                    <h2 id="contact-modal-title">Message {{ seller.displayName }}</h2>
+                                    <button class="modal-close" type="button" data-action="modal#close" aria-label="Close">×</button>
+                                </div>
+                                <p class="muted modal-about">About “{{ listing.title }}”</p>
+                                {{ form_start(contact, {attr: {class: 'contact-form', novalidate: 'novalidate'}}) }}
+                                    <div class="form-grid">
+                                        <div class="form-field">{{ form_row(contact.senderName) }}</div>
+                                        <div class="form-field">{{ form_row(contact.senderEmail) }}</div>
+                                    </div>
+                                    <div class="form-field">{{ form_row(contact.body, {attr: {rows: 6}}) }}</div>
+                                    {{ form_row(contact.website) }}
+                                    {% if contact.children.captcha is defined %}<div class="form-field">{{ form_row(contact.captcha) }}</div>{% endif %}
+                                    <div class="modal-actions">
+                                        <button class="button contact-send" type="submit">Send message</button>
+                                        <p class="form-help">Your email goes to the seller so they can reply. We don’t show it on the site.</p>
+                                    </div>
+                                {{ form_end(contact) }}
+                            </dialog>
+                        </div>
                     {% else %}
                         <p class="muted">This listing isn’t live, so it can’t be messaged.</p>
                     {% endif %}

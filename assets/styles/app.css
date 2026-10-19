@@ -1030,9 +1030,9 @@ turbo-frame[aria-busy=true] .listing-grid {
 
 .gallery {
     display:grid;
-    grid-template-columns:repeat(4,minmax(0,1fr));
+    grid-template-columns:repeat(auto-fill,minmax(110px,150px));
     gap:8px;
-    margin:24px 0
+    margin:20px 0
 }
 
 .gallery-item {
@@ -1040,28 +1040,19 @@ turbo-frame[aria-busy=true] .listing-grid {
     overflow:hidden;
     border-radius:6px;
     background:var(--blue-tint);
+    box-shadow:0 0 0 1px rgb(20 33 61 / 8%);
     cursor:zoom-in
-}
-
-.gallery-item:first-child {
-    grid-column:1/-1
 }
 
 .gallery-item img {
     display:block;
     width:100%;
     aspect-ratio:1;
-    object-fit:cover;
-    transition:transform .2s
+    object-fit:cover
 }
 
-.gallery-item:first-child img {
-    aspect-ratio:4/3;
-    max-height:520px
-}
-
-.gallery-item:hover img {
-    transform:scale(1.03)
+.gallery-item:hover {
+    box-shadow:0 0 0 2px var(--blue)
 }
 
 .lightbox {
@@ -1089,6 +1080,15 @@ turbo-frame[aria-busy=true] .listing-grid {
     max-height:calc(100vh - 100px);
     border-radius:4px;
     object-fit:contain
+}
+
+.lightbox img {
+    transition:opacity .15s
+}
+
+.lightbox img.lightbox-loading {
+    opacity:0;
+    transition:none
 }
 
 .lightbox-nav,.lightbox-close {
@@ -1190,8 +1190,84 @@ turbo-frame[aria-busy=true] .listing-grid {
     background:var(--white)
 }
 
-.contact-send {
+.contact-open {
     width:100%
+}
+
+/* Popups (the contact form) */
+.modal {
+    width:min(560px,calc(100vw - 32px));
+    max-height:calc(100vh - 32px);
+    padding:24px;
+    border:0;
+    border-radius:12px;
+    box-shadow:0 24px 60px rgb(20 33 61 / 30%);
+    color:var(--navy)
+}
+
+.modal::backdrop {
+    background:rgb(20 33 61 / 45%)
+}
+
+.modal[open] {
+    animation:modal-in .18s ease-out
+}
+
+@keyframes modal-in {
+    from {
+        opacity:0;
+        transform:translateY(8px)
+    }
+}
+
+.modal-header {
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    gap:16px
+}
+
+.modal-header h2 {
+    font-size:20px
+}
+
+.modal-close {
+    width:36px;
+    height:36px;
+    padding:0;
+    border:0;
+    border-radius:50%;
+    background:var(--blue-tint);
+    color:var(--navy);
+    font-size:22px;
+    line-height:1;
+    cursor:pointer
+}
+
+.modal-close:hover {
+    background:#e2e9f8
+}
+
+.modal-about {
+    margin:2px 0 20px;
+    font-size:14px
+}
+
+.modal .form-field {
+    margin-bottom:14px
+}
+
+.modal-actions {
+    display:flex;
+    flex-wrap:wrap;
+    align-items:center;
+    gap:8px 16px
+}
+
+.modal-actions .form-help {
+    flex:1;
+    min-width:200px;
+    margin:0
 }
 
 .phone-reveal {

@@ -40,8 +40,21 @@ export default class extends Controller {
         const count = this.itemTargets.length;
         this.index = (index + count) % count;
         const item = this.itemTargets[this.index];
-        this.imageTarget.src = item.href;
-        this.imageTarget.alt = item.querySelector('img')?.alt ?? '';
+        const image = this.imageTarget;
+
+        // Hide the old photo until the new one has loaded, so it doesn't flash up first.
+        if (image.getAttribute('src') !== item.href) {
+            image.classList.add('lightbox-loading');
+            image.onload = () => image.classList.remove('lightbox-loading');
+            image.src = item.href;
+            if (image.complete) image.classList.remove('lightbox-loading');
+        }
+        image.alt = item.querySelector('img')?.alt ?? '';
         if (this.hasCountTarget) this.countTarget.textContent = `${this.index + 1} of ${count}`;
+
+        // Fetch the neighbours now, so next and previous are instant.
+        [this.index + 1, this.index - 1].forEach((i) => {
+            new Image().src = this.itemTargets[(i + count) % count].href;
+        });
     }
 }
