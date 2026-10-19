@@ -155,7 +155,7 @@ class AppFixtures extends Fixture
     {
         for ($variant = 0; $variant < $count; ++$variant) {
             $file = $this->placeholders->for($listing, $variant);
-            $this->photos->add($listing, $file);
+            $this->photos->generate($this->photos->add($listing, $file));
             unlink($file->getPathname());
         }
     }

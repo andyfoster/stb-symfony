@@ -14,6 +14,7 @@ use EasyCorp\Bundle\EasyAdminBundle\Controller\AbstractCrudController;
 use EasyCorp\Bundle\EasyAdminBundle\Field\AssociationField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\ChoiceField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\DateTimeField;
+use EasyCorp\Bundle\EasyAdminBundle\Field\Field;
 use EasyCorp\Bundle\EasyAdminBundle\Field\IdField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\MoneyField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\TextareaField;
@@ -46,10 +47,19 @@ final class ListingCrudController extends AbstractCrudController
         $view = Action::new('viewOnSite', 'View on site', 'fa fa-eye')
             ->linkToRoute('app_listing_show', static fn(Listing $listing): array => ['id' => $listing->getId()]);
 
+        // The Photos admin, showing just this listing's photos.
+        $photos = Action::new('managePhotos', 'Photos', 'fa fa-images')
+            ->linkToRoute('admin_listing_photo_index', static fn(Listing $listing): array => [
+                'filters' => ['listing' => ['comparison' => '=', 'value' => $listing->getId()]],
+            ])
+            ->displayIf(static fn(Listing $listing): bool => !$listing->getPhotos()->isEmpty());
+
         return $actions
             ->disable(Action::NEW)
             ->add(Crud::PAGE_INDEX, $view)
-            ->add(Crud::PAGE_INDEX, Action::DETAIL);
+            ->add(Crud::PAGE_INDEX, Action::DETAIL)
+            ->add(Crud::PAGE_INDEX, $photos)
+            ->add(Crud::PAGE_DETAIL, $photos);
     }
 
     public function configureFilters(Filters $filters): Filters
@@ -60,6 +70,7 @@ final class ListingCrudController extends AbstractCrudController
     public function configureFields(string $pageName): iterable
     {
         yield IdField::new('id')->hideOnForm();
+        yield Field::new('photos')->setTemplatePath('admin/field/listing_photos.html.twig')->setSortable(false)->hideOnForm();
         yield TextField::new('title');
         yield AssociationField::new('seller')->setDisabled()->formatValue(static fn($value, Listing $listing): string => (string) $listing->getSeller()?->getEmail());
         yield ChoiceField::new('status')->setChoices(ListingStatus::cases())

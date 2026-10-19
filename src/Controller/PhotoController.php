@@ -26,13 +26,15 @@ final class PhotoController extends AbstractController
             throw $this->createNotFoundException('Photo not found.');
         }
 
-        $path = $storage->path((string) $photo->getFilename(), $size);
-        if (!is_file($path)) {
+        try {
+            // Normally made in the background after upload; made now if it isn't there yet.
+            $path = $storage->ensure($photo, $size);
+        } catch (\RuntimeException) {
             throw $this->createNotFoundException('Photo not found.');
         }
 
         $response = new BinaryFileResponse($path, headers: ['Content-Type' => 'image/webp'], autoEtag: true, autoLastModified: true);
-        // Files never change (a new upload gets a new id), but visibility can.
+        // Visibility can change, and sizes can be remade (the ETag covers that).
         $public ? $response->setPublic()->setMaxAge(86400) : $response->setPrivate()->setMaxAge(0);
         $response->isNotModified($request);
 

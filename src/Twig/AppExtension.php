@@ -3,6 +3,8 @@
 namespace App\Twig;
 
 use App\Entity\Listing;
+use App\Entity\ListingPhoto;
+use App\Photo\PhotoStorage;
 use App\Entity\User;
 use App\Repository\MessageRepository;
 use App\Search\ListingFilter;
@@ -14,6 +16,7 @@ final class AppExtension
     public function __construct(
         private readonly MessageRepository $messages,
         private readonly Security $security,
+        private readonly PhotoStorage $photos,
     ) {}
 
     /** For the "Messages" badge in the header. */
@@ -30,5 +33,16 @@ final class AppExtension
     public function listingSearchText(Listing $listing): string
     {
         return ListingFilter::searchText($listing);
+    }
+
+    /**
+     * Sizes not made yet, for the Photos admin.
+     *
+     * @return list<string>
+     */
+    #[AsTwigFunction('photo_missing_sizes')]
+    public function photoMissingSizes(ListingPhoto $photo): array
+    {
+        return $this->photos->missingSizes($photo);
     }
 }

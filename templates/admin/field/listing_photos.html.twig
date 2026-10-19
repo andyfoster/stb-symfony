@@ -1,0 +1,17 @@
+{# A listing's photos in the admin: the first with a count on the list, all of them on the detail page. #}
+{% set photos = entity.instance.photos %}
+{% set detail = ea().crud.currentPage == 'detail' %}
+{% if photos|length == 0 %}
+    <span class="badge badge-secondary">No photos</span>
+{% else %}
+    <div class="stb-admin-photos">
+        {% for photo in detail ? photos : [photos|first] %}
+            {% set html_id = 'stb-photo-' ~ field.uniqueId ~ '-' ~ photo.id %}
+            <a href="{{ path('app_photo', {id: photo.id, size: 'large'}) }}" class="ea-lightbox-thumbnail" data-ea-lightbox-content-selector="#{{ html_id }}">
+                <img src="{{ path('app_photo', {id: photo.id, size: 'thumb'}) }}" alt="" loading="lazy" width="{{ detail ? 120 : 48 }}" height="{{ detail ? 120 : 48 }}" style="object-fit:cover;border-radius:4px">
+            </a>
+            <div id="{{ html_id }}" class="ea-lightbox"><img src="{{ path('app_photo', {id: photo.id, size: 'large'}) }}" alt=""></div>
+        {% endfor %}
+        {% if not detail and photos|length > 1 %}<span class="text-muted">+{{ photos|length - 1 }}</span>{% endif %}
+    </div>
+{% endif %}

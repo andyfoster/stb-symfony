@@ -21,6 +21,8 @@ framework:
             Symfony\Component\Mailer\Messenger\SendEmailMessage: async
             Symfony\Component\Notifier\Message\ChatMessage: async
             Symfony\Component\Notifier\Message\SmsMessage: async
+            # Photo sizes are made in the background after an upload (and on demand if missing).
+            App\Photo\GeneratePhotoSizes: async
 
             # Route your messages to the transports
             # 'App\Message\YourMessage': async

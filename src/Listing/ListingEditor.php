@@ -5,10 +5,12 @@ namespace App\Listing;
 use App\Entity\Listing;
 use App\Entity\ListingPhoto;
 use App\Enum\ListingStatus;
+use App\Photo\GeneratePhotoSizes;
 use App\Photo\PhotoStorage;
 use App\Settings\SiteSettingsProvider;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\HttpFoundation\File\UploadedFile;
+use Symfony\Component\Messenger\MessageBusInterface;
 
 /**
  * Saves listings from the form, and publishes, refreshes, sells and deletes them.
@@ -19,6 +21,7 @@ class ListingEditor
         private readonly EntityManagerInterface $manager,
         private readonly PhotoStorage $photos,
         private readonly SiteSettingsProvider $settings,
+        private readonly MessageBusInterface $bus,
     ) {}
 
     /**
@@ -27,13 +30,14 @@ class ListingEditor
      */
     public function save(Listing $listing, bool $publish, array $newPhotos = [], array $removedPhotos = []): void
     {
+        // Their files go when Doctrine removes them (RemovePhotoFiles).
         foreach ($removedPhotos as $photo) {
-            $this->photos->delete($photo);
             $listing->removePhoto($photo);
         }
 
+        $added = [];
         foreach ($newPhotos as $file) {
-            $this->photos->add($listing, $file);
+            $added[] = $this->photos->add($listing, $file);
         }
 
         if (!$publish) {
@@ -49,6 +53,11 @@ class ListingEditor
 
         $this->manager->persist($listing);
         $this->manager->flush();
+
+        // The sizes pages show are made in the background, now the photos have ids.
+        foreach ($added as $photo) {
+            $this->bus->dispatch(new GeneratePhotoSizes((int) $photo->getId()));
+        }
     }
 
     public function refresh(Listing $listing): void
@@ -65,10 +74,7 @@ class ListingEditor
 
     public function delete(Listing $listing): void
     {
-        foreach ($listing->getPhotos() as $photo) {
-            $this->photos->delete($photo);
-        }
-
+        // Its photos (and their files) go with it.
         $this->manager->remove($listing);
         $this->manager->flush();
     }

@@ -78,10 +78,19 @@ up to date when adding a workflow.
   admins can review under Papers in `/admin`. Search matches paper codes with or without spaces.
 - ISBN lookup: `BookLookup` asks Open Library, then Google Books (no keys), caching answers in
   `cache.app`; `/sell/lookup-isbn` serves the `isbn-lookup` Stimulus controller.
-- Photos (max 4, `ListingPhoto`): `PhotoStorage` re-encodes uploads to WebP (strips EXIF) in
-  `large`/`thumb` sizes under `UPLOAD_DIR` (default `var/uploads`), outside `public/`.
+- Photos (max 4, `ListingPhoto`) live under `UPLOAD_DIR` (default `var/uploads`), outside
+  `public/`, one folder per photo. `PhotoStorage::add()` keeps an `original` (auto-rotated, at
+  most 2400px, WebP, EXIF stripped); the sizes pages use (`PhotoStorage::SIZES`: `large`, `thumb`)
+  are made from it by `generate()`: in the background after upload (`GeneratePhotoSizes` on the
+  `async` worker), on demand by `PhotoController` when one is missing, or all again with
+  `task photos:regenerate` (`--missing`, `--size=thumb`, `--queue`) after changing `SIZES`.
+  `RemovePhotoFiles` deletes a photo's files whenever Doctrine removes it; `task photos:prune`
+  clears folders left by rows the database deleted itself (e.g. a deleted user's listings).
   `PhotoController` (`/photos/{id}/{size}`) serves them only when the seller's email is
   verified, or to the seller and admins. Needs the `gd` extension.
+- Admin photos: the listings admin shows each listing's photos, and Photos (`ListingPhotoCrudController`)
+  pages through every photo with whether it's shown on the site, to delete or regenerate them.
+  The listing enums implement `TranslatableInterface` so EasyAdmin shows their `label()`.
 - Account dashboard: everything about your account is under `/account` (`AccountController`,
   templates extend `account/_layout.html.twig` for the sidebar): overview (`app_account`),
   My listings, Messages and Your details (`app_account_details`).

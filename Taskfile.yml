@@ -209,6 +209,16 @@ tasks:
     cmds:
       - symfony console messenger:failed:show {{.CLI_ARGS}}
 
+  photos:regenerate:
+    desc: 'Remake listing photo sizes (task photos:regenerate -- --missing, --size=thumb, --queue)'
+    cmds:
+      - symfony console app:photos:regenerate {{.CLI_ARGS}}
+
+  photos:prune:
+    desc: Delete photo files that no photo in the database uses any more
+    cmds:
+      - symfony console app:photos:prune
+
   papers:import:
     desc: 'Load Otago papers from a code,title CSV (default data/otago-papers.csv; task papers:import -- file.csv)'
     cmds:
@@ -327,6 +337,19 @@ tasks:
     desc: 'Run a Symfony console command in production (task prod:console -- about)'
     cmds:
       - kamal console {{.CLI_ARGS}}
+
+  prod:photos:regenerate:
+    desc: 'Remake production photo sizes on the worker (task prod:photos:regenerate -- --missing)'
+    deps: [prod:env]
+    cmds:
+      - kamal console app:photos:regenerate --queue {{.CLI_ARGS}}
+
+  prod:photos:prune:
+    desc: Delete production photo files that no photo in the database uses any more
+    prompt: Delete unused photo files on the production server?
+    deps: [prod:env]
+    cmds:
+      - kamal console app:photos:prune
 
   prod:papers:import:
     desc: 'Load the Otago paper list in production (data/otago-papers.csv, shipped in the image)'

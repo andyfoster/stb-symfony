@@ -1,0 +1,11 @@
+{# One photo in the Photos admin: a thumbnail that opens full size. #}
+{% set photo = entity.instance %}
+{% set detail = ea().crud.currentPage == 'detail' %}
+{% set html_id = 'stb-photo-' ~ field.uniqueId %}
+<a href="{{ path('app_photo', {id: photo.id, size: 'large'}) }}" class="ea-lightbox-thumbnail" data-ea-lightbox-content-selector="#{{ html_id }}">
+    <img src="{{ path('app_photo', {id: photo.id, size: detail ? 'large' : 'thumb'}) }}" alt="" loading="lazy"
+        style="{{ detail ? 'max-width:100%;max-height:480px' : 'width:96px;height:96px;object-fit:cover' }};border-radius:6px">
+</a>
+<div id="{{ html_id }}" class="ea-lightbox"><img src="{{ path('app_photo', {id: photo.id, size: 'large'}) }}" alt=""></div>
+{% set missing = photo_missing_sizes(photo) %}
+{% if missing|length %}<div class="small text-warning">Not made yet: {{ missing|join(', ') }}</div>{% endif %}
