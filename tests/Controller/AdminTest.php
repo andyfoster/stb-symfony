@@ -57,4 +57,30 @@ final class AdminTest extends WebTestCase
         $this->manager->clear();
         self::assertSame(28, $this->manager->getRepository(SiteSettings::class)->findAll()[0]->getListingLifetimeDays());
     }
+
+    public function testAdminResetsAPassword(): void
+    {
+        $sam = $this->createUser('sam@example.com');
+        $this->client->loginUser($this->createUser('admin@example.com', admin: true, name: 'Admin'));
+
+        $crawler = $this->client->request('GET', '/admin/user/'.$sam->getId());
+        self::assertResponseIsSuccessful();
+        $form = $crawler->filter('form[action*="/reset-password"]');
+        self::assertCount(1, $form, 'The detail page has a Reset password action.');
+
+        // Without the token from the page, nothing happens.
+        $this->client->request('POST', '/admin/user/'.$sam->getId().'/reset-password?token=wrong');
+        self::assertResponseStatusCodeSame(403);
+
+        $this->client->request('POST', $form->attr('action'));
+        self::assertResponseRedirects('/admin/user/'.$sam->getId());
+        $this->client->followRedirect();
+        self::assertAnySelectorTextContains('body', 'sam@example.com can now log in with “Password1!”');
+
+        // Sam can now log in with it.
+        $this->client->getCookieJar()->clear();
+        $this->client->request('GET', '/login');
+        $this->client->submitForm('Log in', ['email' => 'sam@example.com', 'password' => 'Password1!']);
+        self::assertResponseRedirects('/');
+    }
 }

@@ -3,13 +3,12 @@
 namespace App\Command;
 
 use App\Repository\UserRepository;
-use Doctrine\ORM\EntityManagerInterface;
+use App\Security\PasswordSetter;
 use Symfony\Component\Console\Attribute\Argument;
 use Symfony\Component\Console\Attribute\AsCommand;
 use Symfony\Component\Console\Attribute\Option;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Style\SymfonyStyle;
-use Symfony\Component\PasswordHasher\Hasher\UserPasswordHasherInterface;
 
 /**
  * Sets an account's password, e.g. for someone locked out who can't get the
@@ -19,12 +18,11 @@ use Symfony\Component\PasswordHasher\Hasher\UserPasswordHasherInterface;
 #[AsCommand(name: 'app:user:reset-password', description: 'Set an account\'s password (Password1! unless you pass --password)')]
 final class ResetUserPasswordCommand
 {
-    public const string DEFAULT_PASSWORD = 'Password1!';
+    public const string DEFAULT_PASSWORD = PasswordSetter::DEFAULT_PASSWORD;
 
     public function __construct(
         private readonly UserRepository $users,
-        private readonly UserPasswordHasherInterface $hasher,
-        private readonly EntityManagerInterface $manager,
+        private readonly PasswordSetter $passwords,
     ) {}
 
     public function __invoke(
@@ -41,8 +39,7 @@ final class ResetUserPasswordCommand
             return Command::FAILURE;
         }
 
-        $user->setPassword($this->hasher->hashPassword($user, $password));
-        $this->manager->flush();
+        $this->passwords->set($user, $password);
 
         $io->success(\sprintf('%s can now log in with %s. Ask them to change it.', $user->getEmail(), $password === self::DEFAULT_PASSWORD ? '"' . self::DEFAULT_PASSWORD . '"' : 'the new password'));
 

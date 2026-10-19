@@ -98,7 +98,8 @@ up to date when adding a workflow.
   `task user:promote -- email` (or `prod:user:promote`) grants the role.
 - `task user:reset-password -- email` (or `prod:user:reset-password`, `app:user:reset-password`)
   sets an account's password to `Password1!`, or to `--password=...`, for people who can't get
-  the reset email. Tell them to change it.
+  the reset email. Tell them to change it. Admins can do the same from a user's "Reset password"
+  action in `/admin` (both use `App\Security\PasswordSetter`).
 - Home page (`ListingController`, `/`): every live listing is on the page
   (`ListingRepository::findLive()`), and the `listing-filter` Stimulus controller shows and hides
   them as you search, switch the "For sale" / "Wanted" tabs or pick category pills, with no
