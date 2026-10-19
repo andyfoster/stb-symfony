@@ -161,7 +161,9 @@ up to date when adding a workflow.
   registry is Kamal's local one (`localhost:5555`), so no registry password is needed. The same
   server also hosts DayWatch (`daywatch-db`), so check you're pointing at `stb-db`.
 - The production image is `dockerfile` (lowercase): FrankenPHP, `APP_ENV=prod`, and it runs
-  `importmap:install` + `asset-map:compile` at build time. Caddy config is `Caddyfile`.
+  `importmap:install`, `assets:install` (EasyAdmin's CSS and icons in `public/bundles`, which
+  is git-ignored and skipped by `composer install --no-scripts`) and `asset-map:compile` at
+  build time. Caddy config is `Caddyfile`.
 - Listing photos live in the `stb_uploads` Docker volume, mounted on the `web` role at
   `/app/var/uploads`. Nothing backs it up yet.
 - Migrations are not run on deploy (all `.kamal/hooks` are samples); run `task prod:migrate`

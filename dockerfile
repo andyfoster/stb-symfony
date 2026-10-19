@@ -37,6 +37,10 @@ RUN composer dump-autoload \
 
 RUN php bin/console importmap:install
 
+# Bundle assets (EasyAdmin's CSS, JS and icons) into public/bundles. Composer's
+# auto-scripts would do this, but they're skipped above with --no-scripts.
+RUN php bin/console assets:install public
+
 RUN php bin/console asset-map:compile
 
 RUN php bin/console cache:clear --env=prod
