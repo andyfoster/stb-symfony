@@ -69,8 +69,7 @@
                         {% if listing.book.isbn %}<div><dt>ISBN</dt><dd>{{ listing.book.isbn }}</dd></div>{% endif %}
                         {% if listing.book.papers|length %}<div><dt>{{ listing.book.papers|length > 1 ? 'Papers' : 'Paper' }}</dt><dd class="paper-list">{% for paper in listing.book.papers %}<span><span class="course-code">{{ paper.code }}</span>{% if paper.title %} {{ paper.title }}{% endif %}</span>{% endfor %}</dd></div>{% endif %}
                     {% endif %}
-                    {% if listing.condition %}<div><dt>Condition</dt><dd>{{ listing.condition.label }}</dd></div>{% endif %}
-                    {% if listing.location %}<div><dt>Pick-up</dt><dd>{{ listing.location }}</dd></div>{% endif %}
+                    {% if listing.condition %}<div><dt>Condition</dt><dd>{{ listing.condition.label }}<span class="condition-detail">{{ listing.condition.description }}</span></dd></div>{% endif %}
                     {% if listing.publishedAt %}<div><dt>Listed</dt><dd><time datetime="{{ listing.publishedAt|date('c') }}">{{ listing.publishedAt|date('j M Y') }}</time></dd></div>{% endif %}
                 </dl>
 

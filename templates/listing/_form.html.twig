@@ -6,7 +6,7 @@
     'data-listing-form-textbooks-value': 'textbooks',
 }}) }}
     <div class="listing-form-main form-panel">
-        <div class="form-field type-choice">{{ form_row(form.type) }}</div>
+        <div class="form-field type-choice">{{ form_row(form.type, {attr: {'data-action': 'change->listing-form#toggleCondition', 'data-listing-form-target': 'type'}}) }}</div>
 
         <div class="form-field">{{ form_row(form.title, {attr: {'data-listing-form-target': 'title', 'data-action': 'listing-form#score'}}) }}</div>
 
@@ -42,10 +42,19 @@
             </div>
         </fieldset>
 
-        <div class="form-grid">
-            <div class="form-field">{{ form_row(form.condition, {attr: {'data-listing-form-target': 'condition', 'data-action': 'listing-form#score'}}) }}</div>
-            <div class="form-field">{{ form_row(form.location) }}</div>
-        </div>
+        <fieldset class="form-field condition-field" data-listing-form-target="conditionField">
+            <legend>Condition</legend>
+            <div class="condition-options">
+                {% for choice in form.condition %}
+                    {{ form_widget(choice, {attr: {class: 'condition-input', 'data-action': 'listing-form#score'}}) }}
+                    <label class="condition-option" for="{{ choice.vars.id }}">
+                        <strong>{{ choice.vars.label }}</strong>
+                        <span>{{ choice.vars.attr['data-description'] }}</span>
+                    </label>
+                {% endfor %}
+            </div>
+            {{ form_errors(form.condition) }}
+        </fieldset>
 
         <div class="form-field">{{ form_row(form.description, {attr: {'data-listing-form-target': 'description', 'data-action': 'listing-form#score'}}) }}</div>
     </div>
@@ -78,7 +87,7 @@
         </div>
 
         <div class="quality-hint" data-listing-form-target="quality" aria-live="polite">
-            <strong>Quality score:</strong> <span data-listing-form-target="qualityText">Add a clear title, 3+ photos, and condition to improve ranking.</span>
+            <strong>Quality score:</strong> <span data-listing-form-target="qualityText">Add a clear title, 3+ photos and the condition to stand out.</span>
         </div>
     </div>
 

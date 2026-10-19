@@ -37,12 +37,19 @@ final class ListingController extends AbstractController
         // Invalid filters (e.g. an unknown category) show their errors and fall back to everything.
         $applied = $form->isSubmitted() && !$form->isValid() ? new ListingFilter() : $filter;
 
+        $live = $listings->findLive();
+        $counts = [];
+        foreach (ListingType::cases() as $type) {
+            $counts[$type->value] = \count(array_filter($live, static fn (Listing $listing): bool => $listing->getType() === $type && $applied->matchesSearchAndCategories($listing)));
+        }
+
         return $this->render('listing/index.html.twig', [
             // A view, not the form, so a bad filter doesn't turn the page into a 422.
             'form' => $form->createView(),
             'filter' => $applied,
-            'listings' => $listings->findByFilter($applied),
-            'counts' => $listings->countByType($applied),
+            // All of them: the browser filters without reloading. Ones the filter hides start hidden.
+            'listings' => $live,
+            'counts' => $counts,
         ]);
     }
 

@@ -121,7 +121,7 @@ final class PhotoTest extends WebTestCase
         $crawler = $this->client->request('GET', $uri);
         $form = $crawler->selectButton('Publish listing')->form();
         $values = $form->getPhpValues();
-        $values['listing_form'] = $fields + $values['listing_form'];
+        $values['listing_form'] = $fields + ['condition' => 'good'] + $values['listing_form'];
         $values['listing_form']['publish'] = '';
 
         $this->client->request('POST', $uri, $values, ['listing_form' => ['photos' => $photos]]);

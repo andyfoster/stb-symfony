@@ -99,19 +99,21 @@ up to date when adding a workflow.
 - `task user:reset-password -- email` (or `prod:user:reset-password`, `app:user:reset-password`)
   sets an account's password to `Password1!`, or to `--password=...`, for people who can't get
   the reset email. Tell them to change it.
-- Home page (`ListingController`, `/`): a GET `ListingFilterType` form with an empty block
-  prefix (clean `?q=&type=wanted&categories[]=textbooks` URLs) binds to the
-  `App\Search\ListingFilter` DTO: a search, the tab (`type`, for sale by default) and any number
-  of categories (toggle pills). `ListingRepository::findByFilter()` lists one tab and
-  `countByType()` counts both for the tab badges. Results sit in the `<turbo-frame id="listings">`;
-  the "For sale" / "Wanted" tab radios are inside it but belong to the form via
-  `form="listing-filters"`, which is why the `filter-form` controller sits on a wrapper around both.
-  It auto-submits into the frame so the search box keeps focus. The `view-toggle` controller
-  switches rows and a card grid (`.view-grid`) and remembers the choice in localStorage. The
-  controller passes `$form->createView()` deliberately, so invalid filters render with 200 and
-  the full list rather than a 422.
+- Home page (`ListingController`, `/`): every live listing is on the page
+  (`ListingRepository::findLive()`), and the `listing-filter` Stimulus controller shows and hides
+  them as you search, switch the "For sale" / "Wanted" tabs or pick category pills, with no
+  request and no change to the address bar. Each card carries `data-type`, `data-category` and
+  `data-search` (`ListingFilter::searchText()`). `ListingFilterType` (GET, empty block prefix:
+  `?q=&type=wanted&categories[]=textbooks`) still works without JavaScript and for links:
+  `ListingFilter::matches()` applies the same rules on the server, so keep the PHP and JS in step.
+  The tab radios use `form="listing-filters"`. The `view-toggle` controller switches rows and a
+  card grid (`.view-grid`) and remembers it in localStorage. Invalid filters render with 200 and
+  everything shown. If listings grow into the thousands, this needs paging again.
 - Categories (`App\Enum\Category`) are deliberately few (five) so they fit as one row of pills;
   merge rather than add.
+- `Condition` has a `description()` shown on the form's condition buttons and the listing page.
+  It's required for things for sale (`Assert\Expression` on `Listing::$condition`) and cleared for
+  wanted listings. Listings have no pick-up location.
 - Accounts: `User` (table `app_user`) is identified by email, always stored lower-case;
   `UserRepository::loadUserByIdentifier()` is the provider's loader, so lookups are
   case-insensitive. `password` is nullable so later social (OAuth) or magic-link (`login_link`)

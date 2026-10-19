@@ -1,7 +1,12 @@
 {% import 'listing/_macros.html.twig' as m %}
 {% set wanted = listing.type.value == 'wanted' %}
 {% set photo = listing.arePhotosPublic ? listing.photos|first : null %}
-<article class="listing-card {{ wanted ? 'listing-wanted' : '' }}">
+<article class="listing-card {{ wanted ? 'listing-wanted' : '' }}"
+    data-listing-filter-target="item"
+    data-type="{{ listing.type.value }}"
+    data-category="{{ listing.category.value }}"
+    data-search="{{ listing_search_text(listing) }}"
+    {{ hidden|default(false) ? 'hidden' }}>
     {% if photo %}
         <img class="card-photo" src="{{ path('app_photo', {id: photo.id, size: 'thumb'}) }}" alt="" loading="lazy" width="80" height="80">
     {% else %}
@@ -10,7 +15,7 @@
 
     <div class="card-main">
         <h3>
-            <a class="card-link" href="{{ path('app_listing_show', {id: listing.id}) }}" data-turbo-frame="_top">{{ listing.title }}</a>
+            <a class="card-link" href="{{ path('app_listing_show', {id: listing.id}) }}">{{ listing.title }}</a>
             {% if wanted %}<span class="badge badge-wanted">Wanted</span>{% endif %}
         </h3>
         <p class="book-meta">
@@ -34,7 +39,6 @@
     <div class="card-side">
         <p class="listing-price">{{ m.price(listing) }}</p>
         <p class="card-footer">
-            {% if listing.location %}<span>{{ listing.location }}</span>{% endif %}
             {% set date = listing.publishedAt ?? listing.createdAt %}
             <time datetime="{{ date|date('c') }}">{{ date|date('j M') }}</time>
         </p>

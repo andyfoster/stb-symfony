@@ -75,6 +75,7 @@ final class ListingCreateTest extends WebTestCase
             'listing_form[type]' => 'for_sale',
             'listing_form[title]' => 'Desk lamp',
             'listing_form[category]' => 'flat_and_home',
+            'listing_form[condition]' => 'fair',
         ]);
 
         self::assertResponseRedirects('/account/listings');
@@ -109,6 +110,28 @@ final class ListingCreateTest extends WebTestCase
         self::assertResponseRedirects();
         self::assertNull($this->onlyListing()->getBook());
         self::assertCount(0, $this->manager->getRepository(BookDetails::class)->findAll());
+    }
+
+    public function testThingsForSaleNeedAConditionWantedOnesDont(): void
+    {
+        $this->client->loginUser($this->createUser('sam@example.com'));
+
+        $this->client->request('GET', '/sell');
+        self::assertSelectorTextContains('.condition-option', 'Never used, as it came from the shop.');
+        $this->client->submitForm('Publish listing', [
+            'listing_form[type]' => 'for_sale',
+            'listing_form[title]' => 'Desk lamp',
+            'listing_form[category]' => 'flat_and_home',
+        ]);
+        self::assertResponseStatusCodeSame(422);
+        self::assertSelectorTextContains('.condition-field', 'Choose the condition');
+
+        $this->client->submitForm('Publish listing', [
+            'listing_form[type]' => 'wanted',
+            'listing_form[condition]' => 'good',
+        ]);
+        self::assertResponseRedirects();
+        self::assertNull($this->onlyListing()->getCondition(), 'Wanted listings don’t keep a condition.');
     }
 
     public function testInvalidListingShowsErrors(): void

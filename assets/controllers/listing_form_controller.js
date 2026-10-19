@@ -1,15 +1,28 @@
 import { Controller } from '@hotwired/stimulus';
 
 /*
- * Listing form: shows the textbook fields only for the Textbooks category, and
- * keeps the "quality score" hint up to date as the form is filled in.
+ * Listing form: shows the textbook fields only for the Textbooks category and
+ * the condition only for things for sale, and keeps the "quality score" hint
+ * up to date as the form is filled in.
  */
 export default class extends Controller {
-    static targets = ['category', 'book', 'title', 'condition', 'description', 'quality', 'qualityText'];
+    static targets = ['category', 'book', 'type', 'conditionField', 'title', 'description', 'quality', 'qualityText'];
     static values = { textbooks: String };
 
     connect() {
         this.toggleBook();
+        this.toggleCondition();
+        this.score();
+    }
+
+    get wanted() {
+        return this.hasTypeTarget && this.typeTarget.querySelector('input:checked')?.value === 'wanted';
+    }
+
+    toggleCondition() {
+        if (!this.hasConditionFieldTarget) return;
+        this.conditionFieldTarget.hidden = this.wanted;
+        this.conditionFieldTarget.disabled = this.wanted;
         this.score();
     }
 
@@ -27,14 +40,15 @@ export default class extends Controller {
         const missing = [];
         if (this.titleTarget.value.trim().length < 10) missing.push('a clear title');
         if (photos < 3) missing.push(photos ? `${3 - photos} more photo${photos === 2 ? '' : 's'}` : '3+ photos');
-        if (this.hasConditionTarget && !this.conditionTarget.value) missing.push('condition');
+        if (!this.wanted && !this.element.querySelector('.condition-input:checked')) missing.push('the condition');
         if (this.descriptionTarget.value.trim().length < 30) missing.push('a short description');
 
-        const points = 4 - missing.length;
-        this.qualityTarget.dataset.score = String(points);
+        const total = this.wanted ? 3 : 4;
+        const points = total - missing.length;
+        this.qualityTarget.classList.toggle('quality-done', !missing.length);
         this.qualityTextTarget.textContent = missing.length
-            ? `${points}/4. Add ${this.list(missing)} to stand out.`
-            : '4/4. Looking great!';
+            ? `${points}/${total}. Add ${this.list(missing)} to stand out.`
+            : `${total}/${total}. Looking great!`;
     }
 
     list(items) {

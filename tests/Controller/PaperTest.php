@@ -67,6 +67,7 @@ final class PaperTest extends WebTestCase
             'listing_form[title]' => 'Chemistry',
             'listing_form[category]' => 'textbooks',
             'listing_form[book][author]' => 'Brown',
+            'listing_form[condition]' => 'good',
             'listing_form[book][papers]' => 'CHEM191, chemistry',
         ]);
         self::assertResponseStatusCodeSame(422);

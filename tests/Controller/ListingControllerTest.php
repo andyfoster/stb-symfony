@@ -49,7 +49,7 @@ final class ListingControllerTest extends WebTestCase
         self::assertSame(['Chemistry: The Central Science', 'Desk and office chair', 'Bookshelf'], $this->titles());
         self::assertSame(['For sale 3', 'Wanted 2'], $this->tabs());
         self::assertSelectorExists('input[name="type"][value="for_sale"][checked]');
-        self::assertSelectorNotExists('.results-note');
+        self::assertSelectorExists('.results-note[hidden]');
 
         $chemistry = $this->client->getCrawler()->filter('.listing-card')->first();
         self::assertStringContainsString('$95', $chemistry->filter('.listing-price')->text());
@@ -133,7 +133,6 @@ final class ListingControllerTest extends WebTestCase
             ->setTitle($title)
             ->setPriceCents($priceCents)
             ->setCondition(ListingType::ForSale === $type ? Condition::Good : null)
-            ->setLocation('North Dunedin')
             ->setBook($book)
             ->setCreatedAt(new \DateTimeImmutable($created))
             ->publish(42, new \DateTimeImmutable($created));
@@ -148,6 +147,6 @@ final class ListingControllerTest extends WebTestCase
     /** @return string[] */
     private function titles(): array
     {
-        return $this->client->getCrawler()->filter('.listing-card .card-link')->each(static fn ($node) => $node->text());
+        return $this->client->getCrawler()->filter('.listing-card:not([hidden]) .card-link')->each(static fn ($node) => $node->text());
     }
 }

@@ -69,13 +69,14 @@ class Listing extends Base
     #[Assert\PositiveOrZero]
     private ?int $priceCents = null;
 
+    /** Required for things for sale; wanted listings don't have one. */
+    #[Assert\Expression(
+        'this.getType() !== enum("App\\\\Enum\\\\ListingType::ForSale") or value !== null',
+        message: 'Choose the condition, so buyers know what to expect.',
+    )]
     // "condition" is reserved in some SQL dialects.
     #[ORM\Column(name: 'item_condition', length: 20, nullable: true, enumType: Condition::class)]
     private ?Condition $condition = null;
-
-    #[ORM\Column(length: 100, nullable: true)]
-    #[Assert\Length(max: 100)]
-    private ?string $location = null;
 
     #[ORM\OneToOne(cascade: ['persist', 'remove'], orphanRemoval: true)]
     #[Assert\Valid]
@@ -287,18 +288,6 @@ class Listing extends Base
     public function setCondition(?Condition $condition): static
     {
         $this->condition = $condition;
-
-        return $this;
-    }
-
-    public function getLocation(): ?string
-    {
-        return $this->location;
-    }
-
-    public function setLocation(?string $location): static
-    {
-        $this->location = $location;
 
         return $this;
     }

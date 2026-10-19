@@ -26,7 +26,7 @@ final class ListingExpiryTest extends WebTestCase
         $expired = $this->createListing($sam, 'Stale', '-43 days');
 
         $this->client->request('GET', '/');
-        self::assertSame(['Fresh'], $this->client->getCrawler()->filter('.listing-card .card-link')->each(static fn ($n) => $n->text()));
+        self::assertSame(['Fresh'], $this->client->getCrawler()->filter('.listing-card:not([hidden]) .card-link')->each(static fn ($n) => $n->text()));
 
         $this->client->request('GET', '/listings/'.$expired->getId());
         self::assertResponseStatusCodeSame(404);

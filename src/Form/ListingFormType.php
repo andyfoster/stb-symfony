@@ -63,14 +63,11 @@ class ListingFormType extends AbstractType
             ->add('condition', EnumType::class, [
                 'class' => Condition::class,
                 'label' => 'Condition',
+                'expanded' => true,
                 'required' => false,
-                'placeholder' => 'Not specified',
+                'placeholder' => false,
                 'choice_label' => static fn (Condition $condition): string => $condition->label(),
-            ])
-            ->add('location', TextType::class, [
-                'label' => 'Pick-up location',
-                'required' => false,
-                'attr' => ['placeholder' => 'e.g. North Dunedin', 'maxlength' => 100],
+                'choice_attr' => static fn (Condition $condition): array => ['data-description' => $condition->description()],
             ])
             ->add('description', TextareaType::class, [
                 'label' => 'Description',
@@ -120,6 +117,10 @@ class ListingFormType extends AbstractType
             $listing = $event->getData();
             if ($listing instanceof Listing && Category::Textbooks !== $listing->getCategory()) {
                 $listing->setBook(null);
+            }
+            // Wanted listings don't have a condition (the field is hidden for them).
+            if ($listing instanceof Listing && ListingType::Wanted === $listing->getType()) {
+                $listing->setCondition(null);
             }
         }, 10);
 
