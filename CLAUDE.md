@@ -60,7 +60,7 @@ up to date when adding a workflow.
   ISBN, course code), per the scope rule above. Enums in `src/Enum` carry their display `label()`.
 - Listings belong to a `seller` (nullable only for imported rows) and have a `ListingStatus`
   (draft / active / sold). "Expired" is not a status: an active listing past `expiresAt`.
-  `publish()` / `refresh()` set `publishedAt` (the home page sorts by it) and `expiresAt` from
+  `publish()` / `refresh()` set `publishedAt` and `expiresAt` (the home page lists A–Z by title) from
   the admin-set lifetime in the single `SiteSettings` row (`SiteSettingsProvider`, default 42
   days). Refresh only opens `REFRESH_WINDOW_DAYS` (7) before expiry. `ListingVoter`
   (`LISTING_VIEW`, `LISTING_EDIT`): anyone sees live listings, sellers and admins the rest.

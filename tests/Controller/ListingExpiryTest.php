@@ -57,9 +57,9 @@ final class ListingExpiryTest extends WebTestCase
         self::assertTrue($old->isLive());
         self::assertEqualsWithDelta(new \DateTimeImmutable('+30 days'), $old->getExpiresAt(), 5);
 
-        // Refreshed listings go back to the top.
+        // It's back on the home page.
         $this->client->request('GET', '/');
-        self::assertSelectorTextContains('.listing-card .card-link', 'Old');
+        self::assertSame(['New', 'Old'], $this->client->getCrawler()->filter('.listing-card:not([hidden]) .card-link')->each(static fn ($n) => $n->text()));
 
         // Too early: the button isn't offered, and posting anyway is refused.
         $this->client->request('POST', '/listings/'.$new->getId().'/refresh', ['_csrf_token' => 'csrf-token']);

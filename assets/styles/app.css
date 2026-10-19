@@ -696,9 +696,9 @@ turbo-frame[aria-busy=true] .listing-grid {
 .listing-card {
     position:relative;
     display:flex;
-    align-items:flex-start;
-    gap:20px;
-    padding:18px 16px;
+    align-items:center;
+    gap:16px;
+    padding:10px 14px;
     border-bottom:1px solid var(--line);
     border-left:3px solid transparent
 }
@@ -717,8 +717,8 @@ turbo-frame[aria-busy=true] .listing-grid {
 
 .card-photo,.card-icon {
     flex:none;
-    width:80px;
-    height:80px;
+    width:56px;
+    height:56px;
     border-radius:6px
 }
 
@@ -737,8 +737,8 @@ turbo-frame[aria-busy=true] .listing-grid {
 }
 
 .card-icon svg {
-    width:30px;
-    height:30px;
+    width:24px;
+    height:24px;
     fill:none;
     stroke:currentColor;
     stroke-width:1.5;
@@ -752,8 +752,11 @@ turbo-frame[aria-busy=true] .listing-grid {
 }
 
 .listing-card h3 {
-    font-size:18px;
-    font-weight:600
+    overflow:hidden;
+    font-size:16px;
+    font-weight:600;
+    white-space:nowrap;
+    text-overflow:ellipsis
 }
 
 .card-link {
@@ -783,37 +786,43 @@ turbo-frame[aria-busy=true] .listing-grid {
 .book-meta,.card-footer {
     display:flex;
     flex-wrap:wrap;
-    gap:0 14px;
+    align-items:center;
+    gap:2px 12px;
     color:var(--muted);
-    font-size:14px
+    font-size:13px
 }
 
 .book-meta {
-    margin-top:2px
+    margin-top:1px
 }
 
-.listing-description {
-    max-width:64ch;
-    margin-top:6px;
+/* Long author lists get cut short in the list; the listing page has them in full. */
+.book-meta > span:first-child {
+    max-width:36ch;
     overflow:hidden;
-    font-size:15px;
     white-space:nowrap;
     text-overflow:ellipsis
 }
 
-.card-tags {
-    display:flex;
-    flex-wrap:wrap;
-    gap:6px;
-    margin-top:10px
+.book-meta .course-code,.book-meta .condition {
+    margin-right:-6px
+}
+
+.listing-description {
+    max-width:72ch;
+    margin-top:1px;
+    overflow:hidden;
+    font-size:14px;
+    white-space:nowrap;
+    text-overflow:ellipsis
 }
 
 .course-code,.condition,.tag {
     display:inline-flex;
     align-items:center;
-    padding:1px 8px;
+    padding:0 6px;
     border-radius:4px;
-    font-size:12px;
+    font-size:11px;
     font-weight:600;
     line-height:1.7
 }
@@ -833,18 +842,17 @@ turbo-frame[aria-busy=true] .listing-grid {
 
 .card-side {
     flex:none;
-    min-width:120px;
+    min-width:96px;
     text-align:right
 }
 
 .card-side .card-footer {
-    flex-direction:column;
-    gap:0;
-    margin-top:2px
+    justify-content:flex-end;
+    margin-top:0
 }
 
 .listing-price {
-    font-size:20px;
+    font-size:17px;
     font-weight:700;
     font-variant-numeric:tabular-nums
 }
@@ -928,7 +936,12 @@ turbo-frame[aria-busy=true] .listing-grid {
 }
 
 .view-grid .listing-card h3 {
-    font-size:16px
+    font-size:16px;
+    white-space:normal
+}
+
+.view-grid .book-meta > span:first-child {
+    max-width:100%
 }
 
 .view-grid .listing-description {
@@ -2226,8 +2239,8 @@ turbo-frame[aria-busy=true] .listing-grid {
 
     .listing-card {
         flex-wrap:wrap;
-        gap:6px 12px;
-        padding:14px 10px
+        gap:2px 12px;
+        padding:10px 8px
     }
 
     .card-photo,.card-icon {
@@ -2267,9 +2280,6 @@ turbo-frame[aria-busy=true] .listing-grid {
         padding:12px
     }
 
-    .listing-description {
-        white-space:normal
-    }
 
     .lightbox img {
         max-width:100vw;

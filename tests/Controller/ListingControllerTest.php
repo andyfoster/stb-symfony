@@ -40,18 +40,18 @@ final class ListingControllerTest extends WebTestCase
         $manager->clear();
     }
 
-    public function testHomePageShowsThingsForSaleNewestFirst(): void
+    public function testHomePageShowsThingsForSaleAToZ(): void
     {
         $this->client->request('GET', '/');
 
         self::assertResponseIsSuccessful();
         self::assertPageTitleContains('ScarfieTextbooks');
-        self::assertSame(['Chemistry: The Central Science', 'Desk and office chair', 'Bookshelf'], $this->titles());
+        self::assertSame(['Bookshelf', 'Chemistry: The Central Science', 'Desk and office chair'], $this->titles());
         self::assertSame(['For sale 3', 'Wanted 2'], $this->tabs());
         self::assertSelectorExists('input[name="type"][value="for_sale"][checked]');
         self::assertSelectorExists('.results-note[hidden]');
 
-        $chemistry = $this->client->getCrawler()->filter('.listing-card')->first();
+        $chemistry = $this->client->getCrawler()->filter('.listing-card')->reduce(static fn ($card) => str_contains($card->text(), 'Chemistry'));
         self::assertStringContainsString('$95', $chemistry->filter('.listing-price')->text());
         self::assertSame(['CHEM111', 'CHEM191'], $chemistry->filter('.course-code')->each(static fn ($node) => $node->text()));
         self::assertCount(0, $chemistry->filter('.badge'));
@@ -92,9 +92,9 @@ final class ListingControllerTest extends WebTestCase
 
         // Any number of categories.
         $this->client->request('GET', '/', ['categories' => ['flat_and_home']]);
-        self::assertSame(['Desk and office chair', 'Bookshelf'], $this->titles());
+        self::assertSame(['Bookshelf', 'Desk and office chair'], $this->titles());
         $this->client->request('GET', '/', ['categories' => ['flat_and_home', 'textbooks']]);
-        self::assertSame(['Chemistry: The Central Science', 'Desk and office chair', 'Bookshelf'], $this->titles());
+        self::assertSame(['Bookshelf', 'Chemistry: The Central Science', 'Desk and office chair'], $this->titles());
         self::assertSelectorExists('input[name="categories[]"][value="textbooks"][checked]');
         $this->client->request('GET', '/', ['categories' => ['study_and_tech'], 'type' => 'wanted']);
         self::assertSame(['Second monitor'], $this->titles());

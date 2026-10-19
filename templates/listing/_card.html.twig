@@ -25,15 +25,10 @@
             {% else %}
                 <span>{{ listing.category.label }}</span>
             {% endif %}
+            {% for paper in listing.book ? listing.book.papers : [] %}<span class="course-code">{{ paper.code }}</span>{% endfor %}
+            {% if listing.condition %}<span class="condition">{{ listing.condition.label }}</span>{% endif %}
         </p>
         {% if listing.description %}<p class="listing-description">{{ listing.description }}</p>{% endif %}
-        {% set papers = listing.book ? listing.book.papers : [] %}
-        {% if papers|length or listing.condition %}
-            <p class="card-tags">
-                {% for paper in papers %}<span class="course-code">{{ paper.code }}</span>{% endfor %}
-                {% if listing.condition %}<span class="condition">{{ listing.condition.label }}</span>{% endif %}
-            </p>
-        {% endif %}
     </div>
 
     <div class="card-side">

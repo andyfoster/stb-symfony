@@ -23,7 +23,7 @@
     {% if refreshable|length %}
         <section class="dashboard-section">
             <h2>Expiring soon</h2>
-            <p class="muted">Still selling? Refresh {{ refreshable|length == 1 ? 'it' : 'them' }} to keep {{ refreshable|length == 1 ? 'it' : 'them' }} up and back at the top of the list.</p>
+            <p class="muted">Still selling? Refresh {{ refreshable|length == 1 ? 'it' : 'them' }} to keep {{ refreshable|length == 1 ? 'it' : 'them' }} up for longer.</p>
             <ul class="dashboard-list">
                 {% for listing in refreshable %}
                     <li>

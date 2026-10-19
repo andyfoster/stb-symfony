@@ -22,7 +22,7 @@ class ListingRepository extends ServiceEntityRepository
      * Every live listing (active, not expired), both for sale and wanted. The
      * home page filters them in the browser; see ListingFilter::matches().
      *
-     * @return Listing[] most recently published or refreshed first
+     * @return Listing[] by title, A–Z
      */
     public function findLive(?\DateTimeImmutable $now = null): array
     {
@@ -39,8 +39,9 @@ class ListingRepository extends ServiceEntityRepository
             ->andWhere('l.expiresAt > :now')
             ->setParameter('active', ListingStatus::Active)
             ->setParameter('now', $now ?? new \DateTimeImmutable())
-            ->orderBy('l.publishedAt', 'DESC')
-            ->addOrderBy('l.id', 'DESC')
+            ->orderBy('l.title', 'ASC')
+            // Ties in a stable order, and each book's papers in code order.
+            ->addOrderBy('l.id', 'ASC')
             ->addOrderBy('bp.code', 'ASC')
             ->getQuery()
             ->getResult();

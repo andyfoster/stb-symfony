@@ -203,7 +203,7 @@ class Listing extends Base
         return $this;
     }
 
-    /** Another $days days from now, and back to the top of the list. */
+    /** Another $days days from now. */
     public function refresh(int $days, ?\DateTimeImmutable $now = null): static
     {
         if (!$this->canRefresh($now)) {
