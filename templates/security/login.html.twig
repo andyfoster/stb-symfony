@@ -7,6 +7,7 @@
         <div class="form-heading">
             <h1>Log in</h1>
         </div>
+        {{ include('security/_old_site_notice.html.twig') }}
 
         {# Posted to the firewall's form_login; field names match security.yaml. #}
         <form class="form-panel" method="post" action="{{ path('app_login') }}">

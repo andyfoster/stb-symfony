@@ -29,7 +29,12 @@ fail.
 
 - [ ] `composer audit` reports an advisory in `symfony/expression-language` (fixed in 8.1.9):
       run `composer update symfony/expression-language`.
-- [ ] Import accounts and listings from the live vanilla PHP site in production: copy the
-      latest MariaDB dump into the `web` container and run `app:legacy:import` there (try
-      `--dry-run` first). Locally it's `task legacy:import -- dump.sql`. The importer adds
-      ~480 unofficial papers from old free text; review them under Papers in `/admin`.
+- [ ] Import the live vanilla PHP site in production at cutover: copy the latest MariaDB dump
+      into the `web` container and run `app:legacy:import` there (try `--dry-run` first; locally
+      `task legacy:import -- dump.sql`). It brings over only current listings and their sellers,
+      and builds the Book list (~1,600 books from 6,400 listings).
+- [ ] Tidy the Book list under Books in `/admin`: merge duplicates such as "Anatomy & Physiology"
+      vs "Anatomy & Physiology Textbook", and fix misspelt authors ("Thibideau"). The import also
+      adds ~480 unofficial papers from old free text; review them under Papers.
+- [ ] Remove the "Used ScarfieTextbooks before?" notice (`security/_old_site_notice.html.twig`)
+      once people have moved over.

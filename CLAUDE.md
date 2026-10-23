@@ -143,19 +143,32 @@ up to date when adding a workflow.
   from fixtures is `sam@example.com` / `password`.
 - Legacy import: `task legacy:import -- dump.sql` (`app:legacy:import`, `--dry-run` rolls back)
   reads the old site's MariaDB dump in PHP (`App\Legacy\MysqlDumpReader`, which also undoes the
-  old latin1 columns' double-encoded UTF-8) and `LegacyImporter` adds `member_list` accounts and
-  `launch_table` listings, all in one transaction. Rerunning skips accounts whose email is already
-  here (so their changes since are kept) and listings by `Listing::legacyId` (old `listing_id`).
+  old latin1 columns' double-encoded UTF-8), and `LegacyImporter` moves over, in one transaction,
+  only the listings the old site still shows (`for_sale = 'y'`, added or refreshed within its
+  8 weeks; `--listed-within=DAYS` widens that) and the `member_list` accounts selling them. Every
+  other account is deliberately left behind; login, sign-up and forgot-password say so
+  (`security/_old_site_notice.html.twig`, remove it once people have moved over). Rerunning skips
+  accounts whose email is already here and listings by `Listing::legacyId` (old `listing_id`).
   Emails that differ only by case are one account, taking the password and details of the row
-  logged into most recently, and every old id's listings. Imported accounts are **unverified**,
-  because the old site never confirmed addresses, except those that finished an old password
-  reset (`hash_table.used`), which proves the inbox works. Old admins (`access = 1`) aren't made
-  admins; `access = 0` accounts get no password. Every listing is a textbook with `BookDetails`;
-  `quality` 5 ("looks like new") to 1 ("falling apart") maps to Like new, Good, Fair, Well used
-  (2 and 1); `for_sale = 'n'` (taken down by the seller) becomes Sold; others are published at
-  `date_refreshed` or `date_added` for the site's listing lifetime, so almost all are expired.
-  Paper codes are pulled out of the free text (`LegacyImporter::paperCodes()`), unknown ones as
-  unofficial papers. The book's year and `dept` aren't kept.
+  logged into most recently. Imported accounts are **unverified**, because the old site never
+  confirmed addresses, except those that finished an old password reset (`hash_table.used`),
+  which proves the inbox works. Old admins (`access = 1`) aren't made admins; `access = 0`
+  accounts get no password. Listings are textbooks with `BookDetails`, expiring when the old site
+  would have hidden them; `quality` 5 ("looks like new") to 1 ("falling apart") maps to Like new,
+  Good, Fair, Well used (2 and 1). Paper codes are pulled out of the free text
+  (`LegacyImporter::paperCodes()`), unknown ones as unofficial papers. The book's year and
+  `dept` aren't kept.
+- Book list: `Book` holds every textbook the old site ever had, once per book, with no personal
+  details: times listed and sold (`for_sale = 'n'`, taken down), typical price, editions,
+  papers, first and last listed. Listings are the same book when their `Book::titleKey()`
+  (no punctuation, editions, years or paper codes) matches and their authors share one of
+  `Book::surnames()`. Imports match books by `matchKey` or `aliases` and refresh their counts,
+  keeping admin edits to the title and author. Under Books in `/admin` (`BookCrudController`)
+  admins sort, search and edit them, and the Merge batch action (`Book::merge()`) joins
+  duplicates, keeping the merged one's key as an alias so reimports add to it. A deleted
+  book comes back on the next import. Title suggestions on the listing form
+  (`App\Book\TitleSuggestions`) combine the Book list with listings made here
+  (`ListingRepository::suggestBookTitles()` skips imported ones, which the list already counts).
 - CSRF is stateless (`config/packages/csrf.yaml`): hand-written forms need a `_csrf_token`
   field with `data-controller="csrf-protection"`, and tests send `Sec-Fetch-Site: same-origin`.
   In the test env Messenger's `async` transport is `in-memory://` (assert with

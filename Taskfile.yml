@@ -246,7 +246,7 @@ tasks:
       - symfony console app:papers:import {{.CLI_ARGS}}
 
   legacy:import:
-    desc: 'Import accounts and listings from the old site''s MariaDB dump, safe to rerun (task legacy:import -- dump.sql; --dry-run to try it)'
+    desc: 'Import the old site''s current listings, their sellers and the Book list from its MariaDB dump, safe to rerun (task legacy:import -- dump.sql; --dry-run to try it)'
     cmds:
       - symfony console app:legacy:import {{.CLI_ARGS}}
 

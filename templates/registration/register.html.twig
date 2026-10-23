@@ -7,6 +7,7 @@
         <div class="form-heading">
             <h1>Create an account</h1>
         </div>
+        {{ include('security/_old_site_notice.html.twig') }}
 
         {{ form_start(form, {attr: {class: 'form-panel', novalidate: 'novalidate'}}) }}
             <div class="form-field">{{ form_row(form.displayName) }}</div>

@@ -1377,6 +1377,15 @@ turbo-frame[aria-busy=true] .listing-grid {
     color:var(--muted)
 }
 
+/* Shown on log in and sign up while people move over from the old site. */
+.old-site-notice {
+    margin:0 0 20px;
+    padding:10px 14px;
+    border-left:3px solid var(--gold);
+    background:#fffbea;
+    color:var(--navy)
+}
+
 .form-panel {
     padding:28px;
     border:1px solid var(--line);

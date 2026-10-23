@@ -43,11 +43,11 @@ CREATE TABLE `launch_table` (
   PRIMARY KEY (`listing_id`),
   KEY `user_id` (`user_id`),
   KEY `listing_id` (`listing_id`)
-) ENGINE=MyISAM AUTO_INCREMENT=104 DEFAULT CHARSET=latin1;
+) ENGINE=MyISAM AUTO_INCREMENT=106 DEFAULT CHARSET=latin1;
 
 LOCK TABLES `launch_table` WRITE;
 INSERT INTO `launch_table` VALUES (100,10,'Principles of Anatomy and Physiology','Tortora & Derrickson','sci',120,'n',2012,13,'HUBS191 & HUBS192','Don\\\'t get caught up in the pre-exam library rush!\r\nHardly used.',5,'2011-03-14 17:50:00','y','1300078200','1301000000',NULL,NULL,NULL,NULL,NULL),(101,11,'Principles of Anatomy and Physiology','Tortora & Derrickson','sci',90,'n',2012,13,'HUBS 191, 192','Some (light) highlighting, \'tidy\'',3,'','n','1310000000','',NULL,NULL,NULL,NULL,NULL);
-INSERT INTO `launch_table` VALUES (102,11,'Writing for Psychology','O\\\\\\\'Shea, Moss','arts',0,'y',2010,1,'Psych111','An introduction to MÄori culture.',1,'','y','1700000000','','1760000000',NULL,NULL,NULL,NULL),(103,99,'Media and Society','O\\\'Shaughnessy','arts',40,'n',2008,22,'MFCO102','',2,'','n','1300000000','',NULL,NULL,NULL,NULL,NULL);
+INSERT INTO `launch_table` VALUES (102,11,'Writing for Psychology','O\\\\\\\'Shea, Moss','arts',0,'y',2010,1,'Psych111','An introduction to MÄori culture.',1,'','y','1700000000','','1760000000',NULL,NULL,NULL,NULL),(103,99,'Media and Society','O\\\'Shaughnessy','arts',40,'n',2008,22,'MFCO102','',2,'','n','1300000000','',NULL,NULL,NULL,NULL,NULL),(104,20,'Campbell Biology','Campbell & Reece','sci',60,'y',2014,10,'BIOL112','',4,'','y','1700000000','',NULL,NULL,NULL,NULL,NULL),(105,30,'Principles of Anatomy & Physiology (13th ed.)','G. Tortora, Derrickson','sci',100,'y',2013,0,'','',4,'','n','1320000000','',NULL,NULL,NULL,NULL,NULL);
 UNLOCK TABLES;
 
 DROP TABLE IF EXISTS `member_list`;

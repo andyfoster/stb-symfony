@@ -8,6 +8,7 @@
             <h1>Reset your password</h1>
             <p>Enter the email you signed up with and we’ll send you a link to choose a new password.</p>
         </div>
+        {{ include('security/_old_site_notice.html.twig') }}
 
         {{ form_start(form, {attr: {class: 'form-panel', novalidate: 'novalidate'}}) }}
             <div class="form-field">{{ form_row(form.email) }}</div>
