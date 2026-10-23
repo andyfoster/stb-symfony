@@ -182,6 +182,9 @@ up to date when adding a workflow.
   `app:user:promote`. Admins read it under Audit log in `/admin`, and on each user's detail page.
   `PruneAuditLog` (nightly, `src/Schedule.php`) deletes events older than
   `AuditLog::RETENTION_DAYS` (365).
+- `framework.yaml` trusts `X-Forwarded-*` from private addresses (`trusted_proxies: private_ranges`),
+  which in production is only kamal-proxy, so `getClientIp()` is the visitor's and `isSecure()`
+  is true behind its TLS (`TrustedProxyTest`). Revisit it if the app's port is ever published.
 - CSRF is stateless (`config/packages/csrf.yaml`): hand-written forms need a `_csrf_token`
   field with `data-controller="csrf-protection"`, and tests send `Sec-Fetch-Site: same-origin`.
   In the test env Messenger's `async` transport is `in-memory://` (assert with

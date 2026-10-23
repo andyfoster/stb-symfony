@@ -5,6 +5,14 @@ framework:
     # Note that the session will be started ONLY if you read or write from it.
     session: true
 
+    # In production, kamal-proxy terminates TLS and reaches the container over Docker's
+    # private network; nothing else can (the app's port isn't published). Trusting private
+    # addresses makes getClientIp() (audit log, rate limits, message IPs) the visitor's,
+    # and isSecure() true. Symfony reads X-Forwarded-For from the right and stops at the
+    # first untrusted address, so a value the visitor sends themselves is never used.
+    trusted_proxies: 'private_ranges'
+    trusted_headers: ['x-forwarded-for', 'x-forwarded-proto', 'x-forwarded-host', 'x-forwarded-port']
+
     #esi: true
     #fragments: true
 
