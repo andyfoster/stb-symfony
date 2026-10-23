@@ -40,10 +40,21 @@
     <div class="listing-page">
         {% if owner %}{{ _self.owner_status(listing, listing.seller and listing.seller.id == app.user.id) }}{% endif %}
         <div class="listing-layout">
-            <article class="listing-detail">
+            <article class="listing-detail{{ wanted ? ' listing-wanted-page' }}">
                 <p class="listing-kicker">{{ listing.category.label }}{% if wanted %} <span class="badge badge-wanted">Wanted</span>{% endif %}</p>
                 <h1>{{ listing.title }}</h1>
-                <p class="listing-price">{{ m.price(listing) }}</p>
+                {% if listing.book and (listing.book.author or listing.book.edition) %}
+                    <p class="listing-byline">
+                        {% if listing.book.author %}<span>{{ listing.book.author }}</span>{% endif %}
+                        {% if listing.book.edition %}<span>{{ listing.book.edition }} edition</span>{% endif %}
+                    </p>
+                {% endif %}
+                <div class="listing-price-row">
+                    <p class="listing-price">{{ m.price(listing) }}</p>
+                    {% if listing.condition %}
+                        <p class="listing-condition"><span class="condition">{{ listing.condition.label }}</span> {{ listing.condition.description }}</p>
+                    {% endif %}
+                </div>
 
                 {% if photos|length %}
                     <div class="gallery" data-controller="gallery">
@@ -65,20 +76,20 @@
                     </div>
                 {% endif %}
 
+                {% if listing.description %}
+                    <section class="listing-comments" aria-labelledby="comments-title">
+                        <h2 id="comments-title">{{ listing.seller ? 'Comments from ' ~ listing.seller.displayName : 'Comments' }}</h2>
+                        <div class="listing-body">{{ listing.description|nl2br }}</div>
+                    </section>
+                {% endif %}
+
                 <dl class="listing-facts">
                     {% if listing.book %}
-                        <div><dt>Author</dt><dd>{{ listing.book.author }}</dd></div>
-                        {% if listing.book.edition %}<div><dt>Edition</dt><dd>{{ listing.book.edition }}</dd></div>{% endif %}
-                        {% if listing.book.isbn %}<div><dt>ISBN</dt><dd>{{ listing.book.isbn }}</dd></div>{% endif %}
                         {% if listing.book.papers|length %}<div><dt>{{ listing.book.papers|length > 1 ? 'Papers' : 'Paper' }}</dt><dd class="paper-list">{% for paper in listing.book.papers %}<span><span class="course-code">{{ paper.code }}</span>{% if paper.title %} {{ paper.title }}{% endif %}</span>{% endfor %}</dd></div>{% endif %}
+                        {% if listing.book.isbn %}<div><dt>ISBN</dt><dd>{{ listing.book.isbn }}</dd></div>{% endif %}
                     {% endif %}
-                    {% if listing.condition %}<div><dt>Condition</dt><dd>{{ listing.condition.label }}<span class="condition-detail">{{ listing.condition.description }}</span></dd></div>{% endif %}
                     {% if listing.publishedAt %}<div><dt>Listed</dt><dd><time datetime="{{ listing.publishedAt|date('c') }}">{{ listing.publishedAt|date('j M Y') }}</time></dd></div>{% endif %}
                 </dl>
-
-                {% if listing.description %}
-                    <div class="listing-body">{{ listing.description|nl2br }}</div>
-                {% endif %}
             </article>
 
             <aside class="contact-panel" aria-labelledby="contact-title">

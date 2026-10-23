@@ -57,6 +57,10 @@ final class ListingCreateTest extends WebTestCase
         $this->client->followRedirect();
         self::assertSelectorTextContains('.flash', 'Your listing is live.');
         self::assertSelectorTextContains('h1', 'Chemistry: The Central Science');
+        self::assertSelectorTextContains('.listing-byline', 'Brown & LeMay');
+        self::assertSelectorTextContains('.listing-condition .condition', 'Good');
+        self::assertSelectorTextContains('.listing-comments h2', 'Comments from Sam');
+        self::assertSelectorTextContains('.listing-comments .listing-body', 'No writing inside.');
         self::assertSelectorTextContains('.owner-bar h2', 'Your listing');
         self::assertSelectorTextContains('.owner-actions a', 'Edit listing');
         self::assertSelectorTextContains('.contact-panel h2', 'Message Sam');

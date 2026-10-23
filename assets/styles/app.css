@@ -1080,8 +1080,61 @@ turbo-frame[aria-busy=true] .listing-grid {
     font-size:clamp(26px,3.4vw,34px)
 }
 
+.listing-byline {
+    display:flex;
+    flex-wrap:wrap;
+    gap:0 10px;
+    margin:0 0 12px;
+    color:var(--muted);
+    font-size:17px
+}
+
+.listing-byline span + span::before {
+    content:"·";
+    margin-right:10px
+}
+
+.listing-price-row {
+    display:flex;
+    flex-wrap:wrap;
+    align-items:baseline;
+    gap:6px 16px
+}
+
 .listing-detail .listing-price {
+    margin:0;
     font-size:24px
+}
+
+.listing-condition {
+    margin:0;
+    color:var(--muted);
+    font-size:14px
+}
+
+.listing-condition .condition {
+    margin-right:4px;
+    font-size:12px
+}
+
+.listing-comments {
+    max-width:68ch;
+    margin:24px 0;
+    padding:16px 20px 18px;
+    border-left:4px solid var(--blue);
+    border-radius:0 8px 8px 0;
+    background:var(--blue-tint)
+}
+
+.listing-wanted-page .listing-comments {
+    border-left-color:var(--gold)
+}
+
+.listing-comments h2 {
+    margin:0 0 6px;
+    color:var(--muted);
+    font-size:14px;
+    font-weight:600
 }
 
 .gallery {
@@ -1203,9 +1256,7 @@ turbo-frame[aria-busy=true] .listing-grid {
     grid-template-columns:max-content 1fr;
     gap:8px 24px;
     margin:24px 0;
-    padding:20px 0;
-    border-top:1px solid var(--line);
-    border-bottom:1px solid var(--line)
+    font-size:15px
 }
 
 .listing-facts div {
@@ -2061,12 +2112,6 @@ turbo-frame[aria-busy=true] .listing-grid {
 .condition-input:focus-visible + .condition-option {
     outline:2px solid var(--blue);
     outline-offset:2px
-}
-
-.condition-detail {
-    display:block;
-    color:var(--muted);
-    font-size:14px
 }
 
 /* Paper tags on the listing form */
