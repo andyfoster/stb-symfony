@@ -26,7 +26,11 @@
 
 body {
     margin:0;
-    background:var(--white);
+    background-color:var(--white);
+    /* A faint woven-paper texture across the entire page. */
+    background-image:
+        repeating-linear-gradient(45deg, transparent 0 11px, rgb(20 33 61 / 2.5%) 11px 12px),
+        repeating-linear-gradient(-45deg, transparent 0 11px, rgb(20 33 61 / 2.5%) 11px 12px);
     color:var(--navy);
     font-family:var(--font);
     font-size:16px;
