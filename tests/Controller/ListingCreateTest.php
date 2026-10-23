@@ -57,7 +57,16 @@ final class ListingCreateTest extends WebTestCase
         $this->client->followRedirect();
         self::assertSelectorTextContains('.flash', 'Your listing is live.');
         self::assertSelectorTextContains('h1', 'Chemistry: The Central Science');
-        self::assertSelectorTextContains('.contact-panel h2', 'Your listing');
+        self::assertSelectorTextContains('.owner-bar h2', 'Your listing');
+        self::assertSelectorTextContains('.owner-actions a', 'Edit listing');
+        self::assertSelectorTextContains('.contact-panel h2', 'Message Sam');
+        self::assertSelectorExists('.contact-panel .contact-open[disabled]');
+        self::assertSelectorNotExists('.contact-panel form');
+
+        $this->client->getCookieJar()->clear();
+        $this->client->request('GET', '/listings/'.$listing->getId());
+        self::assertSelectorNotExists('.owner-bar');
+        self::assertSelectorExists('.contact-panel .contact-open:not([disabled])');
 
         $this->client->request('GET', '/');
         self::assertSelectorTextContains('.listing-card .card-link', 'Chemistry: The Central Science');
