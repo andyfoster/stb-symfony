@@ -2,6 +2,7 @@
 
 namespace App;
 
+use App\Scheduler\PruneAuditLog;
 use App\Scheduler\SendExpiryReminders;
 use Symfony\Component\Scheduler\Attribute\AsSchedule;
 use Symfony\Component\Scheduler\RecurringMessage;
@@ -28,6 +29,9 @@ class Schedule implements ScheduleProviderInterface
 
             // Every morning, New Zealand time. Safe to run again: each listing is only reminded once.
             ->add(RecurringMessage::every('1 day', new SendExpiryReminders(), new \DateTimeImmutable('today 09:00', new \DateTimeZone('Pacific/Auckland'))))
+
+            // Every night: audit events are kept for AuditLog::RETENTION_DAYS.
+            ->add(RecurringMessage::every('1 day', new PruneAuditLog(), new \DateTimeImmutable('today 03:00', new \DateTimeZone('Pacific/Auckland'))))
         ;
     }
 }

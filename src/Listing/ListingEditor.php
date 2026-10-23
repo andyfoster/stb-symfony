@@ -2,8 +2,10 @@
 
 namespace App\Listing;
 
+use App\Audit\AuditLog;
 use App\Entity\Listing;
 use App\Entity\ListingPhoto;
+use App\Enum\AuditType;
 use App\Enum\ListingStatus;
 use App\Photo\GeneratePhotoSizes;
 use App\Photo\PhotoStorage;
@@ -13,7 +15,8 @@ use Symfony\Component\HttpFoundation\File\UploadedFile;
 use Symfony\Component\Messenger\MessageBusInterface;
 
 /**
- * Saves listings from the form, and publishes, refreshes, sells and deletes them.
+ * Saves listings from the form, and publishes, refreshes, sells and deletes them,
+ * recording each in the audit log.
  */
 class ListingEditor
 {
@@ -22,6 +25,7 @@ class ListingEditor
         private readonly PhotoStorage $photos,
         private readonly SiteSettingsProvider $settings,
         private readonly MessageBusInterface $bus,
+        private readonly AuditLog $audit,
     ) {}
 
     /**
@@ -30,8 +34,13 @@ class ListingEditor
      */
     public function save(Listing $listing, bool $publish, array $newPhotos = [], array $removedPhotos = []): void
     {
+        $isNew   = $listing->getId() === null;
+        $wasLive = !$isNew && $listing->isLive();
+
         // Their files go when Doctrine removes them (RemovePhotoFiles).
+        $removedIds = [];
         foreach ($removedPhotos as $photo) {
+            $removedIds[] = $photo->getId();
             $listing->removePhoto($photo);
         }
 
@@ -54,8 +63,17 @@ class ListingEditor
         $this->manager->persist($listing);
         $this->manager->flush();
 
+        $this->audit->record($isNew ? AuditType::ListingCreated : AuditType::ListingUpdated, $listing, ['status' => $listing->getStatus()->value]);
+        if (!$wasLive && $listing->isLive()) {
+            $this->audit->record(AuditType::ListingPublished, $listing, ['expiresAt' => $listing->getExpiresAt()?->format(\DATE_ATOM)]);
+        }
+        foreach ($removedIds as $id) {
+            $this->audit->record(AuditType::PhotoRemoved, $listing, ['photo' => $id]);
+        }
+
         // The sizes pages show are made in the background, now the photos have ids.
         foreach ($added as $photo) {
+            $this->audit->record(AuditType::PhotoAdded, $listing, ['photo' => $photo->getId()]);
             $this->bus->dispatch(new GeneratePhotoSizes((int) $photo->getId()));
         }
     }
@@ -64,16 +82,21 @@ class ListingEditor
     {
         $listing->refresh($this->settings->listingLifetimeDays());
         $this->manager->flush();
+        $this->audit->record(AuditType::ListingRefreshed, $listing, ['expiresAt' => $listing->getExpiresAt()?->format(\DATE_ATOM)]);
     }
 
     public function markSold(Listing $listing): void
     {
         $listing->markSold();
         $this->manager->flush();
+        $this->audit->record(AuditType::ListingSold, $listing);
     }
 
     public function delete(Listing $listing): void
     {
+        // Recorded first: the listing has no id once it's gone.
+        $this->audit->record(AuditType::ListingDeleted, $listing);
+
         // Its photos (and their files) go with it.
         $this->manager->remove($listing);
         $this->manager->flush();

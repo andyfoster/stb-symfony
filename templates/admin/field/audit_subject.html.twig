@@ -1,0 +1,17 @@
+{# What an audit event happened to, linked to its admin page while it still exists. #}
+{% set event = entity.instance %}
+{% set routes = {
+    Listing: 'admin_listing_detail',
+    ListingPhoto: 'admin_listing_photo_detail',
+    User: 'admin_user_detail',
+    Book: 'admin_book_detail',
+    Paper: 'admin_paper_detail',
+    Message: 'admin_message_detail',
+} %}
+{% if event.subjectType is null %}
+    <span class="text-muted">-</span>
+{% elseif event.subjectId is not null and routes[event.subjectType] is defined and not (event.type.value ends with 'deleted') %}
+    <a href="{{ path(routes[event.subjectType], {entityId: event.subjectId}) }}">{{ event.subject }}</a>
+{% else %}
+    {{ event.subject }}
+{% endif %}

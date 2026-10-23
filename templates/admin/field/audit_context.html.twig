@@ -1,0 +1,4 @@
+{# An audit event's extra facts (ids, statuses, reasons) as compact JSON. #}
+{% if field.value is not empty %}
+    <code class="text-wrap">{{ field.value|json_encode(constant('JSON_UNESCAPED_SLASHES') b-or constant('JSON_UNESCAPED_UNICODE')) }}</code>
+{% endif %}

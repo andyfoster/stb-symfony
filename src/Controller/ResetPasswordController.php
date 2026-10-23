@@ -2,7 +2,9 @@
 
 namespace App\Controller;
 
+use App\Audit\AuditLog;
 use App\Entity\User;
+use App\Enum\AuditType;
 use App\Form\ChangePasswordFormType;
 use App\Form\ResetPasswordRequestFormType;
 use App\Repository\UserRepository;
@@ -29,6 +31,7 @@ final class ResetPasswordController extends AbstractController
     public function __construct(
         private ResetPasswordHelperInterface $resetPasswordHelper,
         private EntityManagerInterface $entityManager,
+        private AuditLog $audit,
     ) {}
 
     #[Route('', name: 'app_forgot_password', methods: ['GET', 'POST'])]
@@ -38,9 +41,9 @@ final class ResetPasswordController extends AbstractController
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
-            $user = $users->findOneByEmail((string) $form->get('email')->getData());
+            $email = (string) $form->get('email')->getData();
 
-            return $this->sendResetEmail($user, $mailer);
+            return $this->sendResetEmail($email, $users->findOneByEmail($email), $mailer);
         }
 
         return $this->render('reset_password/request.html.twig', ['form' => $form]);
@@ -95,6 +98,7 @@ final class ResetPasswordController extends AbstractController
             $user->setVerified(true);
             $this->entityManager->flush();
             $this->cleanSessionAfterReset();
+            $this->audit->record(AuditType::PasswordReset, $user, actor: $user);
 
             $this->addFlash('success', 'Your password has been changed. Log in with your new password.');
 
@@ -104,18 +108,23 @@ final class ResetPasswordController extends AbstractController
         return $this->render('reset_password/reset.html.twig', ['form' => $form]);
     }
 
-    private function sendResetEmail(?User $user, MailerInterface $mailer): RedirectResponse
+    private function sendResetEmail(string $email, ?User $user, MailerInterface $mailer): RedirectResponse
     {
         if ($user === null) {
+            $this->audit->record(AuditType::PasswordResetRequested, context: ['outcome' => 'no_account'], email: $email);
+
             return $this->redirectToRoute('app_check_email');
         }
 
         try {
             $resetToken = $this->resetPasswordHelper->generateResetToken($user);
-        } catch (ResetPasswordExceptionInterface) {
+        } catch (ResetPasswordExceptionInterface $e) {
             // Usually "already requested recently". Don't say so: it would reveal the account exists.
+            $this->audit->record(AuditType::PasswordResetRequested, $user, ['outcome' => 'refused', 'reason' => $e->getReason()], $user);
+
             return $this->redirectToRoute('app_check_email');
         }
+        $this->audit->record(AuditType::PasswordResetRequested, $user, ['outcome' => 'sent'], $user);
 
         $mailer->send((new TemplatedEmail())
             ->to(new Address((string) $user->getEmail(), (string) $user->getDisplayName()))

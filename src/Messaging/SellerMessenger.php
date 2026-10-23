@@ -2,8 +2,10 @@
 
 namespace App\Messaging;
 
+use App\Audit\AuditLog;
 use App\Entity\Listing;
 use App\Entity\Message;
+use App\Enum\AuditType;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bridge\Twig\Mime\TemplatedEmail;
 use Symfony\Component\DependencyInjection\Attribute\Target;
@@ -25,6 +27,7 @@ class SellerMessenger
         private readonly RateLimiterFactoryInterface $perIpLimiter,
         #[Target('contact_seller_listing.limiter')]
         private readonly RateLimiterFactoryInterface $perListingLimiter,
+        private readonly AuditLog $audit,
     ) {}
 
     /**
@@ -35,7 +38,13 @@ class SellerMessenger
         $perIp      = $this->perIpLimiter->create((string) $request->getClientIp())->consume();
         $perListing = $this->perListingLimiter->create($listing->getId() . '|' . $message->getSenderEmail())->consume();
 
-        return $perIp->isAccepted() && $perListing->isAccepted();
+        if ($perIp->isAccepted() && $perListing->isAccepted()) {
+            return true;
+        }
+
+        $this->audit->record(AuditType::MessageThrottled, $listing, email: $message->getSenderEmail());
+
+        return false;
     }
 
     public function send(Request $request, Listing $listing, Message $message): void
@@ -48,6 +57,8 @@ class SellerMessenger
             ->setSenderIp($request->getClientIp());
         $this->manager->persist($message);
         $this->manager->flush();
+        // Who wrote to whom, never what they wrote.
+        $this->audit->record(AuditType::MessageSent, $listing, ['message' => $message->getId(), 'seller' => $seller->getId()], $message->getSender(), $message->getSenderEmail());
 
         $this->mailer->send((new TemplatedEmail())
             ->to(new Address((string) $seller->getEmail(), (string) $seller->getDisplayName()))

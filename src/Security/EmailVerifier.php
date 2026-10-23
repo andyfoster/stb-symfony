@@ -2,7 +2,9 @@
 
 namespace App\Security;
 
+use App\Audit\AuditLog;
 use App\Entity\User;
+use App\Enum\AuditType;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bridge\Twig\Mime\TemplatedEmail;
 use Symfony\Component\HttpFoundation\Request;
@@ -21,6 +23,7 @@ class EmailVerifier
         private VerifyEmailHelperInterface $helper,
         private MailerInterface $mailer,
         private EntityManagerInterface $entityManager,
+        private AuditLog $audit,
     ) {}
 
     public function sendConfirmation(User $user): void
@@ -53,5 +56,6 @@ class EmailVerifier
 
         $user->setVerified(true);
         $this->entityManager->flush();
+        $this->audit->record(AuditType::EmailVerified, $user, actor: $user);
     }
 }

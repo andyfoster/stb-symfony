@@ -2,6 +2,8 @@
 
 namespace App\Command;
 
+use App\Audit\AuditLog;
+use App\Enum\AuditType;
 use App\Repository\UserRepository;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\Console\Attribute\Argument;
@@ -22,6 +24,7 @@ final class PromoteUserCommand
     public function __construct(
         private readonly UserRepository $users,
         private readonly EntityManagerInterface $manager,
+        private readonly AuditLog $audit,
     ) {}
 
     public function __invoke(
@@ -40,6 +43,7 @@ final class PromoteUserCommand
 
         $user->setAdmin(!$demote);
         $this->manager->flush();
+        $this->audit->record(AuditType::RoleChanged, $user, ['admin' => !$demote]);
 
         $io->success(\sprintf('%s is %s an admin.', $user->getEmail(), $demote ? 'no longer' : 'now'));
 

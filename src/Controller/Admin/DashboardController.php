@@ -34,6 +34,7 @@ final class DashboardController extends AbstractDashboardController
         yield MenuItem::linkTo(UserCrudController::class, 'Users', 'fa fa-user');
         yield MenuItem::linkTo(BookCrudController::class, 'Books', 'fa fa-swatchbook');
         yield MenuItem::linkTo(PaperCrudController::class, 'Papers', 'fa fa-graduation-cap');
+        yield MenuItem::linkTo(AuditEventCrudController::class, 'Audit log', 'fa fa-clipboard-list');
         yield MenuItem::linkToRoute('Settings', 'fa fa-gear', 'admin_site_settings_edit', ['entityId' => $this->settings->get()->getId()]);
         yield MenuItem::section();
         yield MenuItem::linkToRoute('Back to the site', 'fa fa-arrow-left', 'app_listings');

@@ -2,7 +2,9 @@
 
 namespace App\Repository;
 
+use App\Audit\AuditLog;
 use App\Entity\User;
+use App\Enum\AuditType;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\Persistence\ManagerRegistry;
 use Symfony\Bridge\Doctrine\Security\User\UserLoaderInterface;
@@ -15,7 +17,7 @@ use Symfony\Component\Security\Core\User\PasswordUpgraderInterface;
  */
 class UserRepository extends ServiceEntityRepository implements PasswordUpgraderInterface, UserLoaderInterface
 {
-    public function __construct(ManagerRegistry $registry)
+    public function __construct(ManagerRegistry $registry, private readonly AuditLog $audit)
     {
         parent::__construct($registry, User::class);
     }
@@ -43,7 +45,11 @@ class UserRepository extends ServiceEntityRepository implements PasswordUpgrader
             throw new UnsupportedUserException(\sprintf('Instances of "%s" are not supported.', $user::class));
         }
 
+        // Old-site hashes are 40 hex characters (LegacySha1PasswordHasher).
+        $legacy = preg_match('/^[0-9a-f]{40}$/i', (string) $user->getPassword()) === 1;
+
         $user->setPassword($newHashedPassword);
         $this->getEntityManager()->flush();
+        $this->audit->record(AuditType::PasswordUpgraded, $user, ['from' => $legacy ? 'legacy_sha1' : 'rehash'], $user);
     }
 }

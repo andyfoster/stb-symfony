@@ -1,0 +1,18 @@
+{# A user's latest audit events on their admin page: what they did, and what admins did to their account. #}
+{% set events = field.formattedValue %}
+{% if events is empty %}
+    <span class="text-muted">Nothing recorded yet.</span>
+{% else %}
+    <table class="table table-sm mb-0">
+        <tbody>
+            {% for event in events %}
+                <tr>
+                    <td class="text-nowrap"><a href="{{ path('admin_audit_event_detail', {entityId: event.id}) }}">{{ event.createdAt|date('j M Y H:i') }}</a></td>
+                    <td><span class="badge badge-{{ event.type.badge }}">{{ event.type.label }}</span></td>
+                    <td>{{ event.subject }}{% if event.actor is not same as(entity.instance) and event.email %} <span class="text-muted">by {{ event.email }}</span>{% endif %}</td>
+                    <td class="text-muted">{{ event.ip }}</td>
+                </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+{% endif %}

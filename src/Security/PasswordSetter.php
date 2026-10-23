@@ -2,7 +2,9 @@
 
 namespace App\Security;
 
+use App\Audit\AuditLog;
 use App\Entity\User;
+use App\Enum\AuditType;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\PasswordHasher\Hasher\UserPasswordHasherInterface;
 
@@ -19,6 +21,7 @@ class PasswordSetter
     public function __construct(
         private readonly UserPasswordHasherInterface $hasher,
         private readonly EntityManagerInterface $manager,
+        private readonly AuditLog $audit,
     ) {
     }
 
@@ -26,5 +29,6 @@ class PasswordSetter
     {
         $user->setPassword($this->hasher->hashPassword($user, $password));
         $this->manager->flush();
+        $this->audit->record(AuditType::PasswordSet, $user, ['default' => $password === self::DEFAULT_PASSWORD]);
     }
 }

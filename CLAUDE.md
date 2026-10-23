@@ -169,6 +169,19 @@ up to date when adding a workflow.
   book comes back on the next import. Title suggestions on the listing form
   (`App\Book\TitleSuggestions`) combine the Book list with listings made here
   (`ListingRepository::suggestBookTitles()` skips imported ones, which the list already counts).
+- Audit log: `App\Audit\AuditLog::record()` writes an `AuditEvent` (`AuditType`, actor, email,
+  subject type/id/label, IP, user agent, small JSON context) and the same line to the `audit`
+  Monolog channel (`var/log/audit.log` in dev, JSON on stderr in prod). Rows go in with a plain
+  INSERT, not a flush, so recording never flushes other changes or breaks a request if it fails;
+  record a deletion before flushing it, while the subject still has its id. `SecurityAuditListener`
+  covers logins (form, remember-me, after sign-up), failed and throttled ones (the email typed,
+  never the password) and logouts; `AdminAuditListener` covers EasyAdmin creates, edits (changed
+  field names only) and deletes, plus admin access changes. Services record the rest: listings
+  and photos (`ListingEditor`), seller messages without their body (`SellerMessenger`), password
+  resets, legacy SHA-1 upgrades (`UserRepository`), `PasswordSetter`, email confirmation and
+  `app:user:promote`. Admins read it under Audit log in `/admin`, and on each user's detail page.
+  `PruneAuditLog` (nightly, `src/Schedule.php`) deletes events older than
+  `AuditLog::RETENTION_DAYS` (365).
 - CSRF is stateless (`config/packages/csrf.yaml`): hand-written forms need a `_csrf_token`
   field with `data-controller="csrf-protection"`, and tests send `Sec-Fetch-Site: same-origin`.
   In the test env Messenger's `async` transport is `in-memory://` (assert with

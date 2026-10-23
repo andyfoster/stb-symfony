@@ -2,8 +2,10 @@
 
 namespace App\Controller\Admin;
 
+use App\Audit\AuditLog;
 use App\Entity\Book;
 use App\Entity\Paper;
+use App\Enum\AuditType;
 use App\Repository\BookRepository;
 use Doctrine\ORM\EntityManagerInterface;
 use EasyCorp\Bundle\EasyAdminBundle\Attribute\AdminRoute;
@@ -33,6 +35,7 @@ final class BookCrudController extends AbstractCrudController
     public function __construct(
         private readonly BookRepository $books,
         private readonly EntityManagerInterface $manager,
+        private readonly AuditLog $audit,
     ) {}
 
     public static function getEntityFqcn(): string
@@ -95,11 +98,13 @@ final class BookCrudController extends AbstractCrudController
         }
 
         $kept = array_shift($books);
+        $merged = array_map(static fn (Book $book): ?int => $book->getId(), $books);
         foreach ($books as $book) {
             $kept->merge($book);
             $this->manager->remove($book);
         }
         $this->manager->flush();
+        $this->audit->record(AuditType::AdminUpdated, $kept, ['merged' => $merged]);
         $this->addFlash('success', \sprintf('Merged %d books into “%s”.', \count($books) + 1, $kept->getTitle()));
 
         return $this->redirectToRoute('admin_book_detail', ['entityId' => $kept->getId()]);

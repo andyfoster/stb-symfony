@@ -3,6 +3,7 @@
 namespace App\Controller\Admin;
 
 use App\Entity\User;
+use App\Repository\AuditEventRepository;
 use App\Security\PasswordSetter;
 use EasyCorp\Bundle\EasyAdminBundle\Attribute\AdminRoute;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Action;
@@ -13,6 +14,7 @@ use EasyCorp\Bundle\EasyAdminBundle\Controller\AbstractCrudController;
 use EasyCorp\Bundle\EasyAdminBundle\Field\BooleanField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\DateTimeField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\EmailField;
+use EasyCorp\Bundle\EasyAdminBundle\Field\Field;
 use EasyCorp\Bundle\EasyAdminBundle\Field\IdField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\TelephoneField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\TextField;
@@ -22,7 +24,8 @@ use Symfony\Component\Security\Csrf\CsrfTokenManagerInterface;
 
 /**
  * People sign up on the site, so admins only edit and delete accounts here,
- * and reset passwords for people who can't use the reset email.
+ * and reset passwords for people who can't use the reset email. The detail
+ * page lists the account's recent audit events.
  *
  * @extends AbstractCrudController<User>
  */
@@ -31,6 +34,7 @@ final class UserCrudController extends AbstractCrudController
     public function __construct(
         private readonly CsrfTokenManagerInterface $csrfTokens,
         private readonly PasswordSetter $passwords,
+        private readonly AuditEventRepository $auditEvents,
     ) {
     }
 
@@ -62,9 +66,16 @@ final class UserCrudController extends AbstractCrudController
                 'Reset password',
             );
 
+        // The Audit log, showing just what this account did.
+        $activity = Action::new('activity', 'Audit log', 'fa fa-clipboard-list')
+            ->linkToRoute('admin_audit_event_index', static fn (User $user): array => [
+                'filters' => ['actor' => ['comparison' => '=', 'value' => $user->getId()]],
+            ]);
+
         return $actions
             ->disable(Action::NEW)
             ->add(Crud::PAGE_INDEX, Action::DETAIL)
+            ->add(Crud::PAGE_DETAIL, $activity)
             ->add(Crud::PAGE_INDEX, $resetPassword)
             ->add(Crud::PAGE_DETAIL, $resetPassword)
             ->add(Crud::PAGE_EDIT, $resetPassword);
@@ -85,6 +96,9 @@ final class UserCrudController extends AbstractCrudController
         yield TelephoneField::new('phone')->hideOnIndex();
         yield BooleanField::new('showPhone', 'Shows phone')->renderAsSwitch(false)->hideOnIndex();
         yield DateTimeField::new('createdAt', 'Joined')->hideOnForm();
+        yield Field::new('recentActivity', 'Recent activity')->onlyOnDetail()
+            ->setTemplatePath('admin/field/user_activity.html.twig')
+            ->formatValue(fn ($value, User $user): array => $this->auditEvents->findRecentFor($user));
     }
 
     #[AdminRoute('/{id}/reset-password', name: 'reset_password', options: ['methods' => ['POST']])]

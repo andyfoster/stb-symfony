@@ -2,7 +2,9 @@
 
 namespace App\Tests\Controller;
 
+use App\Entity\AuditEvent;
 use App\Entity\User;
+use App\Enum\AuditType;
 use App\Repository\UserRepository;
 use App\Tests\DatabaseTestTrait;
 use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
@@ -30,6 +32,8 @@ final class LegacyPasswordTest extends WebTestCase
         $hash = $this->user('jo@example.com')->getPassword();
         self::assertStringStartsWith('$', $hash);
         self::assertTrue(password_verify('hunter2', $hash));
+        $upgrade = $this->manager->getRepository(AuditEvent::class)->findOneBy(['type' => AuditType::PasswordUpgraded]);
+        self::assertSame(['from' => 'legacy_sha1'], $upgrade?->getContext());
 
         // The new hash works from then on.
         $this->client->request('POST', '/logout', ['_csrf_token' => 'csrf-token']);
