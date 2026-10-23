@@ -43,6 +43,12 @@ tasks:
       - symfony server:stop
       - docker compose stop
 
+  restart:
+    desc: Stop and start everything again
+    cmds:
+      - task: stop
+      - task: start
+
   status:
     desc: Show web server and Docker container status
     cmds:
@@ -131,6 +137,21 @@ tasks:
     interactive: true
     cmds:
       - docker compose exec database psql -U scarfietextbooks -d scarfietextbooks
+
+  db:pull:
+    desc: Pull newer Postgres and Mailpit images (task restart to use them)
+    cmds:
+      - docker compose pull
+
+  db:dump:
+    desc: 'Save a backup of the local database to var/backups (restore with task db:restore)'
+    vars:
+      FILE: '{{.BACKUPS}}/local-{{now | date "20060102-1504"}}.dump'
+    cmds:
+      - mkdir -p {{.BACKUPS}}
+      - docker compose exec -T database pg_dump -U scarfietextbooks -d scarfietextbooks --format=custom > {{.FILE}}
+      - test -s {{.FILE}}
+      - echo "Saved {{.FILE}} ($(du -h {{.FILE}} | cut -f1))"
 
   db:restore:
     desc: 'Replace the local database with a dump, e.g. from prod:db:dump (task db:restore -- var/backups/stb-….dump)'

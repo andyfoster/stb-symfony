@@ -179,7 +179,8 @@ up to date when adding a workflow.
   `prod:db:dump`, which saves a `pg_dump --format=custom` to `var/backups/` (git-ignored). Dumps
   and the photo backup stream over plain `ssh` to `Taskfile.yml`'s `PROD_SSH` (keep it in step with
   `config/deploy.yml`), because `kamal ... exec` adds its own lines to the output.
-  `task db:restore -- var/backups/….dump` loads a dump into the local Docker database.
+  `task db:restore -- var/backups/….dump` loads a dump into the local Docker database;
+  `task db:dump` saves the local one first if you want to keep it.
 - Migrations are not run on deploy (all `.kamal/hooks` are samples); run `task prod:migrate`
   after `task deploy`. Migrations create `messenger_messages`; `task prod:messenger:setup`
   (`messenger:setup-transports`, idempotent) makes sure it exists, since `auto_setup=0`.
