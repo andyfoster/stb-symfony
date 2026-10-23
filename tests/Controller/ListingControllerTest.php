@@ -54,7 +54,7 @@ final class ListingControllerTest extends WebTestCase
         $chemistry = $this->client->getCrawler()->filter('.listing-card')->reduce(static fn ($card) => str_contains($card->text(), 'Chemistry'));
         self::assertStringContainsString('$95', $chemistry->filter('.listing-price')->text());
         self::assertSame(['CHEM111', 'CHEM191'], $chemistry->filter('.course-code')->each(static fn ($node) => $node->text()));
-        self::assertCount(0, $chemistry->filter('.badge-wanted'));
+        self::assertCount(0, $chemistry->filter('.badge'));
         self::assertAnySelectorTextContains('.listing-price', 'Free');
     }
 
@@ -122,7 +122,7 @@ final class ListingControllerTest extends WebTestCase
         $this->client->request('GET', '/', ['categories' => ['spaceships']]);
         self::assertResponseIsSuccessful();
         self::assertCount(3, $this->titles());
-        self::assertSelectorExists('.filter-bar .invalid-feedback');
+        self::assertSelectorExists('.filter-bar ul li');
     }
 
     public function testPaginationKeepsFiltersAndDoesNotRenderOtherPages(): void

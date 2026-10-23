@@ -8,7 +8,7 @@
     {%- elseif listing.priceCents == 0 -%}
         Free
     {%- else -%}
-        {% if wanted %}<span class="price-label d-block text-body-secondary small fw-normal">Budget up to</span> {% endif %}{{ _self.money(listing.priceCents) }}
+        {% if wanted %}<span class="price-label">Budget up to</span> {% endif %}{{ _self.money(listing.priceCents) }}
     {%- endif -%}
 {% endmacro %}
 

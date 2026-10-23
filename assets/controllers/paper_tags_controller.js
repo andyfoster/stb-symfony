@@ -18,12 +18,12 @@ export default class extends Controller {
         this.inputTarget.hidden = true;
 
         this.box = document.createElement('div');
-        this.box.className = 'tag-input form-control d-flex flex-wrap align-items-center gap-2 position-relative';
+        this.box.className = 'tag-input';
         this.box.innerHTML = `
-            <ul class="tag-list list-unstyled d-flex flex-wrap gap-1 m-0"></ul>
-            <input type="text" class="tag-entry form-control border-0 shadow-none p-0" autocomplete="off" role="combobox" aria-expanded="false"
+            <ul class="tag-list"></ul>
+            <input type="text" class="tag-entry" autocomplete="off" role="combobox" aria-expanded="false"
                 aria-autocomplete="list" aria-label="Add a paper" placeholder="${this.inputTarget.placeholder || ''}">
-            <ul class="tag-suggestions list-group position-absolute w-100 shadow z-3" role="listbox" hidden></ul>`;
+            <ul class="tag-suggestions" role="listbox" hidden></ul>`;
         this.inputTarget.after(this.box);
 
         this.list = this.box.querySelector('.tag-list');
@@ -58,10 +58,7 @@ export default class extends Controller {
             if (!options.length) return;
             event.preventDefault();
             const next = (active + (event.key === 'ArrowDown' ? 1 : -1) + options.length) % options.length;
-            options.forEach((option, i) => {
-                option.setAttribute('aria-selected', String(i === next));
-                option.classList.toggle('active', i === next);
-            });
+            options.forEach((option, i) => option.setAttribute('aria-selected', String(i === next)));
             this.entry.setAttribute('aria-activedescendant', options[next].id);
         } else if (event.key === 'Enter' || event.key === ',' || event.key === ';') {
             if (!this.entry.value.trim() && event.key === 'Enter') return;
@@ -108,7 +105,7 @@ export default class extends Controller {
     render() {
         this.list.replaceChildren(...this.tags.map((code, index) => {
             const item = document.createElement('li');
-            item.className = CODE.test(code) ? 'tag badge text-bg-primary d-inline-flex align-items-center' : 'tag tag-invalid badge text-bg-danger d-inline-flex align-items-center';
+            item.className = CODE.test(code) ? 'tag' : 'tag tag-invalid';
             item.title = this.titles[code] ?? (CODE.test(code) ? '' : 'Paper codes look like CHEM191');
             item.textContent = code;
             const button = document.createElement('button');
@@ -148,11 +145,10 @@ export default class extends Controller {
             this.titles[paper.code] = paper.title ?? '';
             const option = document.createElement('li');
             option.id = `${this.suggestions.id}_${i}`;
-            option.className = 'list-group-item list-group-item-action d-flex gap-2 small';
             option.setAttribute('role', 'option');
             option.setAttribute('aria-selected', 'false');
             option.dataset.code = paper.code;
-            option.innerHTML = '<strong></strong> <span class="text-truncate"></span>';
+            option.innerHTML = '<strong></strong> <span></span>';
             option.querySelector('strong').textContent = paper.code;
             option.querySelector('span').textContent = paper.title ?? '';
             option.addEventListener('mousedown', (event) => {

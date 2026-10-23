@@ -7,21 +7,21 @@
 {% block body %}
     {% set route = app.request.attributes.get('_route') %}
     {% set unread = unread_message_count() %}
-    <div class="dashboard row g-4 py-4">
-        <nav class="dashboard-nav col-lg-3" aria-label="Your account">
-            <p class="dashboard-user d-flex flex-column border-bottom pb-3 mb-3 text-break">
+    <div class="dashboard">
+        <nav class="dashboard-nav" aria-label="Your account">
+            <p class="dashboard-user">
                 <strong>{{ app.user.displayName }}</strong>
-                <span class="small text-body-secondary">{{ app.user.email }}</span>
+                <span>{{ app.user.email }}</span>
             </p>
-            <ul class="nav nav-pills flex-column gap-1 mb-3">
-                <li class="nav-item"><a class="nav-link {{ route == 'app_account' ? 'active' }}" href="{{ path('app_account') }}" {{ route == 'app_account' ? 'aria-current="page"' }}>Overview</a></li>
-                <li class="nav-item"><a class="nav-link {{ route == 'app_account_listings' ? 'active' }}" href="{{ path('app_account_listings') }}" {{ route == 'app_account_listings' ? 'aria-current="page"' }}>My listings</a></li>
-                <li class="nav-item"><a class="nav-link {{ route starts with 'app_account_message' ? 'active' }}" href="{{ path('app_account_messages') }}" {{ route starts with 'app_account_message' ? 'aria-current="page"' }}>Messages{% if unread %} <span class="nav-badge badge text-bg-secondary rounded-pill">{{ unread }}</span>{% endif %}</a></li>
-                <li class="nav-item"><a class="nav-link {{ route == 'app_account_details' ? 'active' }}" href="{{ path('app_account_details') }}" {{ route == 'app_account_details' ? 'aria-current="page"' }}>Your details</a></li>
+            <ul>
+                <li><a href="{{ path('app_account') }}" {{ route == 'app_account' ? 'aria-current="page"' }}>Overview</a></li>
+                <li><a href="{{ path('app_account_listings') }}" {{ route == 'app_account_listings' ? 'aria-current="page"' }}>My listings</a></li>
+                <li><a href="{{ path('app_account_messages') }}" {{ route starts with 'app_account_message' ? 'aria-current="page"' }}>Messages{% if unread %} <span class="nav-badge">{{ unread }}</span>{% endif %}</a></li>
+                <li><a href="{{ path('app_account_details') }}" {{ route == 'app_account_details' ? 'aria-current="page"' }}>Your details</a></li>
             </ul>
-            <a class="button btn btn-primary btn-sm dashboard-post w-100" href="{{ path('app_listing_new') }}">Post a listing</a>
+            <a class="button button-small dashboard-post" href="{{ path('app_listing_new') }}">Post a listing</a>
         </nav>
-        <div class="dashboard-main col-lg-9">
+        <div class="dashboard-main">
             {% block account %}{% endblock %}
         </div>
     </div>

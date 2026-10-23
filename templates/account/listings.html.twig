@@ -4,29 +4,29 @@
 {% block title %}My listings · ScarfieTextbooks{% endblock %}
 
 {% block account %}
-    <h1 class="dashboard-title h3 mb-3">My listings <span class="count badge text-bg-secondary rounded-pill">{{ listings|length }}</span></h1>
+    <h1 class="dashboard-title">My listings <span class="count">{{ listings|length }}</span></h1>
 
     {% for listing in listings %}
         {% set state = listing.draft ? 'draft' : (listing.sold ? 'sold' : (listing.expired ? 'expired' : 'live')) %}
-        <article class="my-listing d-flex flex-wrap justify-content-between align-items-center gap-3 py-3 border-bottom my-listing-{{ state }}">
+        <article class="my-listing my-listing-{{ state }}">
             <div class="my-listing-main">
-                <span class="status badge {{ state == 'live' ? 'text-bg-success' : (state == 'expired' ? 'text-bg-warning' : (state == 'sold' ? 'text-bg-primary' : 'text-bg-secondary')) }}">{{ state|capitalize }}</span>
-                <h2 class="h5"><a href="{{ path('app_listing_show', {id: listing.id}) }}">{{ listing.title }}</a></h2>
-                <p class="text-body-secondary my-listing-meta d-flex flex-wrap gap-3 small mb-0">
+                <span class="status status-{{ state }}">{{ state|capitalize }}</span>
+                <h2><a href="{{ path('app_listing_show', {id: listing.id}) }}">{{ listing.title }}</a></h2>
+                <p class="muted my-listing-meta">
                     <span>{{ m.price(listing) }}</span>
                     <span>{{ listing.category.label }}</span>
                     {% if state == 'live' %}<span>Expires {{ listing.expiresAt|date('j M Y') }}</span>
                     {% elseif state == 'expired' %}<span>Expired {{ listing.expiresAt|date('j M Y') }}</span>{% endif %}
                 </p>
             </div>
-            <div class="my-listing-actions d-flex flex-wrap align-items-center gap-3 small">
+            <div class="my-listing-actions">
                 {% if listing.canRefresh %}
                     <form method="post" action="{{ path('app_listing_refresh', {id: listing.id}) }}">
                         <input type="hidden" name="_csrf_token" data-controller="csrf-protection" value="{{ csrf_token('submit') }}">
-                        <button class="button btn btn-primary btn-sm" type="submit">Refresh</button>
+                        <button class="button button-small" type="submit">Refresh</button>
                     </form>
                 {% endif %}
-                <a class="button btn btn-sm btn-outline-primary" href="{{ path('app_listing_edit', {id: listing.id}) }}">{{ listing.draft ? 'Edit & publish' : (listing.sold ? 'Re-list' : 'Edit') }}</a>
+                <a class="button button-small button-outline" href="{{ path('app_listing_edit', {id: listing.id}) }}">{{ listing.draft ? 'Edit & publish' : (listing.sold ? 'Re-list' : 'Edit') }}</a>
                 {% if not listing.draft and not listing.sold %}
                     <form method="post" action="{{ path('app_listing_sold', {id: listing.id}) }}">
                         <input type="hidden" name="_csrf_token" data-controller="csrf-protection" value="{{ csrf_token('submit') }}">
@@ -35,19 +35,19 @@
                 {% endif %}
                 <form method="post" action="{{ path('app_listing_delete', {id: listing.id}) }}" data-turbo-confirm="Delete “{{ listing.title }}”? This can’t be undone.">
                     <input type="hidden" name="_csrf_token" data-controller="csrf-protection" value="{{ csrf_token('submit') }}">
-                    <button class="nav-link text-danger" type="submit">Delete</button>
+                    <button class="nav-link danger-link" type="submit">Delete</button>
                 </form>
             </div>
         </article>
     {% else %}
-        <div class="empty-state w-100 text-center py-5">
+        <div class="empty-state">
             <h3>You haven’t posted anything yet.</h3>
             <p>Sell a textbook, or tell people what you’re looking for.</p>
-            <a class="button btn btn-primary" href="{{ path('app_listing_new') }}">Post a listing</a>
+            <a class="button" href="{{ path('app_listing_new') }}">Post a listing</a>
         </div>
     {% endfor %}
 
     {% if listings|length %}
-        <p class="form-help form-text account-note mt-3">Listings stay up for {{ lifetime_days }} days. You can refresh one in the last {{ constant('App\\Entity\\Listing::REFRESH_WINDOW_DAYS') }} days before it expires, or once it has.</p>
+        <p class="form-help account-note">Listings stay up for {{ lifetime_days }} days. You can refresh one in the last {{ constant('App\\Entity\\Listing::REFRESH_WINDOW_DAYS') }} days before it expires, or once it has.</p>
     {% endif %}
 {% endblock %}

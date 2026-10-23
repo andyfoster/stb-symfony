@@ -1,11 +1,11 @@
-<ul class="message-list list-group list-group-flush mt-3">
+<ul class="message-list">
     {% for message in messages %}
-        <li class="message-row list-group-item px-0 {{ message.read ? '' : 'message-unread bg-primary-subtle' }}">
-            <a class="d-flex flex-wrap align-items-baseline gap-2 text-decoration-none" href="{{ path('app_account_message', {id: message.id}) }}">
-                <span class="message-from fw-semibold">{{ message.senderName }}</span>
-                <span class="message-about text-primary fw-semibold flex-grow-1">{{ message.listing ? message.listing.title : 'Deleted listing' }}</span>
-                <span class="message-snippet text-body-secondary small text-truncate w-100 order-last">{{ message.body }}</span>
-                <time class="small text-body-secondary" datetime="{{ message.createdAt|date('c') }}">{{ message.createdAt|date('j M') }}</time>
+        <li class="message-row {{ message.read ? '' : 'message-unread' }}">
+            <a href="{{ path('app_account_message', {id: message.id}) }}">
+                <span class="message-from">{{ message.senderName }}</span>
+                <span class="message-about">{{ message.listing ? message.listing.title : 'Deleted listing' }}</span>
+                <span class="message-snippet">{{ message.body }}</span>
+                <time datetime="{{ message.createdAt|date('c') }}">{{ message.createdAt|date('j M') }}</time>
             </a>
         </li>
     {% endfor %}

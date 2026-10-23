@@ -3,40 +3,36 @@
 {% set photo = listing.arePhotosPublic ? listing.photos|first : null %}
 {% set search = [listing.title, listing.description, listing.book ? listing.book.author : '', listing.book ? listing.book.isbn|replace({'-': '', ' ': ''}) : ''] %}
 {% for paper in listing.book ? listing.book.papers : [] %}{% set search = search|merge([paper.code]) %}{% endfor %}
-<div data-listing-id="{{ listing.id }}" data-listing-filter-target="item" data-type="{{ listing.type.value }}" data-category="{{ listing.category.value }}" data-search="{{ search|join(' ')|lower }}" class="listing-item col">
-<article class="listing-card card h-100 {{ wanted ? 'listing-wanted border-warning' : '' }}">
-    <div class="listing-card-body card-body d-flex flex-wrap flex-sm-nowrap align-items-center gap-3">
+<article data-listing-id="{{ listing.id }}" data-listing-filter-target="item" data-type="{{ listing.type.value }}" data-category="{{ listing.category.value }}" data-search="{{ search|join(' ')|lower }}" class="listing-card {{ wanted ? 'listing-wanted' : '' }}">
     {% if photo %}
-        <img class="card-photo rounded object-fit-cover flex-shrink-0" src="{{ path('app_photo', {id: photo.id, size: 'thumb'}) }}" alt="" loading="lazy" width="80" height="80">
+        <img class="card-photo" src="{{ path('app_photo', {id: photo.id, size: 'thumb'}) }}" alt="" loading="lazy" width="80" height="80">
     {% else %}
-        <span class="card-icon d-flex align-items-center justify-content-center rounded bg-primary-subtle text-primary flex-shrink-0 card-icon-{{ listing.category.value }}" title="{{ listing.category.label }}">{{ m.category_icon(listing.category) }}</span>
+        <span class="card-icon card-icon-{{ listing.category.value }}" title="{{ listing.category.label }}">{{ m.category_icon(listing.category) }}</span>
     {% endif %}
 
-    <div class="card-main flex-grow-1 overflow-hidden">
-        <h3 class="h6 mb-1">
-            <a class="card-link stretched-link text-decoration-none" href="{{ path('app_listing_show', {id: listing.id}) }}">{{ listing.title }}</a>
-            {% if wanted %}<span class="badge badge-wanted text-bg-warning">Wanted</span>{% endif %}
+    <div class="card-main">
+        <h3>
+            <a class="card-link" href="{{ path('app_listing_show', {id: listing.id}) }}">{{ listing.title }}</a>
+            {% if wanted %}<span class="badge badge-wanted">Wanted</span>{% endif %}
         </h3>
-        <p class="book-meta d-flex flex-wrap align-items-center gap-2 small text-body-secondary mb-1">
+        <p class="book-meta">
             {% if listing.book %}
                 <span>{{ listing.book.author }}</span>
                 {% if listing.book.edition %}<span>{{ listing.book.edition }} edition</span>{% endif %}
             {% else %}
                 <span>{{ listing.category.label }}</span>
             {% endif %}
-            {% for paper in listing.book ? listing.book.papers : [] %}<span class="course-code badge text-bg-primary">{{ paper.code }}</span>{% endfor %}
-            {% if listing.condition %}<span class="condition badge text-bg-light border">{{ listing.condition.label }}</span>{% endif %}
+            {% for paper in listing.book ? listing.book.papers : [] %}<span class="course-code">{{ paper.code }}</span>{% endfor %}
+            {% if listing.condition %}<span class="condition">{{ listing.condition.label }}</span>{% endif %}
         </p>
-        {% if listing.description %}<p class="listing-description small text-truncate mb-0">{{ listing.description }}</p>{% endif %}
+        {% if listing.description %}<p class="listing-description">{{ listing.description }}</p>{% endif %}
     </div>
 
-    <div class="card-side ms-auto text-end">
-        <p class="listing-price fw-bold mb-1">{{ m.price(listing) }}</p>
-        <p class="listing-card-date small text-body-secondary mb-0">
+    <div class="card-side">
+        <p class="listing-price">{{ m.price(listing) }}</p>
+        <p class="card-footer">
             {% set date = listing.publishedAt ?? listing.createdAt %}
             <time datetime="{{ date|date('c') }}">{{ date|date('j M') }}</time>
         </p>
     </div>
-    </div>
 </article>
-</div>
