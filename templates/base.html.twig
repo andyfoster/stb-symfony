@@ -5,7 +5,7 @@
         <meta name="viewport" content="width=device-width, initial-scale=1">
         <meta name="theme-color" content="#ffffff">
         <title>{% block title %}ScarfieTextbooks{% endblock %}</title>
-        <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%230b3a9f'/%3E%3Cpath d='M32 14 6 26l26 12 26-12z' fill='%23ffcd00'/%3E%3Cpath d='M17 32v10c0 4 7 8 15 8s15-4 15-8V32l-15 7z' fill='%23ffcd00'/%3E%3C/svg%3E">
+        <link rel="icon" type="image/svg+xml" href="{{ asset('images/favicon.svg') }}">
         {% block stylesheets %}{% endblock %}
         {% block javascripts %}{% block importmap %}{{ importmap('app') }}{% endblock %}{% endblock %}
 

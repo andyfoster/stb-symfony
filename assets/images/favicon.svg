@@ -1,0 +1,5 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64">
+  <title>ScarfieTextbooks</title>
+  <rect x="1" y="1" width="62" height="62" rx="13" fill="#fff" stroke="#e4e7ec" stroke-width="2"/>
+  <text x="2" y="48" font-family="ui-monospace, 'SFMono-Regular', Consolas, monospace" font-size="50" font-weight="700" letter-spacing="-4"><tspan fill="#0b3a9f">s</tspan><tspan fill="#d9a900">t</tspan></text>
+</svg>
