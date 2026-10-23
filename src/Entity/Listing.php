@@ -89,6 +89,10 @@ class Listing extends Base
     #[ORM\OrderBy(['position' => \SortDirection::Ascending, 'id' => \SortDirection::Ascending])]
     private Collection $photos;
 
+    /** `listing_id` on the old site, for listings app:legacy:import brought over. */
+    #[ORM\Column(nullable: true, unique: true)]
+    private ?int $legacyId = null;
+
     public function __construct()
     {
         parent::__construct();
@@ -325,6 +329,18 @@ class Listing extends Base
     public function removePhoto(ListingPhoto $photo): static
     {
         $this->photos->removeElement($photo);
+
+        return $this;
+    }
+
+    public function getLegacyId(): ?int
+    {
+        return $this->legacyId;
+    }
+
+    public function setLegacyId(?int $legacyId): static
+    {
+        $this->legacyId = $legacyId;
 
         return $this;
     }

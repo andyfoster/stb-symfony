@@ -141,6 +141,21 @@ up to date when adding a workflow.
   untrimmed as the old site did, and `UserRepository::upgradePassword()` stores a modern hash on
   first login. Unverified users can still log in and see a banner. The dev login
   from fixtures is `sam@example.com` / `password`.
+- Legacy import: `task legacy:import -- dump.sql` (`app:legacy:import`, `--dry-run` rolls back)
+  reads the old site's MariaDB dump in PHP (`App\Legacy\MysqlDumpReader`, which also undoes the
+  old latin1 columns' double-encoded UTF-8) and `LegacyImporter` adds `member_list` accounts and
+  `launch_table` listings, all in one transaction. Rerunning skips accounts whose email is already
+  here (so their changes since are kept) and listings by `Listing::legacyId` (old `listing_id`).
+  Emails that differ only by case are one account, taking the password and details of the row
+  logged into most recently, and every old id's listings. Imported accounts are **unverified**,
+  because the old site never confirmed addresses, except those that finished an old password
+  reset (`hash_table.used`), which proves the inbox works. Old admins (`access = 1`) aren't made
+  admins; `access = 0` accounts get no password. Every listing is a textbook with `BookDetails`;
+  `quality` 5 ("looks like new") to 1 ("falling apart") maps to Like new, Good, Fair, Well used
+  (2 and 1); `for_sale = 'n'` (taken down by the seller) becomes Sold; others are published at
+  `date_refreshed` or `date_added` for the site's listing lifetime, so almost all are expired.
+  Paper codes are pulled out of the free text (`LegacyImporter::paperCodes()`), unknown ones as
+  unofficial papers. The book's year and `dept` aren't kept.
 - CSRF is stateless (`config/packages/csrf.yaml`): hand-written forms need a `_csrf_token`
   field with `data-controller="csrf-protection"`, and tests send `Sec-Fetch-Site: same-origin`.
   In the test env Messenger's `async` transport is `in-memory://` (assert with

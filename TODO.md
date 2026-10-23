@@ -29,8 +29,7 @@ fail.
 
 - [ ] `composer audit` reports an advisory in `symfony/expression-language` (fixed in 8.1.9):
       run `composer update symfony/expression-language`.
-- [ ] Import accounts from the live vanilla PHP site (`member_list` in the MariaDB dump). Their
-      hashes are unsalted SHA-1, which `LegacySha1PasswordHasher` already accepts and upgrades on
-      login, so copy `pass` into `password` as-is. 15 emails differ only by case: merge them.
-      Importing `launch_table` too gives title suggestions 15 years of history (`for_sale = 'n'`
-      means the seller removed it, the nearest thing to "sold").
+- [ ] Import accounts and listings from the live vanilla PHP site in production: copy the
+      latest MariaDB dump into the `web` container and run `app:legacy:import` there (try
+      `--dry-run` first). Locally it's `task legacy:import -- dump.sql`. The importer adds
+      ~480 unofficial papers from old free text; review them under Papers in `/admin`.

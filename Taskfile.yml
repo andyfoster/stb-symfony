@@ -245,6 +245,11 @@ tasks:
     cmds:
       - symfony console app:papers:import {{.CLI_ARGS}}
 
+  legacy:import:
+    desc: 'Import accounts and listings from the old site''s MariaDB dump, safe to rerun (task legacy:import -- dump.sql; --dry-run to try it)'
+    cmds:
+      - symfony console app:legacy:import {{.CLI_ARGS}}
+
   user:reset-password:
     desc: 'Reset an account''s password to Password1! (task user:reset-password -- sam@example.com; --password=... for another)'
     cmds:
