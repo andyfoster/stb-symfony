@@ -21,18 +21,25 @@ final class PhotoTest extends WebTestCase
     use DatabaseTestTrait;
 
     private string $uploadDir;
+    private ?string $previousUploadDir;
 
     protected function setUp(): void
     {
-        $this->uploadDir = sys_get_temp_dir().'/stb-test-uploads-'.bin2hex(random_bytes(4));
-        $_ENV['UPLOAD_DIR'] = $_SERVER['UPLOAD_DIR'] = $this->uploadDir;
+        $this->uploadDir         = sys_get_temp_dir().'/stb-test-uploads-'.bin2hex(random_bytes(4));
+        $this->previousUploadDir = $_ENV['UPLOAD_DIR'] ?? null;
+        $_ENV['UPLOAD_DIR']      = $_SERVER['UPLOAD_DIR'] = $this->uploadDir;
         $this->bootClient();
     }
 
     protected function tearDown(): void
     {
         (new Filesystem())->remove($this->uploadDir);
-        unset($_ENV['UPLOAD_DIR'], $_SERVER['UPLOAD_DIR']);
+        // Put back the .env value; later tests that render the listing form need it.
+        if ($this->previousUploadDir === null) {
+            unset($_ENV['UPLOAD_DIR'], $_SERVER['UPLOAD_DIR']);
+        } else {
+            $_ENV['UPLOAD_DIR'] = $_SERVER['UPLOAD_DIR'] = $this->previousUploadDir;
+        }
         parent::tearDown();
     }
 

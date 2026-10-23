@@ -2163,6 +2163,20 @@ turbo-frame[aria-busy=true] .listing-grid {
     background:var(--blue-tint)
 }
 
+/* Title suggestions on the listing form reuse the paper suggestion list. */
+.has-suggestions {
+    position:relative
+}
+
+.title-suggestions li strong {
+    flex-shrink:0;
+    max-width:70%;
+    overflow:hidden;
+    font-weight:500;
+    white-space:nowrap;
+    text-overflow:ellipsis
+}
+
 .paper-list {
     display:flex;
     flex-direction:column;

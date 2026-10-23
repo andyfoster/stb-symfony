@@ -4,6 +4,7 @@ namespace App\Controller;
 
 use App\Book\BookLookup;
 use App\Entity\User;
+use App\Repository\ListingRepository;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\DependencyInjection\Attribute\Target;
 use Symfony\Component\HttpFoundation\JsonResponse;
@@ -51,5 +52,16 @@ final class BookLookupController extends AbstractController
             'year'    => $book->publishedYear,
             'source'  => $book->source,
         ]);
+    }
+
+    /**
+     * Textbook titles listed before, for the title-suggest Stimulus controller
+     * on the listing form. Picking one fills in the author too.
+     */
+    #[Route('/sell/suggest-titles', name: 'app_listing_title_suggestions', methods: ['GET'])]
+    #[IsGranted('ROLE_USER')]
+    public function suggestTitles(ListingRepository $listings, #[MapQueryParameter] string $q = ''): JsonResponse
+    {
+        return $this->json($listings->suggestBookTitles($q))->setPrivate()->setMaxAge(300);
     }
 }

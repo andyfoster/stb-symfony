@@ -2,16 +2,18 @@
 {{ form_start(form, {attr: {
     class: 'listing-form',
     novalidate: 'novalidate',
-    'data-controller': 'listing-form',
+    'data-controller': 'listing-form title-suggest',
     'data-listing-form-textbooks-value': 'textbooks',
+    'data-title-suggest-textbooks-value': 'textbooks',
+    'data-title-suggest-url-value': path('app_listing_title_suggestions'),
 }}) }}
     <div class="listing-form-main form-panel">
         <div class="form-field type-choice">{{ form_row(form.type, {attr: {'data-action': 'change->listing-form#toggleCondition', 'data-listing-form-target': 'type'}}) }}</div>
 
-        <div class="form-field">{{ form_row(form.title, {attr: {'data-listing-form-target': 'title', 'data-action': 'listing-form#score'}}) }}</div>
+        <div class="form-field">{{ form_row(form.title, {attr: {'data-listing-form-target': 'title', 'data-title-suggest-target': 'input', 'data-action': 'listing-form#score'}}) }}</div>
 
         <div class="form-grid">
-            <div class="form-field">{{ form_row(form.category, {attr: {'data-listing-form-target': 'category', 'data-action': 'listing-form#toggleBook'}}) }}</div>
+            <div class="form-field">{{ form_row(form.category, {attr: {'data-listing-form-target': 'category', 'data-title-suggest-target': 'category', 'data-action': 'listing-form#toggleBook'}}) }}</div>
             <div class="form-field">
                 {{ form_label(form.priceCents) }}
                 <div class="input-prefix"><span aria-hidden="true">$</span>{{ form_widget(form.priceCents) }}</div>
@@ -32,7 +34,7 @@
                 {{ form_help(form.book.isbn) }}
                 {{ form_errors(form.book.isbn) }}
             </div>
-            <div class="form-field">{{ form_row(form.book.author, {attr: {'data-isbn-lookup-target': 'author'}}) }}</div>
+            <div class="form-field">{{ form_row(form.book.author, {attr: {'data-isbn-lookup-target': 'author', 'data-title-suggest-target': 'author'}}) }}</div>
             <div class="form-field field-narrow">{{ form_row(form.book.edition, {attr: {'data-isbn-lookup-target': 'edition'}}) }}</div>
             <div class="form-field" data-controller="paper-tags" data-paper-tags-url-value="{{ path('app_paper_search') }}">
                 {{ form_label(form.book.papers) }}

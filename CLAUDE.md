@@ -78,6 +78,10 @@ up to date when adding a workflow.
   admins can review under Papers in `/admin`. Search matches paper codes with or without spaces.
 - ISBN lookup: `BookLookup` asks Open Library, then Google Books (no keys), caching answers in
   `cache.app`; `/sell/lookup-isbn` serves the `isbn-lookup` Stimulus controller.
+- Title suggestions: as you type a listing title, the `title-suggest` controller asks
+  `/sell/suggest-titles` (`ListingRepository::suggestBookTitles()`) for textbook titles listed
+  before (published or sold, never drafts), one per title and author, most sold first. Picking
+  one sets the category to Textbooks and fills an empty author.
 - Photos (max 4, `ListingPhoto`) live under `UPLOAD_DIR` (default `var/uploads`), outside
   `public/`, one folder per photo. `PhotoStorage::add()` keeps an `original` (auto-rotated, at
   most 2400px, WebP, EXIF stripped); the sizes pages use (`PhotoStorage::SIZES`: `large`, `thumb`)
@@ -132,7 +136,10 @@ up to date when adding a workflow.
   POST-only `logout` with CSRF. Sign-up and email confirmation use
   `symfonycasts/verify-email-bundle` (`App\Security\EmailVerifier`; the link carries the user
   id so it works signed out), forgot-password uses `symfonycasts/reset-password-bundle`
-  (`ResetPasswordRequest`). Unverified users can still log in and see a banner. The dev login
+  (`ResetPasswordRequest`). Accounts from the old site keep their unsalted SHA-1 hex hash:
+  `LegacySha1PasswordHasher` (`migrate_from` in `security.yaml`) checks it, trimmed and
+  untrimmed as the old site did, and `UserRepository::upgradePassword()` stores a modern hash on
+  first login. Unverified users can still log in and see a banner. The dev login
   from fixtures is `sam@example.com` / `password`.
 - CSRF is stateless (`config/packages/csrf.yaml`): hand-written forms need a `_csrf_token`
   field with `data-controller="csrf-protection"`, and tests send `Sec-Fetch-Site: same-origin`.

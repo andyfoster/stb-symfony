@@ -29,6 +29,8 @@ fail.
 
 - [ ] `composer audit` reports an advisory in `symfony/expression-language` (fixed in 8.1.9):
       run `composer update symfony/expression-language`.
-- [ ] Import accounts from the live vanilla PHP site. Find out its password hash format first: the
-      `auto` hasher already accepts bcrypt/argon (`password_hash()`) and rehashes them on login.
-      Anything else (md5, sha1) needs a legacy hasher with `migrate_from` in `security.yaml`.
+- [ ] Import accounts from the live vanilla PHP site (`member_list` in the MariaDB dump). Their
+      hashes are unsalted SHA-1, which `LegacySha1PasswordHasher` already accepts and upgrades on
+      login, so copy `pass` into `password` as-is. 15 emails differ only by case: merge them.
+      Importing `launch_table` too gives title suggestions 15 years of history (`for_sale = 'n'`
+      means the seller removed it, the nearest thing to "sold").

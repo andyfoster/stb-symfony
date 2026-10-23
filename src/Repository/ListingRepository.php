@@ -68,6 +68,48 @@ class ListingRepository extends ServiceEntityRepository
             ->getQuery()->getResult();
     }
 
+    /**
+     * Textbook titles people have listed before that contain what's been typed,
+     * one per title and author, for the title suggestions on the listing form.
+     * Drafts are private, so only published (expired too) and sold listings count. Titles starting
+     * with the term come first, then the most sold.
+     *
+     * @return list<array{title: string, author: string, listings: int, sold: int}>
+     */
+    public function suggestBookTitles(string $term, int $limit = 8): array
+    {
+        $term = mb_strtolower(trim($term));
+        if (mb_strlen($term) < 2) {
+            return [];
+        }
+        $escaped = strtr($term, ['!' => '!!', '%' => '!%', '_' => '!_']);
+
+        $rows = $this->getEntityManager()->getConnection()->createQueryBuilder()
+            ->select('MAX(l.title) AS title', 'MAX(b.author) AS author', 'COUNT(*) AS listings')
+            ->addSelect("SUM(CASE WHEN l.status = :sold THEN 1 ELSE 0 END) AS sold")
+            ->addSelect("MIN(CASE WHEN LOWER(l.title) LIKE :prefix ESCAPE '!' THEN 0 ELSE 1 END) AS prefix_rank")
+            ->from('listing', 'l')
+            ->join('l', 'book_details', 'b', 'l.book_id = b.id')
+            ->andWhere('l.status IN (:statuses)')
+            ->andWhere("LOWER(l.title) LIKE :search ESCAPE '!'")
+            ->groupBy('LOWER(l.title)', 'LOWER(b.author)')
+            ->orderBy('prefix_rank', 'ASC')->addOrderBy('sold', 'DESC')->addOrderBy('listings', 'DESC')->addOrderBy('title', 'ASC')
+            ->setMaxResults($limit)
+            ->setParameter('sold', ListingStatus::Sold->value)
+            ->setParameter('statuses', [ListingStatus::Active->value, ListingStatus::Sold->value], ArrayParameterType::STRING)
+            ->setParameter('prefix', $escaped.'%')
+            ->setParameter('search', '%'.$escaped.'%')
+            ->executeQuery()
+            ->fetchAllAssociative();
+
+        return array_map(static fn (array $row): array => [
+            'title'    => (string) $row['title'],
+            'author'   => (string) $row['author'],
+            'listings' => (int) $row['listings'],
+            'sold'     => (int) $row['sold'],
+        ], $rows);
+    }
+
     private function matchingQuery(ListingFilter $filter): QueryBuilder
     {
         $query = $this->getEntityManager()->getConnection()->createQueryBuilder()
