@@ -59,6 +59,25 @@ final class ListingController extends AbstractController
         ]);
     }
 
+    #[Route('/listing-cards', name: 'app_listing_cards', methods: ['GET'])]
+    public function cards(Request $request, ListingRepository $listings): Response
+    {
+        $page = filter_var($request->query->get('page', '1'), FILTER_VALIDATE_INT);
+        if ($page === false || $page < 1) {
+            throw $this->createNotFoundException();
+        }
+        $filter = new ListingFilter();
+        $total = array_sum($listings->countMatching($filter));
+
+        return $this->json([
+            'html' => $this->renderView('listing/_cards.html.twig', [
+                'listings' => $listings->findPage($filter, $page, allTypes: true),
+            ]),
+            'next' => $page * ListingRepository::PAGE_SIZE < $total
+                ? $this->generateUrl('app_listing_cards', ['page' => $page + 1]) : null,
+        ]);
+    }
+
     #[Route('/listings/{id}', name: 'app_listing_show', requirements: ['id' => Requirement::DIGITS], methods: ['GET'])]
     #[IsGranted(ListingVoter::VIEW, 'listing', 'Listing not found.', 404)]
     public function show(Listing $listing, #[CurrentUser] ?User $user): Response

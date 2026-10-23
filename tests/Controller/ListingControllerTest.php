@@ -175,6 +175,42 @@ final class ListingControllerTest extends WebTestCase
         self::assertSelectorCount(2, '.course-code', 'Matching one paper must keep the book’s other papers.');
     }
 
+    public function testLazyBatchesIncludeBothTabsAndOnlyLiveListings(): void
+    {
+        $manager = static::getContainer()->get(EntityManagerInterface::class);
+        for ($i = 1; $i <= 25; ++$i) {
+            $manager->persist($this->listing(ListingType::Wanted, Category::StudyAndTech, sprintf('Monitor %02d', $i), null, '-1 day'));
+        }
+        $manager->persist($this->listing(ListingType::ForSale, Category::FlatAndHome, 'Expired', null, '-50 days'));
+        $manager->persist($this->listing(ListingType::ForSale, Category::FlatAndHome, 'Draft', null, '-1 day')->setStatus(\App\Enum\ListingStatus::Draft));
+        $manager->flush();
+        $manager->clear();
+
+        $this->client->request('GET', '/listing-cards', ['q' => 'ignored', 'type' => 'wanted']);
+        self::assertResponseIsSuccessful();
+        $batch = json_decode($this->client->getResponse()->getContent(), true, flags: JSON_THROW_ON_ERROR);
+        $crawler = new \Symfony\Component\DomCrawler\Crawler($batch['html']);
+        self::assertCount(24, $crawler->filter('.listing-card'));
+        self::assertGreaterThan(0, $crawler->filter('[data-type="for_sale"]')->count());
+        self::assertGreaterThan(0, $crawler->filter('[data-type="wanted"]')->count());
+        self::assertStringNotContainsString('Expired', $batch['html']);
+        self::assertStringNotContainsString('Draft', $batch['html']);
+        self::assertStringContainsString('chem191', $crawler->filter('[data-search*="chem191"]')->attr('data-search'));
+        $firstIds = $crawler->filter('[data-listing-id]')->each(static fn ($node) => $node->attr('data-listing-id'));
+
+        $this->client->request('GET', $batch['next']);
+        self::assertResponseIsSuccessful();
+        $last = json_decode($this->client->getResponse()->getContent(), true, flags: JSON_THROW_ON_ERROR);
+        self::assertNull($last['next']);
+        $crawler = new \Symfony\Component\DomCrawler\Crawler($last['html']);
+        self::assertCount(6, $crawler->filter('.listing-card'));
+        $lastIds = $crawler->filter('[data-listing-id]')->each(static fn ($node) => $node->attr('data-listing-id'));
+        self::assertSame([], array_values(array_intersect($firstIds, $lastIds)));
+
+        $this->client->request('GET', '/listing-cards', ['page' => '-1']);
+        self::assertResponseStatusCodeSame(404);
+    }
+
     private function listing(ListingType $type, Category $category, string $title, ?int $priceCents, string $created, ?BookDetails $book = null): Listing
     {
         return (new Listing())

@@ -3,7 +3,7 @@
 {% block title %}ScarfieTextbooks · Buy and sell textbooks with other students{% endblock %}
 
 {% block body %}
-    <div class="browse" data-controller="listing-filter view-toggle">
+    <div class="browse" data-controller="listing-filter view-toggle" data-listing-filter-url-value="{{ path('app_listing_cards') }}">
         <section class="hero" aria-labelledby="hero-title">
             <h1 id="hero-title" class="wordmark"><span class="wm-blue">scarfie</span><span class="wm-gold">textbooks</span><span class="wm-blue">.com</span></h1>
 
@@ -13,7 +13,7 @@
                 class: 'filter-bar',
                 role: 'search',
                 'aria-label': 'Search listings',
-                'data-action': 'submit->listing-filter#apply',
+                'data-action': 'submit->listing-filter#apply:prevent',
             }}) }}
                 <div class="filter-search">
                     {{ form_label(form.q, null, {label_attr: {class: 'visually-hidden'}}) }}
@@ -25,7 +25,7 @@
                 <fieldset class="category-pills">
                     <legend class="visually-hidden">Categories</legend>
                     {% for choice in form.categories %}
-                        {{ form_widget(choice, {attr: {class: 'pill-input', 'data-listing-filter-target': 'category', 'data-action': 'change->listing-filter#change'}}) }}
+                        {{ form_widget(choice, {attr: {class: 'pill-input', 'data-listing-filter-target': 'category', 'data-action': 'change->listing-filter#apply'}}) }}
                         {{ form_label(choice, null, {label_attr: {class: 'pill'}}) }}
                     {% endfor %}
                 </fieldset>
@@ -39,7 +39,7 @@
                 <div class="tabs" role="radiogroup" aria-label="Show">
                     {% for type in enum_cases('App\\Enum\\ListingType') %}
                         <label class="tab">
-                            <input type="radio" name="type" value="{{ type.value }}" form="listing-filters" data-listing-filter-target="type" data-action="change->listing-filter#change" {{ filter.type == type ? 'checked' }}>
+                            <input type="radio" name="type" value="{{ type.value }}" form="listing-filters" data-listing-filter-target="type" data-action="change->listing-filter#apply" {{ filter.type == type ? 'checked' }}>
                             {{ type.label }} <span class="count" data-listing-filter-target="count" data-type="{{ type.value }}">{{ counts[type.value] }}</span>
                         </label>
                     {% endfor %}
@@ -57,10 +57,10 @@
             {% set shown = total %}
             <p class="results-note" data-listing-filter-target="note" role="status" {{ filter.narrowed ? '' : 'hidden' }}>
                 <span data-listing-filter-target="summary">{{ shown }} {{ shown == 1 ? 'match' : 'matches' }}{% if filter.q %} for “{{ filter.q }}”{% endif %}</span>
-                <a class="clear-link" href="{{ path('app_listings', {type: filter.type.value}) }}" >Clear</a>
+                <a data-action="listing-filter#clear:prevent" class="clear-link" href="{{ path('app_listings', {type: filter.type.value}) }}" >Clear</a>
             </p>
 
-            <div class="listing-grid">
+            <div class="listing-grid" data-listing-filter-target="grid">
                 {% for listing in listings %}
                     {{ include('listing/_card.html.twig') }}
                 {% endfor %}
@@ -69,7 +69,7 @@
                     <div data-empty="narrowed" {{ filter.narrowed ? '' : 'hidden' }}>
                         <h3>Nothing matches that.</h3>
                         <p>Try a different search, pick other categories, or look at the other tab.</p>
-                        <a class="button" href="{{ path('app_listings', {type: filter.type.value}) }}" >Clear search</a>
+                        <a class="button" href="{{ path('app_listings', {type: filter.type.value}) }}" data-action="listing-filter#clear:prevent">Clear search</a>
                     </div>
                     <div data-empty="wanted" {{ not filter.narrowed and filter.type.value == 'wanted' ? '' : 'hidden' }}>
                         <h3>Nobody’s asking for anything right now.</h3>
@@ -83,8 +83,10 @@
                     </div>
                 </div>
             </div>
+            <p data-listing-filter-target="loading" role="status" hidden>Loading remaining listings…</p>
+            <button type="button" class="button button-small" data-listing-filter-target="retry" data-action="listing-filter#load" hidden>Retry loading listings</button>
             {% if pages > 1 %}
-                <nav class="pagination" aria-label="Listing pages">
+                <nav data-listing-filter-target="pagination" class="pagination" aria-label="Listing pages">
                     {% if page > 1 %}<a class="button button-small" rel="prev" href="{{ path('app_listings', pagination_query|merge({page: page - 1})) }}">Previous</a>{% endif %}
                     <span aria-current="page">Page {{ page }} of {{ pages }}</span>
                     {% if page < pages %}<a class="button button-small" rel="next" href="{{ path('app_listings', pagination_query|merge({page: page + 1})) }}">Next</a>{% endif %}

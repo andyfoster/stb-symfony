@@ -41,12 +41,15 @@ class ListingRepository extends ServiceEntityRepository
     }
 
     /** @return Listing[] One page, with complete collections even when a paper matched the search. */
-    public function findPage(ListingFilter $filter, int $page): array
+    public function findPage(ListingFilter $filter, int $page, bool $allTypes = false): array
     {
         // Limit IDs first: applying a SQL limit to collection fetch joins truncates listings.
-        $rows = $this->matchingQuery($filter)
+        $query = $this->matchingQuery($filter);
+        if (!$allTypes) {
+            $query->andWhere('l.type = :type')->setParameter('type', $filter->type->value);
+        }
+        $rows = $query
             ->select('l.id AS id', 'l.title AS title')->distinct()
-            ->andWhere('l.type = :type')->setParameter('type', $filter->type->value)
             ->orderBy('l.title', 'ASC')->addOrderBy('l.id', 'ASC')
             ->setFirstResult((max(1, $page) - 1) * self::PAGE_SIZE)
             ->setMaxResults(self::PAGE_SIZE)->executeQuery()->fetchAllAssociative();

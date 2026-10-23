@@ -1,7 +1,9 @@
 {% import 'listing/_macros.html.twig' as m %}
 {% set wanted = listing.type.value == 'wanted' %}
 {% set photo = listing.arePhotosPublic ? listing.photos|first : null %}
-<article class="listing-card {{ wanted ? 'listing-wanted' : '' }}">
+{% set search = [listing.title, listing.description, listing.book ? listing.book.author : '', listing.book ? listing.book.isbn|replace({'-': '', ' ': ''}) : ''] %}
+{% for paper in listing.book ? listing.book.papers : [] %}{% set search = search|merge([paper.code]) %}{% endfor %}
+<article data-listing-id="{{ listing.id }}" data-listing-filter-target="item" data-type="{{ listing.type.value }}" data-category="{{ listing.category.value }}" data-search="{{ search|join(' ')|lower }}" class="listing-card {{ wanted ? 'listing-wanted' : '' }}">
     {% if photo %}
         <img class="card-photo" src="{{ path('app_photo', {id: photo.id, size: 'thumb'}) }}" alt="" loading="lazy" width="80" height="80">
     {% else %}
