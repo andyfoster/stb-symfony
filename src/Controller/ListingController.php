@@ -37,19 +37,25 @@ final class ListingController extends AbstractController
         // Invalid filters (e.g. an unknown category) show their errors and fall back to everything.
         $applied = $form->isSubmitted() && !$form->isValid() ? new ListingFilter() : $filter;
 
-        $live   = $listings->findLive();
-        $counts = [];
-        foreach (ListingType::cases() as $type) {
-            $counts[$type->value] = \count(array_filter($live, static fn(Listing $listing): bool => $listing->getType() === $type && $applied->matchesSearchAndCategories($listing)));
-        }
+        $counts = $listings->countMatching($applied);
+        $total = $counts[$applied->type->value];
+        $pages = max(1, (int) ceil($total / ListingRepository::PAGE_SIZE));
+        $requestedPage = filter_var($request->query->get('page', '1'), FILTER_VALIDATE_INT);
+        $page = min($pages, max(1, $requestedPage === false ? 1 : $requestedPage));
 
         return $this->render('listing/index.html.twig', [
-            // A view, not the form, so a bad filter doesn't turn the page into a 422.
-            'form'   => $form->createView(),
+            'form' => $form->createView(),
             'filter' => $applied,
-            // All of them: the browser filters without reloading. Ones the filter hides start hidden.
-            'listings' => $live,
-            'counts'   => $counts,
+            'listings' => $listings->findPage($applied, $page),
+            'counts' => $counts,
+            'total' => $total,
+            'page' => $page,
+            'pages' => $pages,
+            'pagination_query' => [
+                'q' => $applied->q,
+                'type' => $applied->type->value,
+                'categories' => array_map(static fn (Category $category) => $category->value, $applied->categories),
+            ],
         ]);
     }
 

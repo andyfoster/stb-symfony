@@ -9,7 +9,7 @@ servers:
   web:
     hosts:
       - 89.167.96.7
-    # Listing photos (PhotoStorage, UPLOAD_DIR). Only the web role reads or writes them.
+    # Listing photos (PhotoStorage, UPLOAD_DIR). Shared by the web and photo worker roles.
     # Lives in /var/lib/docker/volumes/stb_uploads on the server: include it in backups.
     options:
       volume: "stb_uploads:/app/var/uploads"
@@ -21,6 +21,7 @@ servers:
       - 89.167.96.7
     cmd: php bin/console messenger:consume async scheduler_default --time-limit=3600 --memory-limit=128M
     options:
+      volume: "stb_uploads:/app/var/uploads"
       # The FrankenPHP base image's HEALTHCHECK curls Caddy, which the worker doesn't run.
       no-healthcheck: true
 
@@ -61,6 +62,8 @@ builder:
 env:
   clear:
     APP_ENV: prod
+    # File locks must live on the same volume in web and worker containers.
+    LOCK_DSN: flock:///app/var/uploads/.locks
 #     DB_HOST: 192.168.0.2
   secret:
     - APP_SECRET

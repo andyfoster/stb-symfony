@@ -10,6 +10,7 @@ use Intervention\Image\ImageManager;
 use Symfony\Component\DependencyInjection\Attribute\Autowire;
 use Symfony\Component\Filesystem\Filesystem;
 use Symfony\Component\HttpFoundation\File\File;
+use Symfony\Component\Lock\LockFactory;
 
 /**
  * Saves listing photos to disk (a Kamal volume in production).
@@ -34,6 +35,7 @@ class PhotoStorage
     public function __construct(
         #[Autowire('%env(resolve:UPLOAD_DIR)%')]
         private readonly string $directory,
+        private readonly LockFactory $lockFactory,
     ) {
         $this->filesystem = new Filesystem();
     }
@@ -71,18 +73,28 @@ class PhotoStorage
     public function generate(ListingPhoto $photo, ?array $sizes = null): void
     {
         $name = (string) $photo->getFilename();
-        $source = $this->sourcePath($photo) ?? throw new \RuntimeException(\sprintf('%s has no image file to make sizes from.', $photo));
-        $wanted = array_intersect_key(self::SIZES, array_flip($sizes ?? array_keys(self::SIZES)));
-        arsort($wanted); // Largest first: each size scales down the one before.
+        $lock = $this->lockFactory->createLock('photo-'.$name);
+        $lock->acquire(true);
+        try {
+            $source = $this->sourcePath($photo) ?? throw new \RuntimeException(\sprintf('%s has no image file to make sizes from.', $photo));
+            $wanted = array_intersect_key(self::SIZES, array_flip($sizes ?? array_keys(self::SIZES)));
+            arsort($wanted);
 
-        $image = $this->manager()->decodePath($source);
-        foreach ($wanted as $size => $edge) {
-            $path = $this->path($name, $size);
-            // Write next to it, then swap in, so nobody is served half a file.
-            $image->scaleDown($edge, $edge)
-                ->encode(new WebpEncoder(quality: 82, strip: true))
-                ->save($path.'.tmp');
-            $this->filesystem->rename($path.'.tmp', $path, true);
+            $image = $this->manager()->decodePath($source);
+            foreach ($wanted as $size => $edge) {
+                $path = $this->path($name, $size);
+                $temporary = $path.'.'.bin2hex(random_bytes(8)).'.tmp';
+                try {
+                    $image->scaleDown($edge, $edge)
+                        ->encode(new WebpEncoder(quality: 82, strip: true))
+                        ->save($temporary);
+                    $this->filesystem->rename($temporary, $path, true);
+                } finally {
+                    $this->filesystem->remove($temporary);
+                }
+            }
+        } finally {
+            $lock->release();
         }
     }
 

@@ -2325,3 +2325,5 @@ turbo-frame[aria-busy=true] .listing-grid {
         grid-template-areas:"from time" "about about" "snippet snippet"
     }
 }
+
+.pagination { display: flex; justify-content: center; align-items: center; gap: 1rem; margin: 2rem 0; }

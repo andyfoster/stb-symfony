@@ -25,6 +25,7 @@
         "symfony/framework-bundle": "8.1.*",
         "symfony/http-client": "8.1.*",
         "symfony/intl": "8.1.*",
+        "symfony/lock": "8.1.*",
         "symfony/mailer": "8.1.*",
         "symfony/mailgun-mailer": "8.1.*",
         "symfony/mime": "8.1.*",

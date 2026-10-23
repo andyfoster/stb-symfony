@@ -5,6 +5,12 @@ namespace App\Repository;
 use App\Entity\Listing;
 use App\Entity\User;
 use App\Enum\ListingStatus;
+use App\Enum\ListingType;
+use App\Search\ListingFilter;
+use App\Enum\Category;
+use Doctrine\DBAL\Query\QueryBuilder;
+use Doctrine\DBAL\ArrayParameterType;
+use Doctrine\DBAL\Types\Types;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\Persistence\ManagerRegistry;
 
@@ -13,38 +19,79 @@ use Doctrine\Persistence\ManagerRegistry;
  */
 class ListingRepository extends ServiceEntityRepository
 {
+    public const int PAGE_SIZE = 24;
+
     public function __construct(ManagerRegistry $registry)
     {
         parent::__construct($registry, Listing::class);
     }
 
-    /**
-     * Every live listing (active, not expired), both for sale and wanted. The
-     * home page filters them in the browser; see ListingFilter::matches().
-     *
-     * @return Listing[] by title, A–Z
-     */
-    public function findLive(?\DateTimeImmutable $now = null): array
+    /** @return array<string, int> Counts for both tabs, with search and categories applied. */
+    public function countMatching(ListingFilter $filter): array
     {
+        $rows = $this->matchingQuery($filter)
+            ->select('l.type AS type, COUNT(DISTINCT l.id) AS total')
+            ->groupBy('l.type')->executeQuery()->fetchAllAssociative();
+        $counts = array_fill_keys(array_column(ListingType::cases(), 'value'), 0);
+        foreach ($rows as $row) {
+            $counts[$row['type']] = (int) $row['total'];
+        }
+
+        return $counts;
+    }
+
+    /** @return Listing[] One page, with complete collections even when a paper matched the search. */
+    public function findPage(ListingFilter $filter, int $page): array
+    {
+        // Limit IDs first: applying a SQL limit to collection fetch joins truncates listings.
+        $rows = $this->matchingQuery($filter)
+            ->select('l.id AS id', 'l.title AS title')->distinct()
+            ->andWhere('l.type = :type')->setParameter('type', $filter->type->value)
+            ->orderBy('l.title', 'ASC')->addOrderBy('l.id', 'ASC')
+            ->setFirstResult((max(1, $page) - 1) * self::PAGE_SIZE)
+            ->setMaxResults(self::PAGE_SIZE)->executeQuery()->fetchAllAssociative();
+        if ($rows === []) {
+            return [];
+        }
+
         return $this->createQueryBuilder('l')
-            ->leftJoin('l.book', 'b')
-            ->addSelect('b')
-            ->leftJoin('b.papers', 'bp')
-            ->addSelect('bp')
-            ->leftJoin('l.seller', 's')
-            ->addSelect('s')
-            ->leftJoin('l.photos', 'p')
-            ->addSelect('p')
-            ->andWhere('l.status = :active')
-            ->andWhere('l.expiresAt > :now')
-            ->setParameter('active', ListingStatus::Active)
-            ->setParameter('now', $now ?? new \DateTimeImmutable())
-            ->orderBy('l.title', 'ASC')
-            // Ties in a stable order, and each book's papers in code order.
-            ->addOrderBy('l.id', 'ASC')
-            ->addOrderBy('bp.code', 'ASC')
-            ->getQuery()
-            ->getResult();
+            ->leftJoin('l.book', 'b')->addSelect('b')
+            ->leftJoin('b.papers', 'bp')->addSelect('bp')
+            ->leftJoin('l.seller', 's')->addSelect('s')
+            ->leftJoin('l.photos', 'p')->addSelect('p')
+            ->andWhere('l.id IN (:ids)')->setParameter('ids', array_column($rows, 'id'))
+            ->orderBy('l.title', 'ASC')->addOrderBy('l.id', 'ASC')
+            ->addOrderBy('bp.code', 'ASC')->addOrderBy('p.position', 'ASC')->addOrderBy('p.id', 'ASC')
+            ->getQuery()->getResult();
+    }
+
+    private function matchingQuery(ListingFilter $filter): QueryBuilder
+    {
+        $query = $this->getEntityManager()->getConnection()->createQueryBuilder()
+            ->from('listing', 'l')
+            ->leftJoin('l', 'book_details', 'b', 'l.book_id = b.id')
+            ->leftJoin('b', 'book_details_paper', 'link', 'link.book_details_id = b.id')
+            ->leftJoin('link', 'paper', 'bp', 'bp.id = link.paper_id')
+            ->andWhere('l.status = :active')->andWhere('l.expires_at > :now')
+            ->setParameter('active', ListingStatus::Active->value)
+            ->setParameter('now', new \DateTimeImmutable(), Types::DATETIME_IMMUTABLE);
+        if ($filter->categories !== []) {
+            $query->andWhere('l.category IN (:categories)')
+                ->setParameter('categories', array_map(static fn (Category $category) => $category->value, $filter->categories), ArrayParameterType::STRING);
+        }
+        $search = mb_strtolower(trim((string) $filter->q));
+        if ($search !== '') {
+            $escaped = static fn (string $value): string => '%'.strtr($value, ['!' => '!!', '%' => '!%', '_' => '!_']).'%';
+            $squashed = (string) preg_replace('/[\s\-]+/', '', $search);
+            $parts = [];
+            foreach (['l.title', 'l.description', 'b.author', 'bp.code', "REPLACE(REPLACE(b.isbn, '-', ''), ' ', '')"] as $field) {
+                $parts[] = "(LOWER($field) LIKE :search ESCAPE '!' OR LOWER($field) LIKE :squashed ESCAPE '!')";
+            }
+            $query->andWhere(implode(' OR ', $parts))
+                ->setParameter('search', $escaped($search))->setParameter('squashed', $escaped($squashed));
+        }
+
+        return $query;
     }
 
     /**

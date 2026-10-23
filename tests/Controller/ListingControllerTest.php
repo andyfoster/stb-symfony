@@ -125,6 +125,56 @@ final class ListingControllerTest extends WebTestCase
         self::assertSelectorExists('.filter-bar ul li');
     }
 
+    public function testPaginationKeepsFiltersAndDoesNotRenderOtherPages(): void
+    {
+        $manager = static::getContainer()->get(EntityManagerInterface::class);
+        for ($i = 1; $i <= 30; ++$i) {
+            $manager->persist($this->listing(ListingType::Wanted, Category::StudyAndTech, sprintf('Monitor %02d', $i), null, '-1 day'));
+        }
+        // Neither drafts nor expired listings should affect the count or page contents.
+        $manager->persist($this->listing(ListingType::Wanted, Category::StudyAndTech, 'Monitor expired', null, '-50 days'));
+        $manager->persist($this->listing(ListingType::Wanted, Category::StudyAndTech, 'Monitor draft', null, '-1 day')->setStatus(\App\Enum\ListingStatus::Draft));
+        $manager->flush();
+        $manager->clear();
+
+        $crawler = $this->client->request('GET', '/', ['q' => 'monitor', 'type' => 'wanted', 'categories' => ['study_and_tech']]);
+        self::assertResponseIsSuccessful();
+        self::assertSelectorCount(24, '.listing-card');
+        self::assertSame('Monitor 01', $this->titles()[0]);
+        self::assertSame(['For sale 0', 'Wanted 31'], $this->tabs());
+        self::assertSelectorTextContains('.results-note', '31 matches');
+        $this->client->click($crawler->selectLink('Next')->link());
+        self::assertResponseIsSuccessful();
+        self::assertSame(['Monitor 25', 'Monitor 26', 'Monitor 27', 'Monitor 28', 'Monitor 29', 'Monitor 30', 'Second monitor'], $this->titles());
+        self::assertSelectorCount(7, '.listing-card');
+        self::assertSelectorTextContains('.pagination', 'Page 2 of 2');
+        self::assertSelectorNotExists('a[rel="next"]');
+        self::assertSelectorExists('input[name="categories[]"][value="study_and_tech"][checked]');
+        $this->client->clickLink('Previous');
+        self::assertSelectorCount(24, '.listing-card');
+
+        $this->client->request('GET', '/', ['q' => 'monitor', 'type' => 'wanted', 'page' => '999']);
+        self::assertResponseIsSuccessful();
+        self::assertSelectorTextContains('.pagination', 'Page 2 of 2');
+
+        foreach (['0', '-3', 'nonsense', '999999999999999999999999999999'] as $page) {
+            $this->client->request('GET', '/', ['page' => $page]);
+            self::assertResponseIsSuccessful();
+            self::assertSame('Bookshelf', $this->titles()[0]);
+        }
+    }
+
+    public function testSearchTreatsSqlWildcardsAsLiteralText(): void
+    {
+        foreach (['%', '_', '!'] as $search) {
+            $this->client->request('GET', '/', ['q' => $search]);
+            self::assertResponseIsSuccessful();
+            self::assertSelectorCount(0, '.listing-card');
+        }
+        $this->client->request('GET', '/', ['q' => 'chem111']);
+        self::assertSelectorCount(2, '.course-code', 'Matching one paper must keep the book’s other papers.');
+    }
+
     private function listing(ListingType $type, Category $category, string $title, ?int $priceCents, string $created, ?BookDetails $book = null): Listing
     {
         return (new Listing())
