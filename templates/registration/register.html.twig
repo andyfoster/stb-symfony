@@ -3,18 +3,18 @@
 {% block title %}Sign up · ScarfieTextbooks{% endblock %}
 
 {% block body %}
-    <div class="form-page">
-        <div class="form-heading">
+    <div class="form-page col-12 col-md-8 col-lg-5 mx-auto py-4">
+        <div class="form-heading mb-4">
             <h1>Create an account</h1>
         </div>
 
-        {{ form_start(form, {attr: {class: 'form-panel', novalidate: 'novalidate'}}) }}
-            <div class="form-field">{{ form_row(form.displayName) }}</div>
-            <div class="form-field">{{ form_row(form.email) }}</div>
-            <div class="form-field">{{ form_row(form.plainPassword) }}</div>
-            <div class="form-actions">
-                <a class="cancel-link" href="{{ path('app_login') }}">Already have an account? Log in</a>
-                <button class="button" type="submit">Sign up</button>
+        {{ form_start(form, {attr: {class: 'form-panel card card-body p-4', novalidate: 'novalidate'}}) }}
+            <div class="form-field mb-3">{{ form_row(form.displayName) }}</div>
+            <div class="form-field mb-3">{{ form_row(form.email) }}</div>
+            <div class="form-field mb-3">{{ form_row(form.plainPassword) }}</div>
+            <div class="form-actions d-flex flex-wrap justify-content-between align-items-center gap-3 mt-3">
+                <a class="link-secondary" href="{{ path('app_login') }}">Already have an account? Log in</a>
+                <button class="button btn btn-primary" type="submit">Sign up</button>
             </div>
         {{ form_end(form) }}
     </div>

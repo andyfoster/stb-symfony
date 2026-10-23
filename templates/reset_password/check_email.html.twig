@@ -3,11 +3,11 @@
 {% block title %}Check your email · ScarfieTextbooks{% endblock %}
 
 {% block body %}
-    <div class="form-page">
-        <div class="form-heading">
+    <div class="form-page col-12 col-md-8 col-lg-5 mx-auto py-4">
+        <div class="form-heading mb-4">
             <h1>Check your email</h1>
         </div>
-        <div class="form-panel">
+        <div class="form-panel card card-body p-4">
             <p>If there’s an account for that email, we’ve sent it a link to reset your password. The link expires in {{ resetToken.expirationMessageKey|trans(resetToken.expirationMessageData, 'ResetPasswordBundle') }}.</p>
             <p>Nothing arrived? Check your spam folder, or <a href="{{ path('app_forgot_password') }}">try again</a>.</p>
         </div>

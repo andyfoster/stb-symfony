@@ -21,6 +21,25 @@ final class ListingCreateTest extends WebTestCase
         $this->bootClient();
     }
 
+    public function testListingFormUsesBootstrapControlsAndSingleChoiceLabels(): void
+    {
+        $this->client->loginUser($this->createUser('sam@example.com'));
+        $this->client->request('GET', '/sell');
+
+        self::assertResponseIsSuccessful();
+        self::assertSelectorExists('link[rel="stylesheet"][href*="bootstrap.min-"]');
+        self::assertSelectorExists('#listing_form_title.form-control');
+        self::assertSelectorExists('#listing_form_category.form-select');
+        self::assertSelectorExists('.condition-input.btn-check + label.btn');
+        self::assertSelectorCount(1, 'label[for="listing_form_condition_0"]');
+        self::assertSelectorExists('.listing-form.row .listing-form-main.col-lg-8');
+
+        $this->client->request('GET', '/');
+        self::assertSelectorExists('#categories_0.btn-check + label.btn');
+        self::assertSelectorCount(1, 'label[for="categories_0"]');
+        self::assertSelectorExists('.nav-user[data-bs-toggle="dropdown"]');
+    }
+
     public function testGuestsAreSentToLogIn(): void
     {
         $this->client->request('GET', '/sell');

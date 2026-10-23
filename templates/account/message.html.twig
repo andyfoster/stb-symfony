@@ -3,15 +3,15 @@
 {% block title %}Message from {{ message.senderName }} · ScarfieTextbooks{% endblock %}
 
 {% block account %}
-    <h1 class="dashboard-title">{{ message.senderName }}</h1>
-    <p class="muted">
-        About {% if message.listing %}<a class="inline-link" href="{{ path('app_listing_show', {id: message.listing.id}) }}">{{ message.listing.title }}</a>{% else %}a listing you’ve deleted{% endif %},
+    <h1 class="dashboard-title h3 mb-3">{{ message.senderName }}</h1>
+    <p class="text-body-secondary">
+        About {% if message.listing %}<a class="link-primary" href="{{ path('app_listing_show', {id: message.listing.id}) }}">{{ message.listing.title }}</a>{% else %}a listing you’ve deleted{% endif %},
         <time datetime="{{ message.createdAt|date('c') }}">{{ message.createdAt|date('j M Y, g:i a') }}</time>
     </p>
 
-    <div class="message-body">{{ message.body|nl2br }}</div>
-    <div class="message-reply">
-        <a class="button" href="mailto:{{ message.senderEmail }}?subject={{ ('Re: ' ~ (message.listing ? message.listing.title : 'your message'))|url_encode }}">Reply by email</a>
-        <span class="muted">{{ message.senderEmail }}</span>
+    <div class="message-body my-4 py-3 border-top border-bottom">{{ message.body|nl2br }}</div>
+    <div class="message-reply d-flex flex-wrap align-items-center gap-3">
+        <a class="button btn btn-primary" href="mailto:{{ message.senderEmail }}?subject={{ ('Re: ' ~ (message.listing ? message.listing.title : 'your message'))|url_encode }}">Reply by email</a>
+        <span class="text-body-secondary">{{ message.senderEmail }}</span>
     </div>
 {% endblock %}

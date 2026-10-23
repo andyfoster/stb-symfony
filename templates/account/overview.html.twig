@@ -3,35 +3,35 @@
 {% block title %}Your dashboard · ScarfieTextbooks{% endblock %}
 
 {% block account %}
-    <h1 class="dashboard-title">Kia ora, {{ app.user.displayName }}</h1>
+    <h1 class="dashboard-title h3 mb-3">Kia ora, {{ app.user.displayName }}</h1>
 
-    <dl class="dashboard-stats">
-        <div>
-            <dt>Live listings</dt>
-            <dd><a href="{{ path('app_account_listings') }}">{{ live|length }}</a></dd>
-        </div>
-        <div>
-            <dt>Unread messages</dt>
-            <dd><a href="{{ path('app_account_messages') }}">{{ unread }}</a></dd>
-        </div>
-        <div>
-            <dt>Drafts</dt>
-            <dd><a href="{{ path('app_account_listings') }}">{{ drafts|length }}</a></dd>
-        </div>
+    <dl class="dashboard-stats row row-cols-3 g-3 my-3">
+        <div class="col"><div class="card card-body h-100">
+            <dt class="small text-body-secondary">Live listings</dt>
+            <dd class="fs-3 fw-bold mb-0"><a href="{{ path('app_account_listings') }}">{{ live|length }}</a></dd>
+        </div></div>
+        <div class="col"><div class="card card-body h-100">
+            <dt class="small text-body-secondary">Unread messages</dt>
+            <dd class="fs-3 fw-bold mb-0"><a href="{{ path('app_account_messages') }}">{{ unread }}</a></dd>
+        </div></div>
+        <div class="col"><div class="card card-body h-100">
+            <dt class="small text-body-secondary">Drafts</dt>
+            <dd class="fs-3 fw-bold mb-0"><a href="{{ path('app_account_listings') }}">{{ drafts|length }}</a></dd>
+        </div></div>
     </dl>
 
     {% if refreshable|length %}
-        <section class="dashboard-section">
-            <h2>Expiring soon</h2>
-            <p class="muted">Still selling? Refresh {{ refreshable|length == 1 ? 'it' : 'them' }} to keep {{ refreshable|length == 1 ? 'it' : 'them' }} up for longer.</p>
-            <ul class="dashboard-list">
+        <section class="dashboard-section mt-4">
+            <h2 class="h5">Expiring soon</h2>
+            <p class="text-body-secondary">Still selling? Refresh {{ refreshable|length == 1 ? 'it' : 'them' }} to keep {{ refreshable|length == 1 ? 'it' : 'them' }} up for longer.</p>
+            <ul class="dashboard-list list-group list-group-flush mt-3">
                 {% for listing in refreshable %}
-                    <li>
+                    <li class="list-group-item d-flex flex-wrap align-items-center gap-3 px-0">
                         <a href="{{ path('app_listing_show', {id: listing.id}) }}">{{ listing.title }}</a>
-                        <span class="muted">{{ listing.expired ? 'Expired' : 'Expires' }} {{ listing.expiresAt|date('j M') }}</span>
+                        <span class="text-body-secondary">{{ listing.expired ? 'Expired' : 'Expires' }} {{ listing.expiresAt|date('j M') }}</span>
                         <form method="post" action="{{ path('app_listing_refresh', {id: listing.id}) }}">
                             <input type="hidden" name="_csrf_token" data-controller="csrf-protection" value="{{ csrf_token('submit') }}">
-                            <button class="button button-small" type="submit">Refresh</button>
+                            <button class="button btn btn-primary btn-sm" type="submit">Refresh</button>
                         </form>
                     </li>
                 {% endfor %}
@@ -39,13 +39,13 @@
         </section>
     {% endif %}
 
-    <section class="dashboard-section">
-        <h2>Latest messages</h2>
+    <section class="dashboard-section mt-4">
+        <h2 class="h5">Latest messages</h2>
         {% if messages|length %}
             {{ include('account/_message_list.html.twig') }}
-            <p class="dashboard-more"><a href="{{ path('app_account_messages') }}">All messages</a></p>
+            <p class="dashboard-more mt-3 small"><a href="{{ path('app_account_messages') }}">All messages</a></p>
         {% else %}
-            <p class="muted">No messages yet. When someone asks about one of your listings, it shows up here and in your email.</p>
+            <p class="text-body-secondary">No messages yet. When someone asks about one of your listings, it shows up here and in your email.</p>
         {% endif %}
     </section>
 {% endblock %}

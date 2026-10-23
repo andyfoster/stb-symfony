@@ -3,17 +3,17 @@
 {% block title %}Your details · ScarfieTextbooks{% endblock %}
 
 {% block account %}
-    <h1 class="dashboard-title">Your details</h1>
-    <p class="muted">Signed in as {{ app.user.email }}{% if not app.user.verified %}, which isn’t confirmed yet{% endif %}.</p>
+    <h1 class="dashboard-title h3 mb-3">Your details</h1>
+    <p class="text-body-secondary">Signed in as {{ app.user.email }}{% if not app.user.verified %}, which isn’t confirmed yet{% endif %}.</p>
 
-    {{ form_start(form, {attr: {class: 'dashboard-form', novalidate: 'novalidate'}}) }}
-        <div class="form-field">{{ form_row(form.displayName) }}</div>
-        <div class="form-field">{{ form_row(form.phone) }}</div>
-        <div class="checkbox-field">{{ form_widget(form.showPhone) }} {{ form_label(form.showPhone) }}</div>
+    {{ form_start(form, {attr: {class: 'dashboard-form mt-4', novalidate: 'novalidate'}}) }}
+        <div class="form-field mb-3">{{ form_row(form.displayName) }}</div>
+        <div class="form-field mb-3">{{ form_row(form.phone) }}</div>
+        <div class="checkbox-field mb-2">{{ form_widget(form.showPhone) }} {{ form_label(form.showPhone) }}</div>
         {{ form_help(form.showPhone) }}
-        <div class="form-actions">
-            <button class="button" type="submit">Save</button>
-            <a class="cancel-link" href="{{ path('app_forgot_password') }}">Change your password</a>
+        <div class="form-actions d-flex flex-wrap justify-content-between align-items-center gap-3 mt-3">
+            <button class="button btn btn-primary" type="submit">Save</button>
+            <a class="link-secondary" href="{{ path('app_forgot_password') }}">Change your password</a>
         </div>
     {{ form_end(form) }}
 {% endblock %}

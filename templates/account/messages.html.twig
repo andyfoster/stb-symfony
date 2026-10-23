@@ -3,12 +3,12 @@
 {% block title %}Messages · ScarfieTextbooks{% endblock %}
 
 {% block account %}
-    <h1 class="dashboard-title">Messages <span class="count">{{ messages|length }}</span></h1>
+    <h1 class="dashboard-title h3 mb-3">Messages <span class="count badge text-bg-secondary rounded-pill">{{ messages|length }}</span></h1>
 
     {% if messages|length %}
         {{ include('account/_message_list.html.twig') }}
     {% else %}
-        <div class="empty-state">
+        <div class="empty-state w-100 text-center py-5">
             <h3>No messages yet.</h3>
             <p>When someone asks about one of your listings, it shows up here and in your email.</p>
         </div>

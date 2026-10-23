@@ -4,28 +4,28 @@
 {# For the seller (and admins): where the listing stands, and what they can do about it. #}
 {% macro owner_status(listing, own) %}
     {% set state = listing.draft ? 'draft' : (listing.sold ? 'sold' : (listing.expired ? 'expired' : 'live')) %}
-    <section class="owner-bar" aria-labelledby="owner-title">
-        <div class="owner-summary">
-            <h2 id="owner-title">{{ own ? 'Your listing' : 'Manage listing' }}</h2>
-            <p class="owner-status">
-            <span class="status status-{{ state }}">{{ state|capitalize }}</span>
+    <section class="owner-bar d-flex flex-wrap justify-content-between align-items-center gap-3 p-3 bg-primary-subtle border border-primary-subtle rounded" aria-labelledby="owner-title">
+        <div class="owner-summary d-flex flex-wrap align-items-center gap-3">
+            <h2 class="h5 mb-0" id="owner-title">{{ own ? 'Your listing' : 'Manage listing' }}</h2>
+            <p class="owner-status mb-0">
+            <span class="status badge {{ state == 'live' ? 'text-bg-success' : (state == 'expired' ? 'text-bg-warning' : (state == 'sold' ? 'text-bg-primary' : 'text-bg-secondary')) }}">{{ state|capitalize }}</span>
             {% if state == 'draft' %}Only you can see it.
             {% elseif state == 'sold' %}Hidden from everyone else.
             {% elseif state == 'expired' %}Since {{ listing.expiresAt|date('j M Y') }}.
             {% else %}Until {{ listing.expiresAt|date('j M Y') }}.{% endif %}
             </p>
         </div>
-        <div class="owner-actions">
-            <a class="button button-small" href="{{ path('app_listing_edit', {id: listing.id}) }}">{{ state == 'draft' ? 'Edit & publish' : 'Edit listing' }}</a>
+        <div class="owner-actions d-flex flex-wrap align-items-center gap-2">
+            <a class="button btn btn-primary btn-sm" href="{{ path('app_listing_edit', {id: listing.id}) }}">{{ state == 'draft' ? 'Edit & publish' : 'Edit listing' }}</a>
             {% if listing.canRefresh %}
                 <form method="post" action="{{ path('app_listing_refresh', {id: listing.id}) }}">
                     <input type="hidden" name="_csrf_token" data-controller="csrf-protection" value="{{ csrf_token('submit') }}">
-                    <button class="button button-small button-outline" type="submit">Refresh</button>
+                    <button class="button btn btn-sm btn-outline-primary" type="submit">Refresh</button>
                 </form>
             {% endif %}
         </div>
         {% if listing.photos|length and not listing.arePhotosPublic %}
-            <p class="photo-notice">Your photos are hidden from other people until you confirm your email address.</p>
+            <p class="photo-notice text-warning-emphasis small w-100 mb-0">Your photos are hidden from other people until you confirm your email address.</p>
         {% endif %}
     </section>
 {% endmacro %}
@@ -37,18 +37,18 @@
     {% set owner = is_granted('LISTING_EDIT', listing) %}
     {% set photos = listing.arePhotosPublic or owner ? listing.photos : [] %}
 
-    <div class="listing-page">
+    <div class="listing-page py-4">
         {% if owner %}{{ _self.owner_status(listing, listing.seller and listing.seller.id == app.user.id) }}{% endif %}
-        <div class="listing-layout">
-            <article class="listing-detail">
-                <p class="listing-kicker">{{ listing.category.label }}{% if wanted %} <span class="badge badge-wanted">Wanted</span>{% endif %}</p>
-                <h1>{{ listing.title }}</h1>
-                <p class="listing-price">{{ m.price(listing) }}</p>
+        <div class="listing-layout row g-4 mt-2">
+            <article class="listing-detail col-lg-8">
+                <p class="listing-kicker text-body-secondary small mb-2">{{ listing.category.label }}{% if wanted %} <span class="badge badge-wanted text-bg-warning">Wanted</span>{% endif %}</p>
+                <h1 class="h2">{{ listing.title }}</h1>
+                <p class="listing-price fw-bold mb-1 fs-4">{{ m.price(listing) }}</p>
 
                 {% if photos|length %}
-                    <div class="gallery" data-controller="gallery">
+                    <div class="gallery d-flex flex-wrap gap-2 my-4" data-controller="gallery">
                         {% for photo in photos %}
-                            <a class="gallery-item" href="{{ path('app_photo', {id: photo.id, size: 'large'}) }}" data-gallery-target="item" data-action="gallery#open" data-gallery-index-param="{{ loop.index0 }}">
+                            <a class="gallery-item rounded overflow-hidden" href="{{ path('app_photo', {id: photo.id, size: 'large'}) }}" data-gallery-target="item" data-action="gallery#open" data-gallery-index-param="{{ loop.index0 }}">
                                 <img src="{{ path('app_photo', {id: photo.id, size: 'thumb'}) }}" alt="Photo {{ loop.index }} of {{ listing.title }}">
                             </a>
                         {% endfor %}
@@ -65,15 +65,15 @@
                     </div>
                 {% endif %}
 
-                <dl class="listing-facts">
+                <dl class="listing-facts my-4 py-3 border-top border-bottom">
                     {% if listing.book %}
-                        <div><dt>Author</dt><dd>{{ listing.book.author }}</dd></div>
-                        {% if listing.book.edition %}<div><dt>Edition</dt><dd>{{ listing.book.edition }}</dd></div>{% endif %}
-                        {% if listing.book.isbn %}<div><dt>ISBN</dt><dd>{{ listing.book.isbn }}</dd></div>{% endif %}
-                        {% if listing.book.papers|length %}<div><dt>{{ listing.book.papers|length > 1 ? 'Papers' : 'Paper' }}</dt><dd class="paper-list">{% for paper in listing.book.papers %}<span><span class="course-code">{{ paper.code }}</span>{% if paper.title %} {{ paper.title }}{% endif %}</span>{% endfor %}</dd></div>{% endif %}
+                        <div class="row mb-2"><dt class="col-sm-3 text-body-secondary fw-normal">Author</dt><dd class="col-sm-9 mb-0">{{ listing.book.author }}</dd></div>
+                        {% if listing.book.edition %}<div class="row mb-2"><dt class="col-sm-3 text-body-secondary fw-normal">Edition</dt><dd class="col-sm-9 mb-0">{{ listing.book.edition }}</dd></div>{% endif %}
+                        {% if listing.book.isbn %}<div class="row mb-2"><dt class="col-sm-3 text-body-secondary fw-normal">ISBN</dt><dd class="col-sm-9 mb-0">{{ listing.book.isbn }}</dd></div>{% endif %}
+                        {% if listing.book.papers|length %}<div class="row mb-2"><dt class="col-sm-3 text-body-secondary fw-normal">{{ listing.book.papers|length > 1 ? 'Papers' : 'Paper' }}</dt><dd class="paper-list d-flex flex-column gap-1 col-sm-9 mb-0">{% for paper in listing.book.papers %}<span><span class="course-code badge text-bg-primary">{{ paper.code }}</span>{% if paper.title %} {{ paper.title }}{% endif %}</span>{% endfor %}</dd></div>{% endif %}
                     {% endif %}
-                    {% if listing.condition %}<div><dt>Condition</dt><dd>{{ listing.condition.label }}<span class="condition-detail">{{ listing.condition.description }}</span></dd></div>{% endif %}
-                    {% if listing.publishedAt %}<div><dt>Listed</dt><dd><time datetime="{{ listing.publishedAt|date('c') }}">{{ listing.publishedAt|date('j M Y') }}</time></dd></div>{% endif %}
+                    {% if listing.condition %}<div class="row mb-2"><dt class="col-sm-3 text-body-secondary fw-normal">Condition</dt><dd class="col-sm-9 mb-0">{{ listing.condition.label }}<span class="condition-detail d-block text-body-secondary small">{{ listing.condition.description }}</span></dd></div>{% endif %}
+                    {% if listing.publishedAt %}<div class="row mb-2"><dt class="col-sm-3 text-body-secondary fw-normal">Listed</dt><dd class="col-sm-9 mb-0"><time datetime="{{ listing.publishedAt|date('c') }}">{{ listing.publishedAt|date('j M Y') }}</time></dd></div>{% endif %}
                 </dl>
 
                 {% if listing.description %}
@@ -81,55 +81,58 @@
                 {% endif %}
             </article>
 
-            <aside class="contact-panel" aria-labelledby="contact-title">
+            <aside class="col-lg-4" aria-labelledby="contact-title">
+                <div class="contact-panel card card-body bg-primary-subtle p-4">
                 {% set seller = listing.seller %}
                 {% if seller is null %}
-                    <h2 id="contact-title">Contact</h2>
-                    <p class="muted">This listing was imported from the old site and can’t be contacted here.</p>
+                    <h2 class="h5 mb-3" id="contact-title">Contact</h2>
+                    <p class="text-body-secondary">This listing was imported from the old site and can’t be contacted here.</p>
                 {% else %}
-                    <h2 id="contact-title">{{ wanted ? 'Got one?' : 'Interested?' }} Message {{ seller.displayName }}</h2>
+                    <h2 class="h5 mb-3" id="contact-title">{{ wanted ? 'Got one?' : 'Interested?' }} Message {{ seller.displayName }}</h2>
 
                     {% if seller.publicPhone %}
-                        <div class="phone-reveal" data-controller="reveal">
-                            <button class="button button-outline" type="button" data-action="reveal#show" data-reveal-target="button">Show phone number</button>
-                            <a class="phone-number" href="tel:{{ seller.publicPhone|replace({' ': '', '(': '', ')': '', '-': ''}) }}" data-reveal-target="content" hidden>{{ seller.publicPhone }}</a>
+                        <div class="phone-reveal mb-3 pb-3 border-bottom" data-controller="reveal">
+                            <button class="button btn btn-outline-primary" type="button" data-action="reveal#show" data-reveal-target="button">Show phone number</button>
+                            <a class="phone-number d-block fs-4 fw-bold text-center text-decoration-none" href="tel:{{ seller.publicPhone|replace({' ': '', '(': '', ')': '', '-': ''}) }}" data-reveal-target="content" hidden>{{ seller.publicPhone }}</a>
                         </div>
                     {% endif %}
 
                     {% if owner and seller.id == app.user.id %}
-                        <button class="button contact-open" type="button" disabled>Message {{ seller.displayName }}</button>
-                        <p class="form-help">{{ listing.live ? 'Buyers can message you here. They’ll get your reply by email.' : 'Buyers can message you here once your listing is live.' }}</p>
+                        <button class="button btn btn-primary contact-open w-100" type="button" disabled>Message {{ seller.displayName }}</button>
+                        <p class="form-help form-text">{{ listing.live ? 'Buyers can message you here. They’ll get your reply by email.' : 'Buyers can message you here once your listing is live.' }}</p>
                     {% elseif listing.live %}
                         {# Opens by itself when the form comes back with something to fix. #}
                         <div data-controller="modal" data-modal-open-value="{{ contact.vars.submitted and not contact.vars.valid ? 'true' : 'false' }}">
-                            <button class="button contact-open" type="button" data-action="modal#open">Message {{ seller.displayName }}</button>
-                            <p class="form-help">They’ll get it by email and reply to you directly.</p>
+                            <button class="button btn btn-primary contact-open w-100" type="button" data-action="modal#open">Message {{ seller.displayName }}</button>
+                            <p class="form-help form-text">They’ll get it by email and reply to you directly.</p>
 
-                            <dialog class="modal" data-modal-target="dialog" data-action="click->modal#backdrop" aria-labelledby="contact-modal-title">
+                            <div class="modal" tabindex="-1" data-modal-target="dialog" aria-labelledby="contact-modal-title" aria-hidden="true"><div class="modal-dialog modal-dialog-centered"><div class="modal-content">
                                 <div class="modal-header">
-                                    <h2 id="contact-modal-title">Message {{ seller.displayName }}</h2>
-                                    <button class="modal-close" type="button" data-action="modal#close" aria-label="Close">×</button>
+                                    <h2 class="modal-title fs-5" id="contact-modal-title">Message {{ seller.displayName }}</h2>
+                                    <button class="btn-close" type="button" data-action="modal#close" aria-label="Close"></button>
                                 </div>
-                                <p class="muted modal-about">About “{{ listing.title }}”</p>
+                                <div class="modal-body"><p class="text-body-secondary small mb-3">About “{{ listing.title }}”</p>
                                 {{ form_start(contact, {attr: {class: 'contact-form', novalidate: 'novalidate'}}) }}
-                                    <div class="form-grid">
-                                        <div class="form-field">{{ form_row(contact.senderName) }}</div>
-                                        <div class="form-field">{{ form_row(contact.senderEmail) }}</div>
+                                    <div class="form-grid row row-cols-1 row-cols-sm-2 gx-3">
+                                        <div class="form-field mb-3 col">{{ form_row(contact.senderName) }}</div>
+                                        <div class="form-field mb-3 col">{{ form_row(contact.senderEmail) }}</div>
                                     </div>
-                                    <div class="form-field">{{ form_row(contact.body, {attr: {rows: 6}}) }}</div>
+                                    <div class="form-field mb-3">{{ form_row(contact.body, {attr: {rows: 6}}) }}</div>
                                     {{ form_row(contact.website) }}
-                                    {% if contact.children.captcha is defined %}<div class="form-field">{{ form_row(contact.captcha) }}</div>{% endif %}
-                                    <div class="modal-actions">
-                                        <button class="button contact-send" type="submit">Send message</button>
-                                        <p class="form-help">Your email goes to the seller so they can reply. We don’t show it on the site.</p>
+                                    {% if contact.children.captcha is defined %}<div class="form-field mb-3">{{ form_row(contact.captcha) }}</div>{% endif %}
+                                    <div class="modal-actions d-flex flex-wrap align-items-center gap-3">
+                                        <button class="button btn btn-primary contact-send" type="submit">Send message</button>
+                                        <p class="form-help form-text">Your email goes to the seller so they can reply. We don’t show it on the site.</p>
                                     </div>
                                 {{ form_end(contact) }}
-                            </dialog>
+                                </div>
+                            </div></div></div>
                         </div>
                     {% else %}
-                        <p class="muted">This listing isn’t live, so it can’t be messaged.</p>
+                        <p class="text-body-secondary">This listing isn’t live, so it can’t be messaged.</p>
                     {% endif %}
                 {% endif %}
+                </div>
             </aside>
         </div>
     </div>

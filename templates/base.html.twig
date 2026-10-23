@@ -16,71 +16,71 @@
         <script src="https://cdn.jsdelivr.net/npm/frankenphp-hot-reload/+esm" type="module"></script>
         {% endif %}
     </head>
-    <body>
-        <a class="skip-link" href="#main">Skip to content</a>
-        <header class="site-header">
-            <div class="header-inner">
-                <a class="brand" href="{{ path('app_listings') }}"><span class="wm-blue">s</span><span class="wm-gold">t</span></a>
-                <nav class="main-nav" aria-label="Main">
-                    <a class="main-link" href="{{ path('app_listings') }}">Browse</a>
-                    <a class="main-link" href="{{ path('app_listing_new') }}">Sell</a>
+    <body class="d-flex flex-column min-vh-100">
+        <a class="visually-hidden-focusable position-absolute top-0 start-0 bg-white p-2 z-3" href="#main">Skip to content</a>
+        <header class="site-header border-bottom">
+            <div class="header-inner container d-flex align-items-center gap-3 py-3">
+                <a class="brand text-decoration-none font-monospace fs-4 fw-semibold me-sm-3" href="{{ path('app_listings') }}"><span class="wm-blue">s</span><span class="wm-gold">t</span></a>
+                <nav class="main-nav d-flex gap-3" aria-label="Main">
+                    <a class="text-decoration-none text-body-secondary" href="{{ path('app_listings') }}">Browse</a>
+                    <a class="text-decoration-none text-body-secondary" href="{{ path('app_listing_new') }}">Sell</a>
                 </nav>
-                <nav class="site-nav" aria-label="Account">
+                <nav class="site-nav d-flex align-items-center gap-3 ms-auto" aria-label="Account">
                     {% if app.user %}
                         {% set unread = unread_message_count() %}
-                        <details class="nav-menu" data-controller="nav-menu" data-action="click@window->nav-menu#closeOutside keydown.esc@window->nav-menu#close">
-                            <summary class="nav-user">
+                        <div class="dropdown">
+                            <button class="nav-user btn btn-outline-primary dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
                                 {{ app.user.displayName }}
-                                {% if unread %}<span class="nav-badge" aria-label="{{ unread }} unread">{{ unread }}</span>{% endif %}
-                            </summary>
-                            <ul class="nav-menu-list">
-                                <li><a href="{{ path('app_account') }}">Dashboard</a></li>
-                                <li><a href="{{ path('app_account_listings') }}">My listings</a></li>
-                                <li><a href="{{ path('app_account_messages') }}">Messages{% if unread %} <span class="nav-badge">{{ unread }}</span>{% endif %}</a></li>
+                                {% if unread %}<span class="nav-badge badge text-bg-primary rounded-pill" aria-label="{{ unread }} unread">{{ unread }}</span>{% endif %}
+                            </button>
+                            <ul class="dropdown-menu dropdown-menu-end">
+                                <li><a class="dropdown-item" href="{{ path('app_account') }}">Dashboard</a></li>
+                                <li><a class="dropdown-item" href="{{ path('app_account_listings') }}">My listings</a></li>
+                                <li><a class="dropdown-item" href="{{ path('app_account_messages') }}">Messages{% if unread %} <span class="nav-badge badge text-bg-primary rounded-pill">{{ unread }}</span>{% endif %}</a></li>
                                 {% if is_granted('ROLE_ADMIN') %}
-                                    <li><a class="nav-admin" href="{{ path('admin') }}" data-turbo="false">Admin</a></li>
+                                    <li><a class="nav-admin dropdown-item" href="{{ path('admin') }}" data-turbo="false">Admin</a></li>
                                 {% endif %}
                                 <li>
                                     <form method="post" action="{{ path('app_logout') }}">
                                         <input type="hidden" name="_csrf_token" data-controller="csrf-protection" value="{{ csrf_token('logout') }}">
-                                        <button class="nav-link" type="submit">Log out</button>
+                                        <button class="dropdown-item" type="submit">Log out</button>
                                     </form>
                                 </li>
                             </ul>
-                        </details>
+                        </div>
                     {% else %}
                         <a class="nav-link" href="{{ path('app_login') }}">Log in</a>
-                        <a class="button button-small" href="{{ path('app_register') }}">Sign up</a>
+                        <a class="button btn btn-primary btn-sm" href="{{ path('app_register') }}">Sign up</a>
                     {% endif %}
                 </nav>
             </div>
         </header>
-        <main id="main" class="page-shell">
-            <div class="toasts">
+        <main id="main" class="page-shell container flex-grow-1">
+            <div class="toast-container position-fixed bottom-0 start-0 p-3">
                 {% for message in app.flashes('success') %}
-                    <div class="flash toast" role="status" data-controller="toast">
-                        <span>{{ message }}</span>
-                        <button class="toast-close" type="button" data-action="toast#close" aria-label="Dismiss">×</button>
+                    <div class="flash toast border-success" role="status" data-controller="toast">
+                        <div class="d-flex"><div class="toast-body">{{ message }}</div>
+                        <button class="btn-close m-2 ms-auto" type="button" data-action="toast#close" aria-label="Dismiss"></button></div>
                     </div>
                 {% endfor %}
                 {% for message in app.flashes('error') %}
-                    <div class="flash flash-error toast" role="alert" data-controller="toast" data-toast-delay-value="9000">
-                        <span>{{ message }}</span>
-                        <button class="toast-close" type="button" data-action="toast#close" aria-label="Dismiss">×</button>
+                    <div class="flash flash-error toast border-danger" role="alert" data-controller="toast" data-toast-delay-value="9000">
+                        <div class="d-flex"><div class="toast-body">{{ message }}</div>
+                        <button class="btn-close m-2 ms-auto" type="button" data-action="toast#close" aria-label="Dismiss"></button></div>
                     </div>
                 {% endfor %}
             </div>
             {% if app.user and not app.user.verified %}
-                <form class="flash flash-notice" method="post" action="{{ path('app_verify_resend') }}">
+                <form class="flash flash-notice alert alert-warning d-flex flex-wrap align-items-center justify-content-between gap-2 mt-3" method="post" action="{{ path('app_verify_resend') }}">
                     <span>Please confirm your email address. Check your inbox for the link we sent to {{ app.user.email }}.</span>
                     <input type="hidden" name="_token" value="{{ csrf_token('resend-verification') }}">
-                    <button class="nav-link" type="submit">Send it again</button>
+                    <button class="btn btn-link p-0" type="submit">Send it again</button>
                 </form>
             {% endif %}
             {% block body %}{% endblock %}
         </main>
-        <footer class="site-footer">
-            <div class="footer-inner">
+        <footer class="site-footer border-top mt-5 text-body-secondary small">
+            <div class="footer-inner container d-flex flex-wrap justify-content-between gap-2 py-4">
                 <span>© {{ 'now'|date('Y') }} ScarfieTextbooks. Free for students, no fees.</span>
                 <span>The 21st-century alternative to posters on noticeboards.</span>
             </div>

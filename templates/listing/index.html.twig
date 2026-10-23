@@ -4,29 +4,28 @@
 
 {% block body %}
     <div class="browse" data-controller="listing-filter view-toggle" data-listing-filter-url-value="{{ path('app_listing_cards') }}">
-        <section class="hero" aria-labelledby="hero-title">
+        <section class="hero col-lg-9 mx-auto text-center py-5" aria-labelledby="hero-title">
             <h1 id="hero-title" class="wordmark"><span class="wm-blue">scarfie</span><span class="wm-gold">textbooks</span><span class="wm-blue">.com</span></h1>
 
             {% do form.type.setRendered() %}
             {{ form_start(form, {attr: {
                 id: 'listing-filters',
-                class: 'filter-bar',
+                class: 'filter-bar mt-4',
                 role: 'search',
                 'aria-label': 'Search listings',
                 'data-action': 'submit->listing-filter#apply:prevent',
             }}) }}
-                <div class="filter-search">
+                <div class="filter-search input-group input-group-lg">
                     {{ form_label(form.q, null, {label_attr: {class: 'visually-hidden'}}) }}
-                    {{ form_widget(form.q, {attr: {'data-listing-filter-target': 'query', 'data-action': 'input->listing-filter#search', autofocus: true}}) }}
-                    <button class="filter-submit" type="submit">Search</button>
+                    {{ form_widget(form.q, {attr: {class: 'form-control', 'data-listing-filter-target': 'query', 'data-action': 'input->listing-filter#search', autofocus: true}}) }}
+                    <button class="filter-submit btn btn-primary" type="submit">Search</button>
                 </div>
                 {{ form_errors(form.q) }}
 
-                <fieldset class="category-pills">
+                <fieldset class="category-pills d-flex flex-wrap justify-content-center gap-2 mt-3">
                     <legend class="visually-hidden">Categories</legend>
                     {% for choice in form.categories %}
-                        {{ form_widget(choice, {attr: {class: 'pill-input', 'data-listing-filter-target': 'category', 'data-action': 'change->listing-filter#apply'}}) }}
-                        {{ form_label(choice, null, {label_attr: {class: 'pill'}}) }}
+                        {{ form_widget(choice, {label_attr: {class: 'pill btn btn-outline-primary btn-sm rounded-pill'}, attr: {class: 'pill-input btn-check', 'data-listing-filter-target': 'category', 'data-action': 'change->listing-filter#apply'}}) }}
                     {% endfor %}
                 </fieldset>
                 {{ form_errors(form.categories) }}
@@ -35,61 +34,61 @@
 
         <section id="listings" aria-labelledby="listings-title">
             <h2 id="listings-title" class="visually-hidden">Listings</h2>
-            <div class="results-bar">
-                <div class="tabs" role="radiogroup" aria-label="Show">
+            <div class="results-bar d-flex flex-wrap justify-content-between align-items-center gap-3 mb-3">
+                <div class="tabs btn-group" role="radiogroup" aria-label="Show">
                     {% for type in enum_cases('App\\Enum\\ListingType') %}
-                        <label class="tab">
-                            <input type="radio" name="type" value="{{ type.value }}" form="listing-filters" data-listing-filter-target="type" data-action="change->listing-filter#apply" {{ filter.type == type ? 'checked' }}>
-                            {{ type.label }} <span class="count" data-listing-filter-target="count" data-type="{{ type.value }}">{{ counts[type.value] }}</span>
+                        <input class="btn-check" id="listing-type-{{ type.value }}" type="radio" name="type" value="{{ type.value }}" form="listing-filters" data-listing-filter-target="type" data-action="change->listing-filter#apply" {{ filter.type == type ? 'checked' }}>
+                        <label class="tab btn btn-outline-primary" for="listing-type-{{ type.value }}">
+                            {{ type.label }} <span class="count badge text-bg-secondary rounded-pill" data-listing-filter-target="count" data-type="{{ type.value }}">{{ counts[type.value] }}</span>
                         </label>
                     {% endfor %}
                 </div>
-                <div class="view-switch" role="group" aria-label="View">
-                    <button type="button" class="view-button" data-view-toggle-target="button" data-action="view-toggle#choose" data-view-toggle-view-param="list" aria-label="List view" title="List view">
+                <div class="view-switch btn-group" role="group" aria-label="View">
+                    <button type="button" class="view-button btn btn-outline-secondary btn-sm" data-view-toggle-target="button" data-action="view-toggle#choose" data-view-toggle-view-param="list" aria-label="List view" title="List view">
                         <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M8 6h13M8 12h13M8 18h13M3 6h.01M3 12h.01M3 18h.01"/></svg>
                     </button>
-                    <button type="button" class="view-button" data-view-toggle-target="button" data-action="view-toggle#choose" data-view-toggle-view-param="grid" aria-label="Grid view" title="Grid view">
+                    <button type="button" class="view-button btn btn-outline-secondary btn-sm" data-view-toggle-target="button" data-action="view-toggle#choose" data-view-toggle-view-param="grid" aria-label="Grid view" title="Grid view">
                         <svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg>
                     </button>
                 </div>
             </div>
 
             {% set shown = total %}
-            <p class="results-note" data-listing-filter-target="note" role="status" {{ filter.narrowed ? '' : 'hidden' }}>
+            <p class="results-note text-body-secondary small my-3" data-listing-filter-target="note" role="status" {{ filter.narrowed ? '' : 'hidden' }}>
                 <span data-listing-filter-target="summary">{{ shown }} {{ shown == 1 ? 'match' : 'matches' }}{% if filter.q %} for “{{ filter.q }}”{% endif %}</span>
-                <a data-action="listing-filter#clear:prevent" class="clear-link" href="{{ path('app_listings', {type: filter.type.value}) }}" >Clear</a>
+                <a data-action="listing-filter#clear:prevent" class="clear-link ms-2" href="{{ path('app_listings', {type: filter.type.value}) }}" >Clear</a>
             </p>
 
-            <div class="listing-grid" data-listing-filter-target="grid">
+            <div class="listing-grid row row-cols-1 g-3" data-listing-filter-target="grid">
                 {% for listing in listings %}
                     {{ include('listing/_card.html.twig') }}
                 {% endfor %}
 
-                <div class="empty-state" data-listing-filter-target="empty" {{ shown ? 'hidden' }}>
+                <div class="empty-state w-100 text-center py-5" data-listing-filter-target="empty" {{ shown ? 'hidden' }}>
                     <div data-empty="narrowed" {{ filter.narrowed ? '' : 'hidden' }}>
                         <h3>Nothing matches that.</h3>
                         <p>Try a different search, pick other categories, or look at the other tab.</p>
-                        <a class="button" href="{{ path('app_listings', {type: filter.type.value}) }}" data-action="listing-filter#clear:prevent">Clear search</a>
+                        <a class="button btn btn-primary" href="{{ path('app_listings', {type: filter.type.value}) }}" data-action="listing-filter#clear:prevent">Clear search</a>
                     </div>
                     <div data-empty="wanted" {{ not filter.narrowed and filter.type.value == 'wanted' ? '' : 'hidden' }}>
                         <h3>Nobody’s asking for anything right now.</h3>
                         <p>Looking for something? Post a wanted listing and sellers can message you.</p>
-                        <a class="button" href="{{ path('app_listing_new') }}">Post a wanted listing</a>
+                        <a class="button btn btn-primary" href="{{ path('app_listing_new') }}">Post a wanted listing</a>
                     </div>
                     <div data-empty="for_sale" {{ not filter.narrowed and filter.type.value == 'for_sale' ? '' : 'hidden' }}>
                         <h3>No listings yet.</h3>
                         <p>Listings will show up here once students start posting.</p>
-                        <a class="button" href="{{ path('app_listing_new') }}">Post the first one</a>
+                        <a class="button btn btn-primary" href="{{ path('app_listing_new') }}">Post the first one</a>
                     </div>
                 </div>
             </div>
             <p data-listing-filter-target="loading" role="status" hidden>Loading remaining listings…</p>
-            <button type="button" class="button button-small" data-listing-filter-target="retry" data-action="listing-filter#load" hidden>Retry loading listings</button>
+            <button type="button" class="button btn btn-primary btn-sm" data-listing-filter-target="retry" data-action="listing-filter#load" hidden>Retry loading listings</button>
             {% if pages > 1 %}
-                <nav data-listing-filter-target="pagination" class="pagination" aria-label="Listing pages">
-                    {% if page > 1 %}<a class="button button-small" rel="prev" href="{{ path('app_listings', pagination_query|merge({page: page - 1})) }}">Previous</a>{% endif %}
+                <nav data-listing-filter-target="pagination" class="pagination d-flex justify-content-center align-items-center gap-3 my-4" aria-label="Listing pages">
+                    {% if page > 1 %}<a class="button btn btn-primary btn-sm" rel="prev" href="{{ path('app_listings', pagination_query|merge({page: page - 1})) }}">Previous</a>{% endif %}
                     <span aria-current="page">Page {{ page }} of {{ pages }}</span>
-                    {% if page < pages %}<a class="button button-small" rel="next" href="{{ path('app_listings', pagination_query|merge({page: page + 1})) }}">Next</a>{% endif %}
+                    {% if page < pages %}<a class="button btn btn-primary btn-sm" rel="next" href="{{ path('app_listings', pagination_query|merge({page: page + 1})) }}">Next</a>{% endif %}
                 </nav>
             {% endif %}
         </section>
