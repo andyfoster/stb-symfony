@@ -57,8 +57,17 @@ class SellerMessenger
             ->setSenderIp($request->getClientIp());
         $this->manager->persist($message);
         $this->manager->flush();
-        // Who wrote to whom, never what they wrote.
-        $this->audit->record(AuditType::MessageSent, $listing, ['message' => $message->getId(), 'seller' => $seller->getId()], $message->getSender(), $message->getSenderEmail());
+        $this->audit->record(
+            AuditType::MessageSent,
+            $listing,
+            [
+                'message'     => $message->getId(),
+                'messageBody' => $message->getBody(),
+                'seller'      => $seller->getId(),
+            ],
+            $message->getSender(),
+            $message->getSenderEmail(),
+        );
 
         $this->mailer->send((new TemplatedEmail())
             ->to(new Address((string) $seller->getEmail(), (string) $seller->getDisplayName()))
