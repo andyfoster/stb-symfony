@@ -18,7 +18,8 @@
         <p class="book-meta">
             {% if listing.book %}
                 <span>{{ listing.book.author }}</span>
-                {% if listing.book.edition %}<span>{{ listing.book.edition }} edition</span>{% endif %}
+                {% if listing.book.year %}<span>{{ listing.book.year }}</span>{% endif %}
+                        {% if listing.book.edition %}<span>{{ listing.book.edition }} edition</span>{% endif %}
             {% else %}
                 <span>{{ listing.category.label }}</span>
             {% endif %}

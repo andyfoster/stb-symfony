@@ -27,7 +27,8 @@ class ListingEditor
         private readonly MessageBusInterface $bus,
         private readonly AuditLog $audit,
         private readonly ListingExpiry $expiry,
-    ) {}
+    ) {
+    }
 
     /**
      * @param UploadedFile[] $newPhotos
@@ -35,10 +36,10 @@ class ListingEditor
      */
     public function save(Listing $listing, bool $publish, array $newPhotos = [], array $removedPhotos = [], ?\DateTimeImmutable $hideAfter = null): void
     {
-        $isNew   = $listing->getId() === null;
+        $isNew = null === $listing->getId();
         $wasLive = !$isNew && $listing->isLive();
         $oldExpiry = $listing->getExpiresAt();
-        $chosenExpiry = $hideAfter === null ? null : $this->expiry->expiresAfter($hideAfter);
+        $chosenExpiry = null === $hideAfter ? null : $this->expiry->expiresAfter($hideAfter);
 
         // Their files go when Doctrine removes them (RemovePhotoFiles).
         $removedIds = [];
@@ -54,9 +55,8 @@ class ListingEditor
 
         if (!$publish) {
             $listing->setStatus(ListingStatus::Draft);
-        } elseif ($listing->getExpiresAt() > new \DateTimeImmutable()) {
-            // Back from drafts (or sold) before it expired: same place and expiry as before,
-            // so moving to drafts and back isn't a way around the refresh window.
+        } elseif (null !== $listing->getPublishedAt() && $listing->getExpiresAt() > new \DateTimeImmutable()) {
+            // Keep its place in the list; an explicitly chosen hide date is applied below.
             $listing->setStatus(ListingStatus::Active);
         } else {
             // A new draft, or re-listing an expired one.
@@ -64,7 +64,7 @@ class ListingEditor
         }
 
         // Editing the hide date never bumps the listing's publication date.
-        if ($chosenExpiry !== null && $hideAfter->format('Y-m-d') !== $this->expiry->dateFor($oldExpiry)?->format('Y-m-d')) {
+        if (null !== $chosenExpiry && ($listing->getExpiresAt() != $oldExpiry || $hideAfter->format('Y-m-d') !== $this->expiry->dateFor($oldExpiry)?->format('Y-m-d'))) {
             $listing->setExpiresAt($chosenExpiry)->setExpiryReminderSentAt(null);
         }
 

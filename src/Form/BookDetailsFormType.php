@@ -4,6 +4,7 @@ namespace App\Form;
 
 use App\Entity\BookDetails;
 use Symfony\Component\Form\AbstractType;
+use Symfony\Component\Form\Extension\Core\Type\IntegerType;
 use Symfony\Component\Form\Extension\Core\Type\TextType;
 use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\OptionsResolver\OptionsResolver;
@@ -30,6 +31,11 @@ class BookDetailsFormType extends AbstractType
                 'label' => 'Edition',
                 'required' => false,
                 'attr' => ['placeholder' => 'e.g. 12th'],
+            ])
+            ->add('year', IntegerType::class, [
+                'label' => 'Year',
+                'required' => false,
+                'attr' => ['min' => 1000, 'max' => 9999, 'placeholder' => 'e.g. 2024'],
             ])
             ->add('papers', PaperTagsType::class, [
                 'label' => 'Papers (optional)',

@@ -2,6 +2,7 @@
 
 namespace App\Entity;
 
+use App\Book\BookLookup;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
@@ -26,6 +27,22 @@ class BookDetails extends Base
     #[ORM\Column(length: 17, nullable: true)]
     #[Assert\Isbn]
     private ?string $isbn = null;
+
+    #[ORM\Column(nullable: true)]
+    #[Assert\Range(min: 1000, max: 9999)]
+    private ?int $year = null;
+
+    public function getYear(): ?int
+    {
+        return $this->year;
+    }
+
+    public function setYear(?int $year): static
+    {
+        $this->year = $year;
+
+        return $this;
+    }
 
     /**
      * Otago papers the book is for, e.g. CHEM191 and CHEM192.
@@ -75,7 +92,7 @@ class BookDetails extends Base
 
     public function setIsbn(?string $isbn): static
     {
-        $this->isbn = $isbn;
+        $this->isbn = null === $isbn || '' === trim($isbn) ? null : (BookLookup::normalise($isbn) ?? trim($isbn));
 
         return $this;
     }

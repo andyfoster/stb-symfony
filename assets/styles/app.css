@@ -2059,74 +2059,19 @@ turbo-frame[aria-busy=true] .listing-grid {
     gap:12px 16px
 }
 
-/* Condition: one card per level, with what it means */
-.condition-field {
-    margin:0 0 22px;
-    padding:0;
-    border:0
-}
-
-.condition-field legend {
-    margin-bottom:6px;
-    font-size:14px;
-    font-weight:600
-}
-
-.condition-options {
-    display:grid;
-    grid-template-columns:1fr;
-    gap:8px
-}
-
-.condition-input {
-    position:absolute;
-    opacity:0;
-    width:1px;
-    height:1px
-}
-
-.form-field .condition-option {
-    display:flex;
-    flex-direction:column;
-    gap:4px;
-    height:100%;
-    margin:0;
-    padding:10px 12px;
-    border:1px solid var(--field);
-    border-radius:8px;
-    background:var(--white);
-    font-weight:400;
-    cursor:pointer
-}
-
-.condition-option strong {
-    font-size:15px
-}
-
-.condition-option span {
-    color:var(--muted);
-    font-size:12px;
-    line-height:1.4
-}
-
-.form-field .condition-option:hover {
-    border-color:var(--blue)
-}
-
-.condition-input:checked + .condition-option {
-    border-color:var(--blue);
-    background:var(--blue-tint);
-    box-shadow:inset 0 0 0 1px var(--blue)
-}
-
-.condition-input:checked + .condition-option strong {
-    color:var(--blue)
-}
-
-.condition-input:focus-visible + .condition-option {
-    outline:2px solid var(--blue);
-    outline-offset:2px
-}
+/* Compact condition rating: native radios retain labels and keyboard control. */
+.condition-field { margin:0 0 14px; padding:0; border:0; }
+.condition-field legend { margin-bottom:6px; font-size:14px; font-weight:600; }
+.condition-options { display:grid; grid-template-columns:repeat(5,minmax(0,1fr)); gap:6px; }
+.condition-input { position:absolute; opacity:0; width:1px; height:1px; }
+.form-field .condition-option { display:flex; flex-direction:column; align-items:center; gap:2px; margin:0; padding:6px 2px; border:1px solid transparent; border-radius:6px; background:var(--white); cursor:pointer; }
+.condition-option .condition-star { color:var(--field); font-size:27px; line-height:1.1; }
+.condition-option.is-rated .condition-star { color:var(--gold-text); }
+.condition-option strong { font-size:12px; font-weight:500; text-align:center; }
+.form-field .condition-option:hover { border-color:var(--field); }
+.condition-input:checked + .condition-option { border-color:var(--blue); background:var(--blue-tint); }
+.condition-input:focus-visible + .condition-option { outline:2px solid var(--blue); outline-offset:2px; }
+.condition-description { min-height:2.6em; margin-top:6px; color:var(--muted); font-size:13px; line-height:1.3; }
 
 /* Paper tags on the listing form */
 .field-narrow {
@@ -2451,10 +2396,6 @@ turbo-frame[aria-busy=true] .listing-grid {
 .optional-lookup summary,.photo-panel summary { font-weight:600; cursor:pointer; }
 .optional-lookup[open] > .form-help,.photo-panel[open] > .form-help { margin:12px 0 16px; }
 .optional-lookup .form-field { margin-bottom:0; }
-.form-field .condition-option { position:relative; padding:12px 44px 12px 14px; gap:2px; border-radius:10px; }
-.condition-option::after { content:''; position:absolute; right:16px; top:50%; transform:translateY(-50%); width:16px; height:16px; border:1px solid var(--field); border-radius:50%; }
-.condition-input:checked + .condition-option::after { border:5px solid var(--blue); }
-.condition-option span { font-size:13px; }
 
 /* Explanations live on About rather than in the everyday forms. */
 
@@ -2464,3 +2405,22 @@ turbo-frame[aria-busy=true] .listing-grid {
 .about-page p { margin-bottom:12px; line-height:1.7; }
 .optional-lookup[open] .form-field { margin-top:16px; }
 .photo-panel[open] summary { margin-bottom:16px; }
+
+/* Keep the posting controls within easy reach. */
+.listing-form-page { padding-top:20px; }
+.listing-form-page > .form-heading { margin-bottom:14px; }
+.listing-form { gap:20px; }
+.listing-form-main.form-panel { padding:20px; }
+.listing-form-main .form-field { margin-bottom:14px; }
+.listing-form-main .book-fields { margin-bottom:16px; padding:12px 14px 0; }
+.listing-form-main .book-fields legend { margin-bottom:8px; }
+.listing-meta-grid { grid-template-columns:1.1fr .9fr 1fr; gap:0 12px; }
+@media(max-width:640px) {
+    .listing-meta-grid { grid-template-columns:1fr; }
+    .listing-form-main.form-panel { padding:16px; }
+}
+.listing-form-main .book-fields > .form-grid { clear:both; }
+.listing-form-main textarea { min-height:96px; }
+
+.book-details-grid { grid-template-columns: 2fr 1fr 1fr; }
+@media (max-width: 640px) { .book-details-grid { grid-template-columns: 1fr; } }

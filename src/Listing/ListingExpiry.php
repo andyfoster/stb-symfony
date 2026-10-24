@@ -9,7 +9,9 @@ class ListingExpiry
 {
     private const string TIMEZONE = 'Pacific/Auckland';
 
-    public function __construct(private readonly ClockInterface $clock) {}
+    public function __construct(private readonly ClockInterface $clock)
+    {
+    }
 
     public function today(): \DateTimeImmutable
     {

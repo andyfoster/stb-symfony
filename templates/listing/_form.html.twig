@@ -14,7 +14,7 @@
 
         <div class="form-field">{{ form_label(form.title, wanted ? 'Looking for' : 'Title', {label_attr: {'data-listing-form-target': 'titleLabel'}}) }}{{ form_widget(form.title, {attr: {'data-listing-form-target': 'title', 'data-title-suggest-target': 'input'}}) }}{{ form_errors(form.title) }}</div>
 
-        <div class="form-grid">
+        <div class="form-grid listing-meta-grid">
             <div class="form-field">{{ form_row(form.category, {attr: {'data-listing-form-target': 'category', 'data-title-suggest-target': 'category', 'data-action': 'listing-form#toggleBook'}}) }}</div>
             <div class="form-field">
                 {{ form_label(form.priceCents, wanted ? 'Budget (NZD)' : 'Price (NZD)', {label_attr: {'data-listing-form-target': 'priceLabel'}}) }}
@@ -22,12 +22,16 @@
                 <p id="{{ form.priceCents.vars.id }}_help" class="form-help" data-listing-form-target="priceHelp">{{ wanted ? 'Leave blank if flexible.' : 'Leave blank for offers; 0 means free.' }}</p>
                 {{ form_errors(form.priceCents) }}
             </div>
+            <div class="form-field">{{ form_row(form.hideAfter) }}</div>
         </div>
 
         <fieldset class="book-fields" data-listing-form-target="book">
             <legend>Book details</legend>
+            <div class="form-grid book-details-grid">
             <div class="form-field">{{ form_row(form.book.author, {attr: {'data-isbn-lookup-target': 'author', 'data-title-suggest-target': 'author'}}) }}</div>
-            <div class="form-field field-narrow">{{ form_row(form.book.edition, {attr: {'data-isbn-lookup-target': 'edition'}}) }}</div>
+            <div class="form-field">{{ form_row(form.book.edition, {attr: {'data-isbn-lookup-target': 'edition'}}) }}</div>
+            <div class="form-field">{{ form_row(form.book.year, {attr: {'data-isbn-lookup-target': 'year'}}) }}</div>
+            </div>
             <div class="form-field" data-controller="paper-tags" data-paper-tags-url-value="{{ path('app_paper_search') }}">
                 {{ form_label(form.book.papers) }}
                 {{ form_widget(form.book.papers, {attr: {'data-paper-tags-target': 'input'}}) }}
@@ -38,24 +42,25 @@
 
         <fieldset class="form-field condition-field" data-listing-form-target="conditionField" {{ wanted ? 'hidden' }}>
             <legend>Condition</legend>
+            {% set selectedRating = listing.condition ? {'well_used': 1, 'fair': 2, 'good': 3, 'like_new': 4, 'new': 5}[listing.condition.value] : 0 %}
             <div class="condition-options">
-                {% for choice in form.condition %}
-                    {{ form_widget(choice, {attr: {class: 'condition-input'}}) }}
-                    <label class="condition-option" for="{{ choice.vars.id }}">
+                {% for choice in form.condition|reverse %}
+                    {{ form_widget(choice, {attr: {class: 'condition-input', 'data-action': 'change->listing-form#updateCondition', 'data-rating': loop.index, 'aria-describedby': 'condition-description'}}) }}
+                    <label class="condition-option {{ loop.index <= selectedRating ? 'is-rated' }}" for="{{ choice.vars.id }}" title="{{ choice.vars.attr['data-description'] }}" data-rating="{{ loop.index }}">
+                        <span class="condition-star" aria-hidden="true">★</span>
                         <strong>{{ choice.vars.label }}</strong>
-                        <span>{{ choice.vars.attr['data-description'] }}</span>
                     </label>
                 {% endfor %}
             </div>
+            <p id="condition-description" class="condition-description" data-listing-form-target="conditionDescription" role="status">{{ listing.condition ? listing.condition.description : '' }}</p>
             {{ form_errors(form.condition) }}
         </fieldset>
 
         <div class="form-field">
             {{ form_label(form.description, wanted ? 'Requirements' : 'Description', {label_attr: {'data-listing-form-target': 'descriptionLabel'}}) }}
-            {{ form_widget(form.description, {attr: {'data-listing-form-target': 'description', placeholder: wanted ? 'Edition, acceptable condition, when you need it, or alternatives you’d consider.' : 'Any wear, what’s included, and where you can hand it over.'}}) }}
+            {{ form_widget(form.description, {attr: {rows: 4, 'data-listing-form-target': 'description', placeholder: wanted ? 'Edition, acceptable condition, when you need it, or alternatives you’d consider.' : 'Any wear, what’s included, and where you can hand it over.'}}) }}
             {{ form_errors(form.description) }}
         </div>
-        <div class="form-field field-narrow">{{ form_row(form.hideAfter) }}</div>
     </div>
 
     <div class="listing-form-side">

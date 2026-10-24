@@ -5,7 +5,7 @@ import { Controller } from '@hotwired/stimulus';
  * then Google Books) and fills in the title, author and edition if empty.
  */
 export default class extends Controller {
-    static targets = ['isbn', 'author', 'edition', 'button', 'status'];
+    static targets = ['isbn', 'author', 'edition', 'year', 'button', 'status'];
     static values = { url: String };
 
     async lookup() {
@@ -32,7 +32,9 @@ export default class extends Controller {
             const title = this.element.closest('form').querySelector('[data-listing-form-target="title"]');
             this.fill(title, data.title);
             this.fill(this.authorTarget, data.author);
+            this.isbnTarget.value = data.isbn;
             this.fill(this.editionTarget, data.edition);
+            this.fill(this.yearTarget, data.year);
             title?.dispatchEvent(new Event('input', { bubbles: true }));
 
             const by = data.author ? ` by ${data.author}` : '';

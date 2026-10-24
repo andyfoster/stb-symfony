@@ -43,9 +43,10 @@
             <article class="listing-detail{{ wanted ? ' listing-wanted-page' }}">
                 <p class="listing-kicker">{{ listing.category.label }}{% if wanted %} <span class="badge badge-wanted">Wanted</span>{% endif %}</p>
                 <h1>{{ listing.title }}</h1>
-                {% if listing.book and (listing.book.author or listing.book.edition) %}
+                {% if listing.book and (listing.book.author or listing.book.edition or listing.book.year) %}
                     <p class="listing-byline">
                         {% if listing.book.author %}<span>{{ listing.book.author }}</span>{% endif %}
+                        {% if listing.book.year %}<span>{{ listing.book.year }}</span>{% endif %}
                         {% if listing.book.edition %}<span>{{ listing.book.edition }} edition</span>{% endif %}
                     </p>
                 {% endif %}

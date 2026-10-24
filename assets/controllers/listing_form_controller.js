@@ -3,12 +3,13 @@ import { Controller } from '@hotwired/stimulus';
 // Selling and wanted listings share data, but ask different questions.
 export default class extends Controller {
     static targets = ['category', 'book', 'type', 'conditionField', 'title', 'description',
-        'titleLabel', 'priceLabel', 'priceHelp', 'descriptionLabel', 'photoPanel', 'photoTitle', 'publish'];
+        'titleLabel', 'priceLabel', 'priceHelp', 'descriptionLabel', 'photoPanel', 'photoTitle', 'publish', 'conditionDescription'];
     static values = { textbooks: String };
 
     connect() {
         this.toggleBook();
         this.changeType();
+        this.updateCondition();
     }
 
     get wanted() {
@@ -37,6 +38,14 @@ export default class extends Controller {
         if (this.publishTarget.dataset.editing !== 'true') {
             this.publishTarget.textContent = wanted ? 'Post wanted listing' : 'Publish listing';
         }
+    }
+
+    updateCondition() {
+        const selected = this.element.querySelector('.condition-input:checked');
+        this.conditionDescriptionTarget.textContent = selected?.dataset.description ?? '';
+        this.element.querySelectorAll('.condition-option').forEach((label) => {
+            label.classList.toggle('is-rated', Number(label.dataset.rating) <= Number(selected?.dataset.rating ?? 0));
+        });
     }
 
     toggleBook() {

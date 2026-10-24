@@ -82,6 +82,24 @@ final class ListingCreateTest extends WebTestCase
         self::assertCount(0, $this->onlyListing()->getPhotos());
     }
 
+    public function testConditionStarsKeepLabelsAndOneSelectedDescription(): void
+    {
+        $seller = $this->createUser('sam@example.com');
+        $listing = $this->createListing($seller);
+        $this->client->loginUser($seller);
+        $this->client->request('GET', '/listings/'.$listing->getId().'/edit');
+        self::assertResponseIsSuccessful();
+        self::assertSelectorCount(5, '.condition-star');
+        self::assertSame(['Well used', 'Fair', 'Good', 'Like new', 'New'], $this->client->getCrawler()->filter('.condition-option strong')->each(static fn ($node) => $node->text()));
+        self::assertSelectorCount(3, '.condition-option.is-rated');
+        self::assertSelectorTextContains('#condition-description', 'Some signs of use');
+        self::assertSelectorNotExists('.condition-option span:not(.condition-star)');
+        $this->client->submitForm('Save changes', ['listing_form[condition]' => 'fair']);
+        self::assertResponseRedirects();
+        $this->manager->clear();
+        self::assertSame(\App\Enum\Condition::Fair, $this->manager->find(Listing::class, $listing->getId())->getCondition());
+    }
+
     public function testGuestsAreSentToLogIn(): void
     {
         $this->client->request('GET', '/sell');
@@ -102,7 +120,8 @@ final class ListingCreateTest extends WebTestCase
             'listing_form[priceCents]' => '85.50',
             'listing_form[condition]' => 'good',
             'listing_form[description]' => 'No writing inside.',
-            'listing_form[book][isbn]' => '978-0137542970',
+            'listing_form[book][isbn]' => '978–0 137542970',
+            'listing_form[book][year]' => '2024',
             'listing_form[book][author]' => 'Brown & LeMay',
             // Typed in by hand: a known paper and one that isn't in the list yet.
             'listing_form[book][papers]' => 'chem 191, CHEM111',
@@ -112,6 +131,8 @@ final class ListingCreateTest extends WebTestCase
         self::assertResponseRedirects('/listings/'.$listing->getId());
         self::assertSame(ListingStatus::Active, $listing->getStatus());
         self::assertSame(8550, $listing->getPriceCents());
+        self::assertSame('9780137542970', $listing->getBook()->getIsbn());
+        self::assertSame(2024, $listing->getBook()->getYear());
         self::assertSame('sam@example.com', $listing->getSeller()->getEmail());
         self::assertEqualsWithDelta(new \DateTimeImmutable('+365 days'), $listing->getExpiresAt(), 5);
 
@@ -119,6 +140,7 @@ final class ListingCreateTest extends WebTestCase
         self::assertSelectorTextContains('.flash', 'Your listing is live.');
         self::assertSelectorTextContains('h1', 'Chemistry: The Central Science');
         self::assertSelectorTextContains('.listing-byline', 'Brown & LeMay');
+        self::assertSelectorTextContains('.listing-byline', '2024');
         self::assertSelectorTextContains('.listing-condition .condition', 'Good');
         self::assertSelectorTextContains('.listing-comments h2', 'Comments from Sam');
         self::assertSelectorTextContains('.listing-comments .listing-body', 'No writing inside.');
@@ -191,7 +213,8 @@ final class ListingCreateTest extends WebTestCase
         $this->client->loginUser($this->createUser('sam@example.com'));
 
         $this->client->request('GET', '/sell');
-        self::assertSelectorTextContains('.condition-option', 'Never used, as it came from the shop.');
+        self::assertSelectorExists('.condition-option[title="Never used, as it came from the shop."]');
+        self::assertSelectorCount(5, '.condition-star');
         $this->client->submitForm('Publish listing', [
             'listing_form[type]' => 'for_sale',
             'listing_form[title]' => 'Desk lamp',

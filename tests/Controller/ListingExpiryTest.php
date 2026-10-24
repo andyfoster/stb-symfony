@@ -74,6 +74,117 @@ final class ListingExpiryTest extends WebTestCase
         self::assertSame(365, $this->manager->getRepository(\App\Entity\SiteSettings::class)->findAll()[0]->getListingLifetimeDays());
     }
 
+    public function testSellersAndWantersCanChooseTheirHideDate(): void
+    {
+        $this->client->loginUser($this->createUser('sam@example.com'));
+        $date = static::getContainer()->get(\App\Listing\ListingExpiry::class)->today()->modify('+2 months');
+        foreach (['for_sale', 'wanted'] as $type) {
+            $this->client->request('GET', '/sell?type='.$type);
+            $this->client->submitForm('wanted' === $type ? 'Post wanted listing' : 'Publish listing', [
+                'listing_form[title]' => 'Desk '.$type,
+                'listing_form[category]' => 'flat_and_home',
+                'listing_form[condition]' => 'good',
+                'listing_form[hideAfter]' => $date->format('Y-m-d'),
+            ]);
+            self::assertResponseRedirects();
+            $listing = $this->manager->getRepository(Listing::class)->findOneBy(['title' => 'Desk '.$type]);
+            $expiry = $date->modify('+1 day');
+            self::assertEquals($expiry, $listing->getExpiresAt());
+            self::assertTrue($listing->isLive($expiry->modify('-1 microsecond')));
+            self::assertFalse($listing->isLive($expiry));
+        }
+    }
+
+    public function testHideDateRejectsPastDatesAndDatesBeyondAYear(): void
+    {
+        $this->client->loginUser($this->createUser('sam@example.com'));
+        $policy = static::getContainer()->get(\App\Listing\ListingExpiry::class);
+        foreach ([$policy->today()->modify('-1 day'), $policy->latestDate()->modify('+1 day')] as $date) {
+            $this->client->request('GET', '/sell');
+            $this->client->submitForm('Publish listing', [
+                'listing_form[title]' => 'Desk',
+                'listing_form[category]' => 'flat_and_home',
+                'listing_form[condition]' => 'good',
+                'listing_form[hideAfter]' => $date->format('Y-m-d'),
+            ]);
+            self::assertResponseStatusCodeSame(422);
+            self::assertSelectorTextContains('body', 'Choose');
+            self::assertSame(0, $this->manager->getRepository(Listing::class)->count([]));
+        }
+    }
+
+    public function testOwnerCanExtendDateAtAnyTimeWithoutBumpingTheListing(): void
+    {
+        $seller = $this->createUser('sam@example.com');
+        $listing = $this->createListing($seller, 'Desk', '-1 day');
+        $published = $listing->getPublishedAt();
+        $listing->setExpiryReminderSentAt(new \DateTimeImmutable());
+        $this->manager->flush();
+        $this->client->loginUser($seller);
+        $date = static::getContainer()->get(\App\Listing\ListingExpiry::class)->latestDate();
+        $this->client->request('GET', '/listings/'.$listing->getId().'/edit');
+        self::assertSelectorExists('input[type="date"][name="listing_form[hideAfter]"][max="'.$date->format('Y-m-d').'"]');
+        $this->client->submitForm('Save changes', ['listing_form[hideAfter]' => $date->format('Y-m-d')]);
+        self::assertResponseRedirects();
+        $listing = $this->reload($listing);
+        self::assertEquals($date->modify('+1 day'), $listing->getExpiresAt());
+        self::assertEqualsWithDelta($published, $listing->getPublishedAt(), 1);
+        self::assertNull($listing->getExpiryReminderSentAt());
+    }
+
+    public function testSavingOtherChangesKeepsTheExactExpiryAndReminder(): void
+    {
+        $seller = $this->createUser('sam@example.com');
+        $listing = $this->createListing($seller, 'Desk', '-40 days');
+        $expiry = $listing->getExpiresAt();
+        $reminder = new \DateTimeImmutable('-1 day');
+        $listing->setExpiryReminderSentAt($reminder);
+        $this->manager->flush();
+        $this->client->loginUser($seller);
+        $this->client->request('GET', '/listings/'.$listing->getId().'/edit');
+        $this->client->submitForm('Save changes', ['listing_form[title]' => 'Desk with drawers']);
+        self::assertResponseRedirects();
+        $listing = $this->reload($listing);
+        self::assertEqualsWithDelta($expiry, $listing->getExpiresAt(), 1);
+        self::assertEqualsWithDelta($reminder, $listing->getExpiryReminderSentAt(), 1);
+    }
+
+    public function testExpiredListingCanBeRepublishedForTheRestOfToday(): void
+    {
+        $seller = $this->createUser('sam@example.com');
+        $policy = static::getContainer()->get(\App\Listing\ListingExpiry::class);
+        $listing = $this->createListing($seller, 'Desk')->setExpiresAt($policy->today());
+        $this->manager->flush();
+        $this->client->loginUser($seller);
+        $this->client->request('GET', '/listings/'.$listing->getId().'/edit');
+        $this->client->submitForm('Publish listing', ['listing_form[hideAfter]' => $policy->today()->format('Y-m-d')]);
+        self::assertResponseRedirects();
+        self::assertEquals($policy->today()->modify('+1 day'), $this->reload($listing)->getExpiresAt());
+    }
+
+    public function testDraftKeepsChosenDateWhenFirstPublished(): void
+    {
+        $this->client->loginUser($this->createUser('sam@example.com'));
+        $date = static::getContainer()->get(\App\Listing\ListingExpiry::class)->today()->modify('+4 months');
+        $this->client->request('GET', '/sell');
+        $this->client->submitForm('Save draft', [
+            'listing_form[title]' => 'Desk',
+            'listing_form[category]' => 'flat_and_home',
+            'listing_form[condition]' => 'good',
+            'listing_form[hideAfter]' => $date->format('Y-m-d'),
+        ]);
+        self::assertResponseRedirects();
+        $listing = $this->manager->getRepository(Listing::class)->findOneBy(['title' => 'Desk']);
+        self::assertTrue($listing->isDraft());
+        $this->client->request('GET', '/listings/'.$listing->getId().'/edit');
+        $this->client->submitForm('Publish listing');
+        self::assertResponseRedirects();
+        $listing = $this->reload($listing);
+        self::assertNotNull($listing->getPublishedAt());
+        self::assertEquals($date->modify('+1 day'), $listing->getExpiresAt());
+        self::assertTrue($listing->isLive());
+    }
+
     public function testExpiredListingsAreHidden(): void
     {
         $sam = $this->createUser('sam@example.com');
