@@ -235,6 +235,16 @@ tasks:
     cmds:
       - symfony console messenger:consume async scheduler_default -vv {{.CLI_ARGS}}
 
+  mail:test:
+    desc: 'Send a real email through Mailgun with the test key (task mail:test -- you@example.com)'
+    dotenv: ['.env.local']
+    preconditions:
+      - sh: test -n "$MAILER_TEST_DSN"
+        msg: 'Add MAILER_TEST_DSN to .env.local: a Mailgun DSN with the test key, like mailgun+api://KEY:DOMAIN@default?region=us'
+    cmds:
+      # Plain php, not `symfony console`, which would swap in Mailpit's DSN.
+      - MAILER_DSN="$MAILER_TEST_DSN" php bin/console mailer:test {{.CLI_ARGS}} --from="${MAILER_FROM:-ScarfieTextbooks <noreply@scarfietextbooks.com>}" --subject="ScarfieTextbooks test email" --body="Mailgun is set up."
+
   reminders:send:
     desc: Email sellers whose listings expire soon now, instead of waiting for the daily schedule
     cmds:
@@ -363,6 +373,12 @@ tasks:
     desc: Follow the production Messenger worker (email sending) logs
     cmds:
       - kamal app logs -f --roles=job
+
+  prod:mail:test:
+    desc: 'Send a test email straight from production through Mailgun (task prod:mail:test -- you@example.com)'
+    deps: [prod:env]
+    cmds:
+      - kamal app exec --roles=web --reuse 'sh -c "php bin/console mailer:test {{.CLI_ARGS}} --from=\"\$MAILER_FROM\" --subject=\"ScarfieTextbooks test email\" --body=\"Mailgun is set up.\""'
 
   prod:worker:failed:
     desc: Show messages (e.g. emails) that failed in production

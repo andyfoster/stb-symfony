@@ -259,8 +259,12 @@ up to date when adding a workflow.
   after `task deploy`. Migrations create `messenger_messages`; `task prod:messenger:setup`
   (`messenger:setup-transports`, idempotent) makes sure it exists, since `auto_setup=0`.
 - Email goes through Mailgun (`symfony/mailgun-mailer`, `MAILER_DSN` like
-  `mailgun+api://KEY:DOMAIN@default?region=eu`), sent from `noreply@stb.gitforked.com`
-  (`config/packages/mailer.yaml`), so that domain must be verified in Mailgun (SPF/DKIM DNS).
+  `mailgun+api://KEY:scarfietextbooks.com@default?region=us`), sent from `MAILER_FROM`
+  (`noreply@scarfietextbooks.com`; the production key only sends from that domain, which must be
+  verified in Mailgun with SPF/DKIM DNS). `DEFAULT_URI` in `config/deploy.yml` gives the job role's
+  emails their link host. `task mail:test -- you@example.com` sends a real email with the test key
+  (`MAILER_TEST_DSN` in `.env.local`); `task prod:mail:test -- you@example.com` sends one from
+  production, bypassing the queue, so errors show straight away.
   Mail is queued on the Doctrine `async` transport and sent by the `job` role in
   `config/deploy.yml`, a second container from the same image on the same server running
   `messenger:consume async scheduler_default`, so it also runs the scheduled jobs (restarts hourly; the image's Caddy HEALTHCHECK is disabled for

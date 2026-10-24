@@ -62,6 +62,9 @@ builder:
 env:
   clear:
     APP_ENV: prod
+    # Links in emails the job role sends (expiry reminders) have no request to take the host from.
+    DEFAULT_URI: https://stb.gitforked.com
+    MAILER_FROM: ScarfieTextbooks <noreply@scarfietextbooks.com>
     # File locks must live on the same volume in web and worker containers.
     LOCK_DSN: flock:///app/var/uploads/.locks
 #     DB_HOST: 192.168.0.2

@@ -38,6 +38,7 @@ final class ContactSellerTest extends WebTestCase
         $email = self::getMailerMessage();
         self::assertInstanceOf(Email::class, $email);
         self::assertEmailAddressContains($email, 'To', 'sam@example.com');
+        self::assertEmailAddressContains($email, 'From', 'noreply@scarfietextbooks.com');
         self::assertEmailAddressContains($email, 'Reply-To', 'jo@example.com');
         self::assertEmailSubjectContains($email, 'Jo asked about “Chemistry: The Central Science”');
         self::assertEmailHtmlBodyContains($email, 'aria-label="ScarfieTextbooks"');
