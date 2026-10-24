@@ -103,7 +103,17 @@ tasks:
   phpstan:
     desc: Run PHPStan static analysis (task phpstan -- --level=7)
     cmds:
-      - vendor/bin/phpstan analyse {{.CLI_ARGS}} --memory-limit=1G
+      - symfony php vendor/bin/phpstan analyse --memory-limit=1G {{.CLI_ARGS}}
+
+  rector:
+    desc: 'Preview Rector refactorings without changing files (task rector -- src/Controller)'
+    cmds:
+      - symfony php vendor/bin/rector process --dry-run {{.CLI_ARGS}}
+
+  rector:fix:
+    desc: 'Apply Rector refactorings (task rector:fix -- src/Controller)'
+    cmds:
+      - symfony php vendor/bin/rector process {{.CLI_ARGS}}
 
   test:
     desc: 'Run the test suite (task test -- --filter ListingControllerTest)'
