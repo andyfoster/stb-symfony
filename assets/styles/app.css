@@ -1116,6 +1116,15 @@ turbo-frame[aria-busy=true] .listing-grid {
     margin-right:10px
 }
 
+/* The edition gets a line of its own under the author and year. */
+.listing-byline .listing-edition {
+    flex-basis:100%
+}
+
+.listing-byline .listing-edition::before {
+    content:none
+}
+
 .listing-price-row {
     display:flex;
     flex-wrap:wrap;
@@ -1128,27 +1137,23 @@ turbo-frame[aria-busy=true] .listing-grid {
     font-size:24px
 }
 
-.listing-condition .condition {
-    margin-right:4px
+/* Details and description: a heading on the left, separated by thin rules. */
+.listing-section {
+    display:grid;
+    grid-template-columns:140px minmax(0,1fr);
+    gap:8px 24px;
+    max-width:760px;
+    padding:20px 0;
+    border-top:1px solid var(--line)
 }
 
-.listing-comments {
-    max-width:68ch;
-    margin:24px 0;
-    padding:16px 20px 18px;
-    border-left:4px solid var(--blue);
-    border-radius:0 8px 8px 0;
-    background:var(--blue-tint)
+.listing-section:first-of-type {
+    margin-top:28px
 }
 
-.listing-wanted-page .listing-comments {
-    border-left-color:var(--gold)
-}
-
-.listing-comments h2 {
-    margin:0 0 6px;
-    color:var(--muted);
-    font-size:14px;
+.listing-section h2 {
+    margin:0;
+    font-size:17px;
     font-weight:600
 }
 
@@ -1269,9 +1274,9 @@ turbo-frame[aria-busy=true] .listing-grid {
 .listing-facts {
     display:grid;
     grid-template-columns:max-content 1fr;
-    gap:8px 24px;
-    margin:24px 0;
-    font-size:15px
+    gap:10px 20px;
+    margin:0;
+    font-size:16px
 }
 
 .listing-facts div {
@@ -1284,6 +1289,22 @@ turbo-frame[aria-busy=true] .listing-grid {
 
 .listing-facts dd {
     margin:0
+}
+
+.listing-condition .condition {
+    padding:0;
+    box-shadow:none;
+    background:none;
+    color:var(--navy);
+    font-size:inherit;
+    font-weight:600;
+    line-height:inherit
+}
+
+.condition-note {
+    display:block;
+    color:var(--muted);
+    font-size:14px
 }
 
 .listing-body {
@@ -2231,6 +2252,10 @@ turbo-frame[aria-busy=true] .listing-grid {
 
     .contact-panel {
         position:static
+    }
+
+    .listing-section {
+        grid-template-columns:1fr
     }
 }
 

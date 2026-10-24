@@ -3,7 +3,7 @@
 
 {# For the seller (and admins): where the listing stands, and what they can do about it. #}
 {% macro owner_status(listing, own) %}
-    {% set state = listing.archived ? 'archived' : listing.draft ? 'draft' : (listing.sold ? 'sold' : (listing.expired ? 'expired' : 'live')) %}
+    {% set state = listing.archived ? 'archived' : (listing.draft ? 'draft' : (listing.sold ? 'sold' : (listing.expired ? 'expired' : 'live'))) %}
     <section class="owner-bar" aria-labelledby="owner-title">
         <div class="owner-summary">
             <h2 id="owner-title">{{ own ? 'Your listing' : 'Manage listing' }}</h2>
@@ -11,7 +11,7 @@
             <span class="status status-{{ state }}">{{ state|capitalize }}</span>
             {% if state == 'draft' %}Only you can see it.
             {% elseif state == 'sold' or state == 'archived' %}Hidden from everyone else.
-            {% elseif state == 'expired' %}Since {{ listing.expiresAt|date('j M Y') }}.
+            {% elseif state == 'expired' %}Since {{ listing.expiresAt|date('j M Y', 'Pacific/Auckland') }}.
             {% else %}Hides {{ listing.expiresAt|date('j M Y', 'Pacific/Auckland') }}.{% endif %}
             </p>
         </div>
@@ -48,7 +48,7 @@
                     <p class="listing-byline">
                         {% if listing.book.author %}<span>{{ listing.book.author }}</span>{% endif %}
                         {% if listing.book.year %}<span>{{ listing.book.year }}</span>{% endif %}
-                        {% if listing.book.edition %}<span>{{ listing.book.edition }} edition</span>{% endif %}
+                        {% if listing.book.edition %}<span class="listing-edition">{{ listing.book.edition }} edition</span>{% endif %}
                     </p>
                 {% endif %}
                 <div class="listing-price-row">
@@ -77,30 +77,29 @@
                     {% include 'listing/_book_cover.html.twig' with {detail: true} %}
                 {% endif %}
 
-                {% if listing.condition %}
-                    <section class="listing-comments listing-condition" aria-labelledby="condition-title">
-                        <h2 id="condition-title">Details</h2>
-                        <div class="listing-body">
-                                Condition: <span class="condition">{{ listing.condition.label }}</span>
-
-                        </div>
-                    </section>
-                {% endif %}
+                <section class="listing-section" aria-labelledby="details-title">
+                    <h2 id="details-title">Details</h2>
+                    <dl class="listing-facts">
+                        {% if listing.condition %}
+                            <div class="listing-condition">
+                                <dt>Condition</dt>
+                                <dd><span class="condition">{{ listing.condition.label }}</span><span class="condition-note">{{ listing.condition.description }}</span></dd>
+                            </div>
+                        {% endif %}
+                        {% if listing.book %}
+                            {% if listing.book.papers|length %}<div><dt>{{ listing.book.papers|length > 1 ? 'Papers' : 'Paper' }}</dt><dd class="paper-list">{% for paper in listing.book.papers %}<span><span class="course-code">{{ paper.code }}</span>{% if paper.title %} {{ paper.title }}{% endif %}</span>{% endfor %}</dd></div>{% endif %}
+                            {% if listing.book.isbn %}<div><dt>ISBN</dt><dd>{{ listing.book.isbn }}</dd></div>{% endif %}
+                        {% endif %}
+                        {% if listing.publishedAt %}<div><dt>Listed</dt><dd><time datetime="{{ listing.publishedAt|date('c') }}">{{ listing.publishedAt|date('j M Y', 'Pacific/Auckland') }}</time></dd></div>{% endif %}
+                    </dl>
+                </section>
 
                 {% if listing.description %}
-                    <section class="listing-comments listing-description-section" aria-labelledby="description-title">
-                        <h2 id="description-title">Description</h2>
+                    <section class="listing-section listing-description-section" aria-labelledby="description-title">
+                        <h2 id="description-title">{{ wanted ? 'Requirements' : 'Description' }}</h2>
                         <div class="listing-body">{{ listing.description|nl2br }}</div>
                     </section>
                 {% endif %}
-
-                <dl class="listing-facts">
-                    {% if listing.book %}
-                        {% if listing.book.papers|length %}<div><dt>{{ listing.book.papers|length > 1 ? 'Papers' : 'Paper' }}</dt><dd class="paper-list">{% for paper in listing.book.papers %}<span><span class="course-code">{{ paper.code }}</span>{% if paper.title %} {{ paper.title }}{% endif %}</span>{% endfor %}</dd></div>{% endif %}
-                        {% if listing.book.isbn %}<div><dt>ISBN</dt><dd>{{ listing.book.isbn }}</dd></div>{% endif %}
-                    {% endif %}
-                    {% if listing.publishedAt %}<div><dt>Listed</dt><dd><time datetime="{{ listing.publishedAt|date('c') }}">{{ listing.publishedAt|date('j M Y') }}</time></dd></div>{% endif %}
-                </dl>
             </article>
 
             <aside class="contact-panel" aria-labelledby="contact-title">

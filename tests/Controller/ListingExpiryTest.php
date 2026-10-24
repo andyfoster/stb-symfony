@@ -153,7 +153,8 @@ final class ListingExpiryTest extends WebTestCase
     {
         $seller = $this->createUser('sam@example.com');
         $policy = static::getContainer()->get(\App\Listing\ListingExpiry::class);
-        $listing = $this->createListing($seller, 'Desk')->setExpiresAt($policy->today());
+        // In UTC like the app stores it: Doctrine saves the wall-clock time and reads it back as UTC.
+        $listing = $this->createListing($seller, 'Desk')->setExpiresAt($policy->today()->setTimezone(new \DateTimeZone('UTC')));
         $this->manager->flush();
         $this->client->loginUser($seller);
         $this->client->request('GET', '/listings/'.$listing->getId().'/edit');

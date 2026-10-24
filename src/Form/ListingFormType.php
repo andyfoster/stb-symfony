@@ -84,7 +84,7 @@ class ListingFormType extends AbstractType
                 'input' => 'integer',
                 'currency' => false,
                 'html5' => true,
-                'help' => 'Leave blank for “make an offer”. 0 means free.',
+                'help' => 'Leave blank for offers; 0 means free.',
                 'attr' => ['min' => 0, 'step' => '0.01', 'placeholder' => '0.00'],
             ])
             ->add('condition', EnumType::class, [
@@ -99,7 +99,6 @@ class ListingFormType extends AbstractType
             ->add('description', TextareaType::class, [
                 'label' => 'Description',
                 'required' => false,
-                'attr' => ['rows' => 6, 'placeholder' => 'Condition, edition, reason for selling, and included extras'],
             ])
             ->add('book', BookDetailsFormType::class, [
                 'label' => false,

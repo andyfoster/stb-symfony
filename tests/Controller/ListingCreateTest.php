@@ -285,7 +285,7 @@ final class ListingCreateTest extends WebTestCase
         $this->client->request('GET', '/listings/'.$listing->getId().'/edit');
         self::assertResponseStatusCodeSame(403);
 
-        $this->client->request('POST', '/listings/'.$listing->getId().'/delete', ['_csrf_token' => 'csrf-token']);
+        $this->client->request('POST', '/listings/'.$listing->getId().'/archive', ['_csrf_token' => 'csrf-token']);
         self::assertResponseStatusCodeSame(403);
     }
 

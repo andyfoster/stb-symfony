@@ -7,7 +7,7 @@
     <h1 class="dashboard-title">My listings <span class="count">{{ listings|length }}</span></h1>
 
     {% for listing in listings %}
-        {% set state = listing.archived ? 'archived' : listing.draft ? 'draft' : (listing.sold ? 'sold' : (listing.expired ? 'expired' : 'live')) %}
+        {% set state = listing.archived ? 'archived' : (listing.draft ? 'draft' : (listing.sold ? 'sold' : (listing.expired ? 'expired' : 'live'))) %}
         <article class="my-listing my-listing-{{ state }}">
             <div class="my-listing-main">
                 <span class="status status-{{ state }}">{{ state|capitalize }}</span>
@@ -34,10 +34,10 @@
                     </form>
                 {% endif %}
                 {% if not listing.archived %}
-                <form method="post" action="{{ path('app_listing_archive', {id: listing.id}) }}">
-                    <input type="hidden" name="_csrf_token" data-controller="csrf-protection" value="{{ csrf_token('submit') }}">
-                    <button class="nav-link" type="submit">Archive</button>
-                </form>
+                    <form method="post" action="{{ path('app_listing_archive', {id: listing.id}) }}">
+                        <input type="hidden" name="_csrf_token" data-controller="csrf-protection" value="{{ csrf_token('submit') }}">
+                        <button class="nav-link" type="submit">Archive</button>
+                    </form>
                 {% endif %}
             </div>
         </article>

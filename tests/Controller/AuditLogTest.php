@@ -89,20 +89,20 @@ final class AuditLogTest extends WebTestCase
         self::assertArrayHasKey('expiresAt', $published->getContext());
     }
 
-    public function testLegacyDeleteArchivesAndKeepsWhichOneItWas(): void
+    public function testArchivingIsRecordedWithTheListing(): void
     {
         $user = $this->createUser('sam@example.com');
         $listing = $this->createListing($user, 'Desk lamp');
         $id = $listing->getId();
         $this->client->loginUser($user);
 
-        $this->client->request('POST', '/listings/'.$id.'/delete', ['_csrf_token' => 'csrf-token']);
+        $this->client->request('POST', '/listings/'.$id.'/archive', ['_csrf_token' => 'csrf-token']);
         self::assertResponseRedirects('/account/listings');
 
-        [$deleted] = $this->events();
-        self::assertSame(AuditType::ListingArchived, $deleted->getType());
-        self::assertSame($id, $deleted->getSubjectId());
-        self::assertSame('Desk lamp', $deleted->getSubjectLabel());
+        [$archived] = $this->events();
+        self::assertSame(AuditType::ListingArchived, $archived->getType());
+        self::assertSame($id, $archived->getSubjectId());
+        self::assertSame('Desk lamp', $archived->getSubjectLabel());
     }
 
     public function testAdminsSeeTheLogAndAUsersRecentActivity(): void

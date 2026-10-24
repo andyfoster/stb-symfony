@@ -57,18 +57,27 @@ up to date when adding a workflow.
 - `Listing` is the generic marketplace item: `ListingType` (for sale / wanted), `Category`,
   optional `Condition`, price in integer cents (null = make an offer / name your price;
   0 = free). Book-only data lives in the optional one-to-one `BookDetails` (author, edition,
-  ISBN, course code), per the scope rule above. Enums in `src/Enum` carry their display `label()`.
+  year, ISBN, papers), per the scope rule above. Enums in `src/Enum` carry their display `label()`.
 - Listings belong to a `seller` (nullable only for imported rows) and have a `ListingStatus`
-  (draft / active / sold). "Expired" is not a status: an active listing past `expiresAt`.
+  (draft / active / sold / archived). "Expired" is not a status: an active listing past `expiresAt`.
+  Sellers can't delete listings, only archive them (`/listings/{id}/archive`, or "Take off site",
+  `app_listing_remove`, which emails link to); sold and archived ones can be re-listed.
   `publish()` / `refresh()` set `publishedAt` and `expiresAt` (the home page lists A–Z by title) from
-  the admin-set lifetime in the single `SiteSettings` row (`SiteSettingsProvider`, default 42
-  days). Refresh only opens `REFRESH_WINDOW_DAYS` (7) before expiry. `ListingVoter`
+  the admin-set lifetime in the single `SiteSettings` row (`SiteSettingsProvider`, default and
+  maximum 365 days, so a book posted in November is still up for July). Sellers can instead pick a
+  "Hide after" date on the form (unmapped `hideAfter`), up to a year ahead: `ListingExpiry` turns
+  that New Zealand date into `expiresAt` (midnight after it, stored in UTC; Doctrine saves
+  wall-clock time, so never persist a non-UTC `DateTimeImmutable`). Changing it never moves
+  `publishedAt`. Refresh only opens `REFRESH_WINDOW_DAYS` (7) before expiry. `ListingVoter`
   (`LISTING_VIEW`, `LISTING_EDIT`): anyone sees live listings, sellers and admins the rest.
   Every morning (9:00 NZ, `src/Schedule.php`, Symfony Scheduler) `ExpiryReminder` emails each
   seller once about listings expiring within `EXPIRY_REMINDER_DAYS` (3); `expiryReminderSentAt`
   stops repeats until the next publish/refresh. `task reminders:send` runs it now.
   `ListingFormType` (create/edit at `/sell`, `/listings/{id}/edit`) clears `book` before
-  validation unless the category is Textbooks; `ListingEditor` saves, publishes and deletes.
+  validation unless the category is Textbooks; `ListingEditor` saves, publishes and archives.
+  The form relabels itself for wanted listings ("Looking for", "Budget", "Requirements";
+  `listing-form` controller, mirrored in `_form.html.twig` for the first render), and
+  `/sell?type=wanted` starts one.
 - Otago papers: `BookDetails::papers` is many-to-many with `Paper` (code like CHEM191, optional
   title, `official` when it came from Otago's list). `data/otago-papers.csv` is a starter list
   (Otago's site blocks scripted downloads); load the full list with `task papers:import -- file.csv`
@@ -77,7 +86,10 @@ up to date when adding a workflow.
   suggestions from `/papers/search`; codes not in the list are added as unofficial papers, which
   admins can review under Papers in `/admin`. Search matches paper codes with or without spaces.
 - ISBN lookup: `BookLookup` asks Open Library, then Google Books (no keys), caching answers in
-  `cache.app`; `/sell/lookup-isbn` serves the `isbn-lookup` Stimulus controller.
+  `cache.app`; `/sell/lookup-isbn` serves the `isbn-lookup` Stimulus controller. `BookDetails`
+  stores ISBNs normalised (`BookLookup::normalise()`). Textbooks with an ISBN and no photo show
+  an Open Library cover (`listing/_book_cover.html.twig`, loaded straight from
+  covers.openlibrary.org; the `book-cover` controller falls back to the category icon).
 - Title suggestions: as you type a listing title, the `title-suggest` controller asks
   `/sell/suggest-titles` (`ListingRepository::suggestBookTitles()`) for textbook titles listed
   before (published or sold, never drafts), one per title and author, most sold first. Picking
@@ -125,7 +137,8 @@ up to date when adding a workflow.
   everything shown. If listings grow into the thousands, this needs paging again.
 - Categories (`App\Enum\Category`) are deliberately few (five) so they fit as one row of pills;
   merge rather than add.
-- `Condition` has a `description()` shown on the form's condition buttons and the listing page.
+- `Condition` has a `description()` shown under the form's star-rated condition buttons
+  and under Details on the listing page.
   It's required for things for sale (`Assert\Expression` on `Listing::$condition`) and cleared for
   wanted listings. Listings have no pick-up location.
 - Accounts: `User` (table `app_user`) is identified by email, always stored lower-case;
@@ -153,8 +166,8 @@ up to date when adding a workflow.
   logged into most recently. Imported accounts are **unverified**, because the old site never
   confirmed addresses, except those that finished an old password reset (`hash_table.used`),
   which proves the inbox works. Old admins (`access = 1`) aren't made admins; `access = 0`
-  accounts get no password. Listings are textbooks with `BookDetails`, expiring when the old site
-  would have hidden them; `quality` 5 ("looks like new") to 1 ("falling apart") maps to Like new,
+  accounts get no password. Listings are textbooks with `BookDetails`, expiring a year (the
+  default lifetime) after they were last listed on the old site; `quality` 5 ("looks like new") to 1 ("falling apart") maps to Like new,
   Good, Fair, Well used (2 and 1). Paper codes are pulled out of the free text
   (`LegacyImporter::paperCodes()`), unknown ones as unofficial papers. The book's year and
   `dept` aren't kept.
@@ -177,8 +190,8 @@ up to date when adding a workflow.
   covers logins (form, remember-me, after sign-up), failed and throttled ones (the email typed,
   never the password) and logouts; `AdminAuditListener` covers EasyAdmin creates, edits (changed
   field names only) and deletes, plus admin access changes. Services record the rest: listings
-  and photos (`ListingEditor`), seller messages without their body (`SellerMessenger`), password
-  resets, legacy SHA-1 upgrades (`UserRepository`), `PasswordSetter`, email confirmation and
+  and photos (`ListingEditor`), seller messages including their body (`SellerMessenger`,
+  context key `messageBody`), password resets, legacy SHA-1 upgrades (`UserRepository`), `PasswordSetter`, email confirmation and
   `app:user:promote`. Admins read it under Audit log in `/admin`, and on each user's detail page.
   `PruneAuditLog` (nightly, `src/Schedule.php`) deletes events older than
   `AuditLog::RETENTION_DAYS` (365).
@@ -193,6 +206,9 @@ up to date when adding a workflow.
   answers from `tests/MockHttpResponses.php`. `tests/DatabaseTestTrait.php` boots the SQLite
   client and creates users and listings; new tests log in with `loginUser()`.
 - `HealthController` (`/up`) is the Kamal proxy healthcheck; keep it dependency-free.
+- `/about` (`AboutController`, linked from the footer) explains how listings work; keep it in
+  step with the expiry and archiving rules. HTML emails extend `emails/_layout.html.twig`, and
+  those about a listing include `emails/_listing_actions.html.twig` (mark sold or archive).
 - Success and error flashes render as toasts at the bottom left (`toast` Stimulus controller,
   they dismiss themselves); keep the `.flash` / `.flash-error` classes, tests assert on them.
   Listing photos are small tiles that open in a `<dialog>` lightbox (`gallery` controller), and

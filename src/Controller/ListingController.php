@@ -202,9 +202,7 @@ final class ListingController extends AbstractController
         return $this->render('listing/remove.html.twig', ['listing' => $listing]);
     }
 
-    // Old forms may still post to /delete; they archive as well.
     #[Route('/listings/{id}/archive', name: 'app_listing_archive', requirements: ['id' => Requirement::DIGITS], methods: ['POST'])]
-    #[Route('/listings/{id}/delete', name: 'app_listing_delete', requirements: ['id' => Requirement::DIGITS], methods: ['POST'])]
     #[IsGranted(ListingVoter::EDIT, 'listing')]
     #[IsCsrfTokenValid('submit', tokenKey: '_csrf_token')]
     public function archive(Listing $listing, ListingEditor $editor): Response

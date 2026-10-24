@@ -38,8 +38,6 @@ class ListingEditor
     {
         $isNew = null === $listing->getId();
         $wasLive = !$isNew && $listing->isLive();
-        $oldExpiry = $listing->getExpiresAt();
-        $chosenExpiry = null === $hideAfter ? null : $this->expiry->expiresAfter($hideAfter);
 
         // Their files go when Doctrine removes them (RemovePhotoFiles).
         $removedIds = [];
@@ -63,9 +61,10 @@ class ListingEditor
             $listing->publish($this->settings->listingLifetimeDays());
         }
 
-        // Editing the hide date never bumps the listing's publication date.
-        if (null !== $chosenExpiry && ($listing->getExpiresAt() != $oldExpiry || $hideAfter->format('Y-m-d') !== $this->expiry->dateFor($oldExpiry)?->format('Y-m-d'))) {
-            $listing->setExpiresAt($chosenExpiry)->setExpiryReminderSentAt(null);
+        // A newly chosen hide date moves the expiry but never the publication date. The form
+        // shows the current date, so leaving it alone doesn't resend the expiry reminder.
+        if (null !== $hideAfter && $hideAfter != $this->expiry->dateFor($listing->getExpiresAt())) {
+            $listing->setExpiresAt($this->expiry->expiresAfter($hideAfter))->setExpiryReminderSentAt(null);
         }
 
         $this->manager->persist($listing);

@@ -37,7 +37,7 @@ class SiteSettingsProvider
 
     public function listingLifetimeDays(): int
     {
-        // The default lifetime must also fit within the one-year limit.
-        return min(SiteSettings::DEFAULT_LISTING_LIFETIME_DAYS, max(1, $this->get()->getListingLifetimeDays()));
+        // Clamped as well as validated: a row saved before the one-year limit may be longer.
+        return min(SiteSettings::MAX_LISTING_LIFETIME_DAYS, max(1, $this->get()->getListingLifetimeDays()));
     }
 }
