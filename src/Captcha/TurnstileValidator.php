@@ -55,6 +55,13 @@ class TurnstileValidator extends ConstraintValidator
             return false;
         }
 
-        return true === ($result['success'] ?? false);
+        if (true !== ($result['success'] ?? false)) {
+            // e.g. "invalid-input-secret" (wrong secret), "timeout-or-duplicate" (token reused or over 5 minutes old).
+            $this->logger->warning('Turnstile rejected a token: {codes}', ['codes' => implode(', ', $result['error-codes'] ?? [])]);
+
+            return false;
+        }
+
+        return true;
     }
 }

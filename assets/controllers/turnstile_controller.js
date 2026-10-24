@@ -17,9 +17,11 @@ function loadTurnstile() {
 
 /*
  * Cloudflare Turnstile, rendered explicitly so it works with Turbo page
- * changes. The widget posts its token under our form field's name.
+ * changes. The widget posts its token under our form field's name. It only
+ * appears when Cloudflare wants the visitor to click; most people never see it.
  */
 export default class extends Controller {
+    static targets = ['widget', 'error'];
     static values = { siteKey: String, fieldName: String };
 
     connect() {
@@ -42,10 +44,19 @@ export default class extends Controller {
         if (this.widgetId !== undefined) return;
         const turnstile = await loadTurnstile();
         if (!this.element.isConnected) return;
-        this.widgetId = turnstile.render(this.element, {
+        this.widgetId = turnstile.render(this.widgetTarget, {
             sitekey: this.siteKeyValue,
             'response-field-name': this.fieldNameValue,
             theme: 'light',
+            appearance: 'interaction-only',
+            callback: () => { this.errorTarget.hidden = true; },
+            // Codes: https://developers.cloudflare.com/turnstile/troubleshooting/client-side-errors/error-codes/
+            // 110200 means this hostname isn't on the widget's list in the Cloudflare dashboard.
+            'error-callback': (code) => {
+                console.warn(`Turnstile error ${code}`);
+                this.errorTarget.textContent = `We couldn’t check you’re not a robot (Cloudflare error ${code}). Refresh the page and try again.`;
+                this.errorTarget.hidden = false;
+            },
         });
     }
 

@@ -119,7 +119,9 @@ up to date when adding a workflow.
   set to the sender. Senders give an email, a mobile (`Message::senderPhone`) or both
   (`Assert\Expression` on `senderEmail`); logged-in senders get their account's phone filled in,
   and phone-only messages have no Reply-To, so the seller texts or calls back. Guests and unverified users get Cloudflare Turnstile (`App\Captcha`, keys in
-  `TURNSTILE_SITE_KEY`/`TURNSTILE_SECRET_KEY`; `.env` has Cloudflare's always-pass test keys),
+  `TURNSTILE_SITE_KEY`/`TURNSTILE_SECRET_KEY`; `.env` has Cloudflare's always-pass test keys;
+  the widget is `interaction-only`, shows Cloudflare's error code if it fails, and rejected tokens
+  are logged with Cloudflare's reason; the site's hostname must be on the widget's list in Cloudflare),
   and a hidden `website` honeypot field. Sellers can show their phone (`User::showPhone`) and set
   it under Your details.
 - Admin: EasyAdmin 5 at `/admin` (`src/Controller/Admin`, `ROLE_ADMIN`, also in

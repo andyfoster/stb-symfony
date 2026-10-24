@@ -1432,8 +1432,13 @@ turbo-frame[aria-busy=true] .listing-grid {
 }
 
 .turnstile {
-    min-height:65px;
     margin-bottom:14px
+}
+
+.turnstile-error {
+    margin:6px 0 0;
+    color:var(--red);
+    font-size:13px
 }
 
 .honeypot {

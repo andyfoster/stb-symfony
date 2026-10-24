@@ -4,6 +4,9 @@
     <div class="turnstile"
          data-controller="turnstile"
          data-turnstile-site-key-value="{{ site_key }}"
-         data-turnstile-field-name-value="{{ full_name }}"></div>
+         data-turnstile-field-name-value="{{ full_name }}">
+        <div data-turnstile-target="widget"></div>
+        <p class="turnstile-error" data-turnstile-target="error" role="alert" hidden></p>
+    </div>
     <noscript><p class="form-help">Please turn on JavaScript to send a message.</p></noscript>
 {% endblock %}
