@@ -1,0 +1,4 @@
+<p>Finished with this listing?
+    <a href="{{ url('app_listing_remove', {id: listing.id, _fragment: 'sold'}) }}">{{ listing.type.value == 'wanted' ? 'Mark as found' : 'Mark as sold' }}</a>
+    or <a href="{{ url('app_listing_remove', {id: listing.id, _fragment: 'archive'}) }}">archive it for another reason</a>.
+</p>

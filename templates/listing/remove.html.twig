@@ -1,0 +1,19 @@
+{% extends 'base.html.twig' %}
+{% block title %}Take off site · ScarfieTextbooks{% endblock %}
+{% block body %}
+<div class="form-page">
+    <h1>Take “{{ listing.title }}” off the site</h1>
+    <p>It stays in My listings, where you can re-list it later.</p>
+    <div class="form-actions">
+        <form id="sold" method="post" action="{{ path('app_listing_sold', {id: listing.id}) }}">
+            <input type="hidden" name="_csrf_token" data-controller="csrf-protection" value="{{ csrf_token('submit') }}">
+            <button class="button" type="submit">{{ listing.type.value == 'wanted' ? 'Found it' : 'Mark sold' }}</button>
+        </form>
+        <form id="archive" method="post" action="{{ path('app_listing_archive', {id: listing.id}) }}">
+            <input type="hidden" name="_csrf_token" data-controller="csrf-protection" value="{{ csrf_token('submit') }}">
+            <button class="button button-outline" type="submit">Archive for another reason</button>
+        </form>
+        <a href="{{ path('app_listing_show', {id: listing.id}) }}">Cancel</a>
+    </div>
+</div>
+{% endblock %}

@@ -195,14 +195,23 @@ final class ListingController extends AbstractController
         return $this->redirectToRoute('app_account_listings', [], Response::HTTP_SEE_OTHER);
     }
 
+    #[Route('/listings/{id}/remove', name: 'app_listing_remove', requirements: ['id' => Requirement::DIGITS], methods: ['GET'])]
+    #[IsGranted(ListingVoter::EDIT, 'listing')]
+    public function remove(Listing $listing): Response
+    {
+        return $this->render('listing/remove.html.twig', ['listing' => $listing]);
+    }
+
+    // Old forms may still post to /delete; they archive as well.
+    #[Route('/listings/{id}/archive', name: 'app_listing_archive', requirements: ['id' => Requirement::DIGITS], methods: ['POST'])]
     #[Route('/listings/{id}/delete', name: 'app_listing_delete', requirements: ['id' => Requirement::DIGITS], methods: ['POST'])]
     #[IsGranted(ListingVoter::EDIT, 'listing')]
     #[IsCsrfTokenValid('submit', tokenKey: '_csrf_token')]
-    public function delete(Listing $listing, ListingEditor $editor): Response
+    public function archive(Listing $listing, ListingEditor $editor): Response
     {
         $title = $listing->getTitle();
-        $editor->delete($listing);
-        $this->addFlash('success', \sprintf('“%s” is deleted.', $title));
+        $editor->archive($listing);
+        $this->addFlash('success', \sprintf('“%s” is archived.', $title));
 
         return $this->redirectToRoute('app_account_listings', [], Response::HTTP_SEE_OTHER);
     }

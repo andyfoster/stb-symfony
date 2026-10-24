@@ -1,3 +1,5 @@
+{% extends 'emails/_layout.html.twig' %}
+{% block content %}
 <p>Hi {{ seller.displayName }},</p>
 
 <p>{{ message.senderName }} sent you a message about <a href="{{ url('app_listing_show', {id: listing.id}) }}">{{ listing.title }}</a> on ScarfieTextbooks:</p>
@@ -8,3 +10,6 @@
 
 <p>You can also see your messages at <a href="{{ url('app_account_messages') }}">{{ url('app_account_messages') }}</a>.</p>
 
+
+{% include 'emails/_listing_actions.html.twig' %}
+{% endblock %}

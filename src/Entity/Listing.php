@@ -161,25 +161,30 @@ class Listing extends Base
 
     public function isDraft(): bool
     {
-        return $this->status === ListingStatus::Draft;
+        return ListingStatus::Draft === $this->status;
+    }
+
+    public function isArchived(): bool
+    {
+        return ListingStatus::Archived === $this->status;
     }
 
     public function isSold(): bool
     {
-        return $this->status === ListingStatus::Sold;
+        return ListingStatus::Sold === $this->status;
     }
 
     public function isExpired(?\DateTimeImmutable $now = null): bool
     {
-        return $this->status === ListingStatus::Active
-            && $this->expiresAt !== null
+        return ListingStatus::Active === $this->status
+            && null !== $this->expiresAt
             && $this->expiresAt <= ($now ?? new \DateTimeImmutable());
     }
 
     /** Active and not expired: what everyone can see and search. */
     public function isLive(?\DateTimeImmutable $now = null): bool
     {
-        return $this->status === ListingStatus::Active && !$this->isExpired($now);
+        return ListingStatus::Active === $this->status && !$this->isExpired($now);
     }
 
     /**
@@ -190,8 +195,8 @@ class Listing extends Base
     {
         $now ??= new \DateTimeImmutable();
 
-        return $this->status === ListingStatus::Active
-            && $this->expiresAt !== null
+        return ListingStatus::Active === $this->status
+            && null !== $this->expiresAt
             && $this->expiresAt <= $now->modify(\sprintf('+%d days', self::REFRESH_WINDOW_DAYS));
     }
 
@@ -199,9 +204,9 @@ class Listing extends Base
     public function publish(int $days, ?\DateTimeImmutable $now = null): static
     {
         $now ??= new \DateTimeImmutable();
-        $this->status               = ListingStatus::Active;
-        $this->publishedAt          = $now;
-        $this->expiresAt            = $now->modify(\sprintf('+%d days', $days));
+        $this->status = ListingStatus::Active;
+        $this->publishedAt = $now;
+        $this->expiresAt = $now->modify(\sprintf('+%d days', $days));
         $this->expiryReminderSentAt = null;
 
         return $this;
@@ -348,6 +353,6 @@ class Listing extends Base
     /** Photos are only shown to the public once the seller has confirmed their email. */
     public function arePhotosPublic(): bool
     {
-        return $this->seller?->isVerified() === true;
+        return true === $this->seller?->isVerified();
     }
 }

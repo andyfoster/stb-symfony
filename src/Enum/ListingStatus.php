@@ -11,16 +11,18 @@ use Symfony\Contracts\Translation\TranslatorInterface;
  */
 enum ListingStatus: string implements TranslatableInterface
 {
-    case Draft  = 'draft';
+    case Draft = 'draft';
     case Active = 'active';
-    case Sold   = 'sold';
+    case Sold = 'sold';
+    case Archived = 'archived';
 
     public function label(): string
     {
         return match ($this) {
-            self::Draft  => 'Draft',
+            self::Draft => 'Draft',
             self::Active => 'Active',
-            self::Sold   => 'Sold',
+            self::Sold => 'Sold',
+            self::Archived => 'Archived',
         };
     }
 

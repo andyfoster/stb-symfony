@@ -170,10 +170,10 @@ final class ListingCreateTest extends WebTestCase
         self::assertSelectorTextContains('.listing-byline', 'Brown & LeMay');
         self::assertSelectorTextContains('.listing-byline', '2024');
         self::assertSelectorTextContains('.listing-condition .condition', 'Good');
-        self::assertSelectorTextContains('.listing-comments h2', 'Comments from Sam');
-        self::assertSelectorTextContains('.listing-comments .listing-body', 'No writing inside.');
+        self::assertSelectorTextContains('.listing-description-section h2', 'Description');
+        self::assertSelectorTextContains('.listing-description-section .listing-body', 'No writing inside.');
         self::assertSelectorTextContains('.owner-bar h2', 'Your listing');
-        self::assertSelectorTextContains('.owner-actions a', 'Edit listing');
+        self::assertAnySelectorTextContains('.owner-actions a', 'Edit listing');
         self::assertSelectorTextContains('.contact-panel h2', 'Message Sam');
         self::assertSelectorExists('.contact-panel .contact-open[disabled]');
         self::assertSelectorNotExists('.contact-panel form');
@@ -289,7 +289,7 @@ final class ListingCreateTest extends WebTestCase
         self::assertResponseStatusCodeSame(403);
     }
 
-    public function testEditMarkSoldAndDelete(): void
+    public function testEditMarkSoldAndArchive(): void
     {
         $sam = $this->createUser('sam@example.com');
         $listing = $this->createListing($sam);
@@ -312,10 +312,52 @@ final class ListingCreateTest extends WebTestCase
         self::assertSelectorNotExists('.listing-card');
 
         $this->client->request('GET', '/account/listings');
-        $this->client->submitForm('Delete');
+        $this->client->submitForm('Archive');
         self::assertResponseRedirects('/account/listings');
         $this->manager->clear();
-        self::assertNull($this->manager->find(Listing::class, $id));
+        self::assertTrue($this->manager->find(Listing::class, $id)->isArchived());
+    }
+
+    public function testRemovalPageArchivesWithoutDeletingAndCanRelist(): void
+    {
+        $seller = $this->createUser('archive@example.com');
+        $listing = $this->createListing($seller);
+        $id = $listing->getId();
+        $bookId = $listing->getBook()->getId();
+        $photo = (new \App\Entity\ListingPhoto())->setFilename('archive-keeps-photo');
+        $listing->addPhoto($photo);
+        $this->manager->persist($photo);
+        $this->manager->flush();
+        $photoId = $photo->getId();
+        $this->client->request('GET', '/listings/'.$id.'/remove');
+        self::assertResponseRedirects('/login');
+        $this->client->loginUser($this->createUser('other@example.com'));
+        $this->client->request('GET', '/listings/'.$id.'/remove');
+        self::assertResponseStatusCodeSame(403);
+        $this->client->request('POST', '/listings/'.$id.'/archive', ['_csrf_token' => 'csrf-token']);
+        self::assertResponseStatusCodeSame(403);
+        $this->client->loginUser($seller);
+        $this->client->request('GET', '/listings/'.$id.'/remove');
+        self::assertResponseIsSuccessful();
+        self::assertTrue($this->listing($id)->isLive());
+        $this->client->submitForm('Archive for another reason');
+        self::assertResponseRedirects('/account/listings');
+        self::assertTrue($this->listing($id)->isArchived());
+        self::assertNotNull($this->manager->find(BookDetails::class, $bookId));
+        self::assertNotNull($this->manager->find(\App\Entity\ListingPhoto::class, $photoId));
+        $this->client->followRedirect();
+        self::assertSelectorTextContains('.status-archived', 'Archived');
+        self::assertSelectorNotExists('form[action$="/delete"]');
+        $this->client->getCookieJar()->clear();
+        $this->client->request('GET', '/listings/'.$id);
+        self::assertResponseStatusCodeSame(404);
+        $this->client->request('GET', '/');
+        self::assertSelectorNotExists('[data-listing-id="'.$id.'"]');
+        $this->client->loginUser($seller);
+        $this->client->request('GET', '/listings/'.$id.'/edit');
+        $this->client->submitForm('Publish listing');
+        self::assertResponseRedirects('/listings/'.$id);
+        self::assertTrue($this->listing($id)->isLive());
     }
 
     private function onlyListing(): Listing

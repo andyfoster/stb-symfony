@@ -3,19 +3,20 @@
 
 {# For the seller (and admins): where the listing stands, and what they can do about it. #}
 {% macro owner_status(listing, own) %}
-    {% set state = listing.draft ? 'draft' : (listing.sold ? 'sold' : (listing.expired ? 'expired' : 'live')) %}
+    {% set state = listing.archived ? 'archived' : listing.draft ? 'draft' : (listing.sold ? 'sold' : (listing.expired ? 'expired' : 'live')) %}
     <section class="owner-bar" aria-labelledby="owner-title">
         <div class="owner-summary">
             <h2 id="owner-title">{{ own ? 'Your listing' : 'Manage listing' }}</h2>
             <p class="owner-status">
             <span class="status status-{{ state }}">{{ state|capitalize }}</span>
             {% if state == 'draft' %}Only you can see it.
-            {% elseif state == 'sold' %}Hidden from everyone else.
+            {% elseif state == 'sold' or state == 'archived' %}Hidden from everyone else.
             {% elseif state == 'expired' %}Since {{ listing.expiresAt|date('j M Y') }}.
             {% else %}Hides {{ listing.expiresAt|date('j M Y', 'Pacific/Auckland') }}.{% endif %}
             </p>
         </div>
         <div class="owner-actions">
+            {% if not listing.archived and not listing.sold %}<a class="button button-small button-outline" href="{{ path('app_listing_remove', {id: listing.id}) }}">Take off site</a>{% endif %}
             <a class="button button-small" href="{{ path('app_listing_edit', {id: listing.id}) }}">{{ state == 'draft' ? 'Edit & publish' : 'Edit listing' }}</a>
             {% if listing.canRefresh %}
                 <form method="post" action="{{ path('app_listing_refresh', {id: listing.id}) }}">
@@ -52,9 +53,6 @@
                 {% endif %}
                 <div class="listing-price-row">
                     <p class="listing-price">{{ m.price(listing) }}</p>
-                    {% if listing.condition %}
-                        <p class="listing-condition"><span class="condition">{{ listing.condition.label }}</span> {{ listing.condition.description }}</p>
-                    {% endif %}
                 </div>
 
                 {% if photos|length %}
@@ -79,9 +77,19 @@
                     {% include 'listing/_book_cover.html.twig' with {detail: true} %}
                 {% endif %}
 
+                {% if listing.condition %}
+                    <section class="listing-comments listing-condition" aria-labelledby="condition-title">
+                        <h2 id="condition-title">Details</h2>
+                        <div class="listing-body">
+                                Condition: <span class="condition">{{ listing.condition.label }}</span>
+
+                        </div>
+                    </section>
+                {% endif %}
+
                 {% if listing.description %}
-                    <section class="listing-comments" aria-labelledby="comments-title">
-                        <h2 id="comments-title">{{ listing.seller ? 'Comments from ' ~ listing.seller.displayName : 'Comments' }}</h2>
+                    <section class="listing-comments listing-description-section" aria-labelledby="description-title">
+                        <h2 id="description-title">Description</h2>
                         <div class="listing-body">{{ listing.description|nl2br }}</div>
                     </section>
                 {% endif %}

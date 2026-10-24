@@ -89,7 +89,7 @@ final class AuditLogTest extends WebTestCase
         self::assertArrayHasKey('expiresAt', $published->getContext());
     }
 
-    public function testDeletingAListingKeepsWhichOneItWas(): void
+    public function testLegacyDeleteArchivesAndKeepsWhichOneItWas(): void
     {
         $user = $this->createUser('sam@example.com');
         $listing = $this->createListing($user, 'Desk lamp');
@@ -100,7 +100,7 @@ final class AuditLogTest extends WebTestCase
         self::assertResponseRedirects('/account/listings');
 
         [$deleted] = $this->events();
-        self::assertSame(AuditType::ListingDeleted, $deleted->getType());
+        self::assertSame(AuditType::ListingArchived, $deleted->getType());
         self::assertSame($id, $deleted->getSubjectId());
         self::assertSame('Desk lamp', $deleted->getSubjectLabel());
     }

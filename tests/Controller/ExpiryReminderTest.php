@@ -43,6 +43,11 @@ final class ExpiryReminderTest extends WebTestCase
         self::assertEmailHtmlBodyContains($first, 'Campbell Biology');
         self::assertEmailHtmlBodyContains($first, 'Desk lamp');
         self::assertEmailHtmlBodyContains($first, '/account/listings');
+        foreach ([$first, $second] as $email) {
+            self::assertEmailHtmlBodyContains($email, 'aria-label="ScarfieTextbooks"');
+            self::assertEmailHtmlBodyContains($email, '/remove#sold');
+            self::assertEmailHtmlBodyContains($email, '/remove#archive');
+        }
         self::assertEmailAddressContains($second, 'To', 'alex@example.com');
         self::assertEmailSubjectContains($second, '“Calculator” expires soon');
     }

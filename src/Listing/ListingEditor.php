@@ -15,7 +15,7 @@ use Symfony\Component\HttpFoundation\File\UploadedFile;
 use Symfony\Component\Messenger\MessageBusInterface;
 
 /**
- * Saves listings from the form, and publishes, refreshes, sells and deletes them,
+ * Saves listings from the form, and publishes, refreshes, sells and archives them,
  * recording each in the audit log.
  */
 class ListingEditor
@@ -100,13 +100,10 @@ class ListingEditor
         $this->audit->record(AuditType::ListingSold, $listing);
     }
 
-    public function delete(Listing $listing): void
+    public function archive(Listing $listing): void
     {
-        // Recorded first: the listing has no id once it's gone.
-        $this->audit->record(AuditType::ListingDeleted, $listing);
-
-        // Its photos (and their files) go with it.
-        $this->manager->remove($listing);
+        $listing->setStatus(ListingStatus::Archived);
         $this->manager->flush();
+        $this->audit->record(AuditType::ListingArchived, $listing);
     }
 }

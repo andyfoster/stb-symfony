@@ -32,6 +32,7 @@ enum AuditType: string implements TranslatableInterface
     case ListingUpdated = 'listing.updated';
     case ListingPublished = 'listing.published';
     case ListingRefreshed = 'listing.refreshed';
+    case ListingArchived = 'listing.archived';
     case ListingSold = 'listing.sold';
     case ListingDeleted = 'listing.deleted';
     case PhotoAdded = 'photo.added';
@@ -47,31 +48,32 @@ enum AuditType: string implements TranslatableInterface
     public function label(): string
     {
         return match ($this) {
-            self::LoginSucceeded         => 'Logged in',
-            self::LoginFailed            => 'Login failed',
-            self::LoginThrottled         => 'Login throttled',
-            self::RememberMeLogin        => 'Remembered login',
-            self::Logout                 => 'Logged out',
-            self::UserRegistered         => 'Signed up',
-            self::EmailVerified          => 'Email confirmed',
+            self::LoginSucceeded => 'Logged in',
+            self::LoginFailed => 'Login failed',
+            self::LoginThrottled => 'Login throttled',
+            self::RememberMeLogin => 'Remembered login',
+            self::Logout => 'Logged out',
+            self::UserRegistered => 'Signed up',
+            self::EmailVerified => 'Email confirmed',
             self::PasswordResetRequested => 'Password reset requested',
-            self::PasswordReset          => 'Password reset',
-            self::PasswordUpgraded       => 'Password rehashed',
-            self::PasswordSet            => 'Password set by admin',
-            self::RoleChanged            => 'Admin access changed',
-            self::ListingCreated         => 'Listing created',
-            self::ListingUpdated         => 'Listing edited',
-            self::ListingPublished       => 'Listing published',
-            self::ListingRefreshed       => 'Listing refreshed',
-            self::ListingSold            => 'Listing sold',
-            self::ListingDeleted         => 'Listing deleted',
-            self::PhotoAdded             => 'Photo added',
-            self::PhotoRemoved           => 'Photo removed',
-            self::MessageSent            => 'Message sent',
-            self::MessageThrottled       => 'Message throttled',
-            self::AdminCreated           => 'Admin: created',
-            self::AdminUpdated           => 'Admin: edited',
-            self::AdminDeleted           => 'Admin: deleted',
+            self::PasswordReset => 'Password reset',
+            self::PasswordUpgraded => 'Password rehashed',
+            self::PasswordSet => 'Password set by admin',
+            self::RoleChanged => 'Admin access changed',
+            self::ListingCreated => 'Listing created',
+            self::ListingUpdated => 'Listing edited',
+            self::ListingPublished => 'Listing published',
+            self::ListingRefreshed => 'Listing refreshed',
+            self::ListingArchived => 'Listing archived',
+            self::ListingSold => 'Listing sold',
+            self::ListingDeleted => 'Listing deleted',
+            self::PhotoAdded => 'Photo added',
+            self::PhotoRemoved => 'Photo removed',
+            self::MessageSent => 'Message sent',
+            self::MessageThrottled => 'Message throttled',
+            self::AdminCreated => 'Admin: created',
+            self::AdminUpdated => 'Admin: edited',
+            self::AdminDeleted => 'Admin: deleted',
         };
     }
 

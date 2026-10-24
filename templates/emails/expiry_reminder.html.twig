@@ -1,12 +1,15 @@
+{% extends 'emails/_layout.html.twig' %}
+{% block content %}
 <p>Hi {{ seller.displayName }},</p>
 
 {% if listings|length == 1 %}
     <p>Your listing <a href="{{ url('app_listing_show', {id: listings[0].id}) }}">{{ listings[0].title }}</a> expires on {{ listings[0].expiresAt|date('l j F Y', 'Pacific/Auckland') }}.</p>
+{% include 'emails/_listing_actions.html.twig' with {listing: listings[0]} %}
 {% else %}
     <p>These listings expire soon:</p>
     <ul>
         {% for listing in listings %}
-            <li><a href="{{ url('app_listing_show', {id: listing.id}) }}">{{ listing.title }}</a>, on {{ listing.expiresAt|date('l j F Y', 'Pacific/Auckland') }}</li>
+            <li><a href="{{ url('app_listing_show', {id: listing.id}) }}">{{ listing.title }}</a>, on {{ listing.expiresAt|date('l j F Y', 'Pacific/Auckland') }}{% include 'emails/_listing_actions.html.twig' %}</li>
         {% endfor %}
     </ul>
 {% endif %}
@@ -14,3 +17,5 @@
 <p>Still available, or still looking? Extend the hide date from your listing’s edit page in <a href="{{ url('app_account_listings') }}">My listings</a>. If you’re done, mark it sold or found.</p>
 
 <p>Otherwise you don’t need to do anything. Expired listings stay in My listings, where you can edit and publish them again.</p>
+
+{% endblock %}

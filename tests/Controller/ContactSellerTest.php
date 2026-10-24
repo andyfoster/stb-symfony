@@ -40,6 +40,9 @@ final class ContactSellerTest extends WebTestCase
         self::assertEmailAddressContains($email, 'To', 'sam@example.com');
         self::assertEmailAddressContains($email, 'Reply-To', 'jo@example.com');
         self::assertEmailSubjectContains($email, 'Jo asked about “Chemistry: The Central Science”');
+        self::assertEmailHtmlBodyContains($email, 'aria-label="ScarfieTextbooks"');
+        self::assertEmailHtmlBodyContains($email, '/remove#sold');
+        self::assertEmailHtmlBodyContains($email, '/remove#archive');
         self::assertEmailHtmlBodyContains($email, 'Is this still available?');
 
         $this->client->followRedirect();
