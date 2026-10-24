@@ -40,8 +40,25 @@ final class PaperTest extends WebTestCase
     {
         $counts = static::getContainer()->get(PaperCatalog::class)->importCsv(static::getContainer()->getParameter('kernel.project_dir').'/data/otago-papers.csv');
 
-        self::assertGreaterThan(40, $counts['added']);
+        self::assertGreaterThan(2000, $counts['added']);
         self::assertSame(0, $counts['skipped']);
+        self::assertSame('Foundations of Biochemistry', $this->paperByCode('BIOC192')->getTitle());
+    }
+
+    public function testImportReadsSemicolonAndCommaFiles(): void
+    {
+        $catalog = static::getContainer()->get(PaperCatalog::class);
+        $file = tempnam(sys_get_temp_dir(), 'papers');
+
+        file_put_contents($file, "BIOC192; Foundations of Biochemistry\nCHEM191; Chemistry, Biology and Health\n");
+        self::assertSame(['added' => 2, 'updated' => 0, 'skipped' => 0], $catalog->importCsv($file));
+        self::assertSame('Chemistry, Biology and Health', $this->paperByCode('CHEM191')->getTitle());
+
+        file_put_contents($file, "code,title\nZOOL101,Animal Biology\n");
+        self::assertSame(['added' => 1, 'updated' => 0, 'skipped' => 0], $catalog->importCsv($file));
+        self::assertSame('Animal Biology', $this->paperByCode('ZOOL101')->getTitle());
+
+        unlink($file);
     }
 
     public function testSuggestionsMatchCodesThenTitles(): void

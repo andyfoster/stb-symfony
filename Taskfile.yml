@@ -256,7 +256,7 @@ tasks:
       - symfony console app:photos:prune
 
   papers:import:
-    desc: 'Load Otago papers from a code,title CSV (default data/otago-papers.csv; task papers:import -- file.csv)'
+    desc: 'Load Otago papers from a "CODE; Title" or code,title file (default data/otago-papers.csv; task papers:import -- file.csv)'
     cmds:
       - symfony console app:papers:import {{.CLI_ARGS}}
 

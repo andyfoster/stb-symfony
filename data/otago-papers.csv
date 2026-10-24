@@ -1,58 +1,2455 @@
-code,title
-ACCT102,Accounting for Decision Making
-ACCT211,
-ANAT241,
-ANTH103,
-BIOC192,Foundations of Biochemistry
-BIOL112,Cell and Molecular Biology
-BIOL123,Plants: How They Shape the World
-BIOL215,
-BSNS111,
-BSNS112,
-BSNS113,
-BSNS114,
-BSNS115,
-CELS191,Cell and Molecular Biology
-CHEM111,
-CHEM191,The Chemical Basis of Biology and Human Health
-CHEM201,
-CHEM202,
-COMP101,
-COMP160,General Programming
-COMP161,Computer Programming
-DEOH101,
-ECON112,
-ECON113,
-ECON201,
-ENGL127,
-FINC102,
-FINC203,
-FINC206,
-GENE221,
-GEOG101,
-HIST105,
-HUBS191,Human Body Systems 1
-HUBS192,Human Body Systems 2
-INFO131,
-INFO201,
-LAWS101,
-LAWS201,
-MANT101,
-MART112,
-MATH151,General Mathematics
-MATH160,Mathematics 1
-MATH170,Mathematics 2
-MICR221,
-PHAL211,
-PHIL105,
-PHSE191,
-PHSI191,Biological Physics
-PHYS131,
-PHYS132,
-POLS101,
-POPH192,
-PSYC111,Brain and Behaviour
-PSYC112,Human Thought and Behaviour
-PSYC211,
-STAT110,Statistical Methods
-STAT115,Introduction to Biostatistics
+ACCT102; Principles of Accounting
+ACCT211; Financial Accounting and Reporting
+ACCT222; Cost and Management Accounting
+ACCT233; Fundamentals of Accounting for Financial Decisions
+ACCT260; Introduction to Accounting Analytics
+ACCT299; Special Topic
+ACCT302; Accounting Performance Management
+ACCT306; Accounting Information Systems and Analytics
+ACCT307; Management Accounting
+ACCT310; Financial Statement Analysis
+ACCT315; Advanced Financial Accounting
+ACCT325; Corporate Sustainability Accounting and Reporting
+ACCT360; Advanced Accounting Analytics
+ACCT399; Special Topic
+ACCT480; Dissertation or Case Study
+ACCT504; Empirical and Methodological Aspects of Financial Accounting
+ACCT510; Advanced Performance Management Accounting
+ACCT514; Sustainability Accounting and Reporting
+ACCT599; Special Topic
+ACFI359; Research Methods
+ACFI406; Advanced Financial Econometrics
+ACFI525; Governance Issues in Accounting and Finance
+ACTP311; Auditing Practice
+ACTP312; Taxation Practice
+AGRI101; Agricultural Innovation
+AGRI221; New Zealand Agricultural Systems
+AGRI321; Agriculture Production and Food Security
+AGRI322; Innovation and Healthy Soils
+AGRI323; Agricultural Genetics and Breeding
+AIML401; Programming for Artificial Intelligence
+AIML402; Advanced Artificial Intelligence
+ANAT101; Anatomy for Sport and Exercise
+ANAT131; Origins of Anatomical Language
+ANAT241; Human Biology: Cells to Systems
+ANAT243; Reproductive and Developmental Biology
+ANAT312; Advanced Reproduction and Development
+ANAT331; Functional Anatomy
+ANAT335; Neurobiology
+ANAT451; Functional Human Anatomy
+ANAT452; Reproductive Biology
+ANAT453; Advanced Topics in Anatomical Science 1
+ANAT454; Neurobiology
+ANAT456; Developmental Biology
+ANAT457; Advanced Topics in Anatomical Science 2
+ANAT458; Current Topics in Anatomical Science
+ANAT480; Research Project
+ANAT490; Dissertation
+ANAT495; Master's Thesis Preparation
+ANTH103; Introduction to Anthropology
+ANTH105; Global and Local Cultures
+ANTH106; Human Origins and Civilisations
+ANTH203; Asian Archaeology
+ANTH204; Pacific and New Zealand Archaeology
+ANTH205; Anthropology and the Contemporary Pacific
+ANTH206; Anthropology of Globalisation
+ANTH208; Archaeological Methods
+ANTH209; Special Topic
+ANTH210; Translating Culture
+ANTH211; Contemporary Ethnographic Research
+ANTH222; Conceiving Reproduction
+ANTH223; Anthropology of Health
+ANTH225; Rites of Passage: Death, Grief and Ritual
+ANTH228; Anthropology of Religion and the Supernatural
+ANTH231; The Emergence of Agriculture: An Archaeological Journey
+ANTH310; Special Topic
+ANTH312; Cultural Politics
+ANTH317; Historical Archaeology
+ANTH321; Archaeozoology
+ANTH322; Conceiving Reproduction
+ANTH323; Anthropology of Health
+ANTH324; Archaeological Practice
+ANTH325; Rites of Passage: Death, Grief and Ritual
+ANTH326; Special Topic
+ANTH327; Anthropology of Money
+ANTH328; Anthropology of Religion and the Supernatural
+ANTH329; Landscape Archaeology
+ANTH330; New Zealand Archaeology
+ANTH405; Archaeological Excavation
+ANTH409; Material Culture Studies
+ANTH410; Special Topic
+ANTH411; Special Topic
+ANTH413; Oceanic Prehistory
+ANTH423; Bodies, Technologies and Medicines
+ANTH424; The Anthropology of Evil
+ANTH425; Anthropology of Transnationalism and Diaspora
+ANTH427; Archaeological Theory
+ANTH430; Advanced New Zealand Archaeology
+ANTH431; People, Culture and Development
+ANTH490; Dissertation
+ANTH495; Dissertation
+ANTH505; Advanced Archaeological Excavation
+ANTH550; Archaeology and Heritage Practice
+ANTH590; Research Dissertation
+APPS596; Commercialisation Project
+APPS597; Supervised Independent Study
+APPS598; Workplace-based Project
+AQFI251; Principles of Aquaculture
+AQFI301; Field Methods in Applied Marine Science
+AQFI352; Fisheries Ecology
+AQFI421; Advanced Aquaculture and Fisheries
+AQFI450; Special Topic
+AQFI490; Dissertation
+ASIA101; Introducing Asia
+ASIA201; Asian Popular Cultures
+ASIA202; Special Topic
+ASIA301; Topics in Asian Studies
+ASIA302; Special Topic
+AVME711; Aviation Physiology
+AVME714; Clinical Aviation Medicine
+AVME715; Health, Work and Behaviour
+AVME716; Clinical Occupational Medicine
+AVME717; Medical Logistics in Aeromedical Transport
+AVME718; Operational Aspects of Aeromedical Transport
+AVME719; Aeromedical Studies for Nurses and Paramedics
+AVME720; Clinical Analysis in Aeromedical Retrieval and Transport
+AVME721; Clinical Care in the Air
+AVME722; Organisation of Aeromedical Systems
+AVME723; Managing Occupational Medicine
+AVME724; Health and Industry
+AVME726; Special Topic
+AVME780; Research Project
+AVME785; Research Methods
+AVME801; Occupational Medicine Epidemiology and Biostatistics
+AVME802; Vocational Rehabilitation
+AVME812; Human Performance
+AVME813; Airport and Travel Health
+AVME885; Application of Research Methods
+BDBA901; Organisational Leadership for Change
+BDBA902; Organisational Psychology
+BDBA903; Globalisation and International Trade
+BDBA904; Contemporary Issues in Finance
+BDBA905; Research Methodology I
+BDBA906; Research Methodology II
+BDBA907; Socially Responsible Business
+BDBA908; Sustainable Business
+BDBA909; Marketing Theory and Practice
+BDBA912; Strategy and Growth
+BDBA913; Governance and Evidence-Informed Decision Making
+BIBS112; Interpreting the Old Testament
+BIBS121; Interpreting the New Testament
+BIBS131; Introductory New Testament Greek Language 1
+BIBS132; Introductory New Testament Greek Language 2
+BIBS211; God, Land and Exile in the Hebrew Prophets
+BIBS213; Hebrew Old Testament Exegesis 2
+BIBS215; Special Topic
+BIBS218; Judaism in the Time of Jesus
+BIBS221; The Gospels
+BIBS223; Greek New Testament Exegesis 2
+BIBS224; Special Topic
+BIBS225; Special Topic
+BIBS226; Jesus in the New Testament
+BIBS227; Mātauranga Māori and the Bible
+BIBS311; God, Land and Exile in the Hebrew Prophets (Advanced)
+BIBS313; Hebrew Old Testament Exegesis 3
+BIBS315; Special Topic
+BIBS317; God, Suffering and Justice
+BIBS318; Judaism in the Time of Jesus (Advanced)
+BIBS321; The Gospels (Advanced)
+BIBS322; The New Testament Epistles
+BIBS323; Greek New Testament Exegesis 3
+BIBS324; Special Topic
+BIBS325; Special Topic
+BIBS326; Jesus in the New Testament (Advanced)
+BIBS327; Mātauranga Māori and the Bible (Advanced)
+BIBS411; Hebrew Old Testament Exegesis (Advanced)
+BIBS412; Special Topic
+BIBS413; God, Suffering and Justice (Advanced)
+BIBS421; Greek New Testament Exegesis (Advanced)
+BIBS423; Special Topic
+BIBS490; Dissertation
+BINF701; Introduction to Clinical Bioinformatics
+BIOA101; Introduction to Biological Anthropology
+BIOA201; Biocultural Human Skeletal Biology
+BIOA301; Biological Anthropology of the Human Skeleton
+BIOA401; Advanced Biological Anthropology
+BIOC192; Foundations of Biochemistry
+BIOC221; Molecular Biology
+BIOC222; Proteins in Industry and Medicine
+BIOC223; Cellular Biochemistry and Metabolism
+BIOC351; Advanced Protein Biochemistry
+BIOC352; Advanced Molecular Biology and Bioinformatics
+BIOC353; Molecular Basis of Health and Disease
+BIOC360; Research Perspectives in Biochemistry
+BIOC461; Research Design and Analysis in Biochemistry
+BIOC462; Molecular Biology
+BIOC463; Contemporary Technologies in Biochemistry
+BIOC464; Applied Biochemistry
+BIOC480; Research Project
+BIOC490; Dissertation
+BIOC495; Master's Thesis Preparation
+BIOE401; Research Methods
+BIOE403; Bioengineering Design
+BIOE404; Medical Devices and Technology
+BIOE405; Regenerative Medicine and Stem Cells
+BIOE480; Research Project
+BIOE495; Master's Thesis Preparation
+BIOL112; Animal Biology
+BIOL123; Plants: How They Shape the World
+BIOL215;
+BITC201; Bioethics and the Life Sciences
+BITC301; Bioethics: Healthcare Issues and Global Perspectives
+BITC401; Theories of Biomedical Ethics
+BITC403; Issues in Law, Ethics and Medicine
+BITC405; Bioethics in Clinical Practice
+BITC406; Health Research Ethics
+BLAW211; Business Law Relating to Entities
+BLAW212; Business Law Relating to Obligations
+BMBA501; Business Law
+BMBA502; Markets and Value Creation
+BMBA503; Transformational Leadership
+BMBA505; Business Economics
+BMBA506; People and Culture
+BMBA507; Accounting
+BMBA508; Investment and Global Financial Markets
+BMBA509; Strategic Planning for International Markets
+BMBA510; Leading Sustainable Enterprises
+BMBA511; Operational Excellence
+BMBA512; International Business
+BMBA513; Strategy Implementation
+BMBA530; Business Project
+BMBA540; MBA Business Project
+BMBA550; MBA Elective Papers
+BMBA560; MBA Elective Papers
+BMBA571; Advanced Topics in Strategy 1
+BMBA572; Advanced Topics in Strategy 2
+BMBA573; Advanced Topics in Strategy 3
+BMBA574; Advanced Topics in Strategy 4
+BMBA575; Advanced Topics in Marketing 1
+BMBA576; Advanced Topics in Marketing 2
+BMBA577; Advanced Topics in Marketing 3
+BMBA578; Advanced Topics in Marketing 4
+BMBA579; Advanced Topics in International Business 1
+BMBA580; Advanced Topics in International Business 2
+BMBA581; Advanced Topics in International Business 3
+BMBA582; Advanced Topics in International Business 4
+BMSC321; Cell Biology
+BSNS102; Quantitative Analysis for Business
+BSNS111; Business and Society
+BSNS112; Interpreting Business Data
+BSNS113; Economic Principles and Policy
+BSNS114; Financial Decision Making
+BSNS115; Accounting and Information Systems
+BTNY201; Plant Functional Biology and Biotechnology
+BTNY202; Plant and Fungal Diversity
+BTNY203; Marine and Freshwater Botany
+BTNY301; Plant Ecology
+BTNY302; Plant Interactions
+BTNY303; Topics in Field Botany
+BTNY365; Research Skills
+BTNY370; Special Topic
+BTNY461; Plant Physiology and Biotechnology
+BTNY465; Plant and Environment
+BTNY467; New Zealand Plant Ecology and Evolution
+BTNY469; Principles of Nature Conservation
+BTNY470; Special Topic
+BTNY480; Research Project
+BTNY490; Dissertation
+BTNY495; Master's Thesis Preparation
+BUSC510; General Management Concepts
+BUSC511; Strategic Thinking
+BUSC512; Enhancing Leadership
+BUSC513; Marketing - Creating Value For Customers
+BUSC516; Managing People and Performance
+BUSC517; Finance for Non-Financial Managers
+BUSC518; Innovation and Entrepreneurship
+BUSC520; The Art of Labour Negotiations
+BUSC523; Corporate Sustainability
+BUSC524; Project Management
+BUSC590; Business Project in Executive Management
+BUSI540; Professional Consulting Engagement
+CBUS540; Professional Consulting Engagement
+CELS191; Cell and Molecular Biology
+CHEM111; Chemistry: Molecular Architecture
+CHEM150; Concepts in Chemistry
+CHEM191; The Chemical Basis of Biology and Human Health
+CHEM201; Physical Chemistry 1
+CHEM202; Organic Chemistry 1
+CHEM203; Main Group and Coordination Chemistry
+CHEM205; Biological and Medicinal Chemistry 1
+CHEM206; Analytical Chemistry 1
+CHEM301; Physical Chemistry 2
+CHEM302; Organic Chemistry 2
+CHEM303; Inorganic and Organometallic Chemistry
+CHEM304; Environmental Chemistry
+CHEM305; Biological and Medicinal Chemistry 2
+CHEM306; Analytical Chemistry 2
+CHEM371; Special Topic
+CHEM390; Introduction to Independent Research and Methods
+CHEM461; Topics in Advanced Chemistry
+CHEM462; Topics in Advanced Chemistry
+CHEM463; Topics in Advanced Chemistry
+CHEM464; Topics in Advanced Chemistry
+CHEM480; Research Project
+CHEM490; Dissertation
+CHEM495; Master's Thesis Preparation
+CHHE701; Community Child Health
+CHHE702; Clinical Attachment in Paediatrics
+CHIC402; Promoting Children's Participation and Protection
+CHIC407; Child-Centred Practice
+CHIC480; Research Study
+CHIN131; Introductory Chinese 1
+CHIN132; Introductory Chinese 2
+CHIN231; Intermediate Chinese 1
+CHIN232; Intermediate Chinese 2
+CHIN241; Contemporary Chinese Society
+CHIN242; Screening Chinese Cinemas
+CHIN243; Reading Chinese Literature in the World
+CHIN244; Writing China: Texts, Ideas and History
+CHIN250; Practical Chinese: Chinese/English Translation
+CHIN334; Advanced Chinese 1
+CHIN335; Advanced Chinese 2
+CHIN342; Screening Chinese Cinemas
+CHIN343; Reading Chinese Literature in the World
+CHIN344; Writing China: Texts, Ideas and History
+CHIN441; Advanced Topics in Chinese
+CHIN451; Studies in Chinese
+CHIN452; Studies in Chinese 2
+CHIN490; Dissertation
+CHIN590; Research Dissertation
+CHTH102; The History of Christianity
+CHTH111; Doing Theology
+CHTH131; God and Ethics in the Modern World
+CHTH206; The Reformation
+CHTH212; Spirit, Church and Sacraments
+CHTH213; The Trinity
+CHTH217; Special Topic
+CHTH218; The Person and Work of Christ
+CHTH224; Theology and the Environment
+CHTH231; Christianity, War and Violence
+CHTH233; Public Theology: Faith in the Public Square
+CHTH235; Special Topic
+CHTH236; Māori Theology and Religion
+CHTH237; Special Topic
+CHTH305; The Roots of Public Theology
+CHTH306; The Reformation (Advanced)
+CHTH312; Spirit, Church and Sacraments (Advanced)
+CHTH313; The Trinity (Advanced)
+CHTH314; The Theology of Søren Kierkegaard
+CHTH317; Special Topic
+CHTH318; The Person and Work of Christ (Advanced)
+CHTH319; Reconciliation, Christian Ethics and Public Theology
+CHTH320; Public Theology and Social Justice
+CHTH322; Citizenship, Democracy and Discipleship
+CHTH323; Theology and Human Well-being
+CHTH324; Theology and the Environment (Advanced)
+CHTH331; Christianity, War and Violence (Advanced)
+CHTH333; Public Theology: Faith in the Public Square (Advanced)
+CHTH335; Special Topic
+CHTH336; Māori Theology and Religion (Advanced)
+CHTH337; Special Topic
+CHTH403; The Puritans: Working out the English Reformation
+CHTH405; The Roots of Public Theology
+CHTH414; The Theology of Søren Kierkegaard (Advanced)
+CHTH415; Reconciliation, Christian Ethics and Public Theology (Advanced)
+CHTH416; The Theology of Bonhoeffer
+CHTH420; Public Theology and Social Justice (Advanced)
+CHTH423; Theology and Human Well-being (Advanced)
+CHTH490; Dissertation
+CLAS109; Roman Social History: Slaves, Gladiators, Prostitutes
+CLAS230; Special Topic
+CLAS238; Fantasies, Phobias and Families in Graeco-Roman Myth
+CLAS240; The Classical World in the Movies
+CLAS241; Alexander the Great
+CLAS242; Living and Dying in Classical Athens
+CLAS245; Tales of Troy: from Homer to Hollywood
+CLAS330; Special Topic: Experiencing the Environment in Ancient Greek Poetry
+CLAS340; Love, Death and the Good Life: Socrates and Plato
+CLAS341; After Alexander: the Struggle and the Chaos
+CLAS342; Ancient Greek Religion: Myth, Ritual and Belief
+CLAS343; Archaeology and the Fall of the Roman Empire
+CLAS344; From Augustus to Nero: Scandal and Intrigue in Imperial Rome
+CLAS345; Tales of Troy: From Homer to Hollywood
+CLAS346; Power and Politics in Roman and Modern Times
+CLAS348; Sacred Mountains, Unfriendly Seas: Environments in Greek Literature
+CLAS380; Directed Study in Ancient Greek or Latin Language
+CLAS440; Advanced Studies in Socrates and Plato
+CLAS442; Advanced Studies in Ancient Greek Religion
+CLAS443; Archaeology, History and the End of Rome
+CLAS444; From Augustus to Nero: Advanced Studies
+CLAS448; Sacred Mountains, Unfriendly Seas: Environments in Greek Literature (Advanced)
+CLAS460; Special Topic: Experiencing the Environment in Ancient Greek Poetry (Advanced)
+CLAS490; Dissertation
+CLAS590; Research Dissertation
+CMBA501; Business Law
+CMBA502; Markets and Value Creation
+CMBA503; Transformational Leadership
+CMBA505; Business Economics
+CMBA506; People and Culture
+CMBA507; Accounting
+CMBA508; Investment and Global Financial Markets
+CMBA509; Strategic Planning for International Markets
+CMBA510; Leading Sustainable Enterprises
+CMBA511; Operational Excellence
+CMBA512; International Business
+CMBA513; Strategy Implementation
+CMBA571; Advanced Topics in Strategy 1
+CMBA572; Advanced Topics in Strategy 2
+CMBA573; Advanced Topics in Strategy 3
+CMBA574; Advanced Topics in Strategy 4
+CMBA575; Advanced Topics in Marketing 1
+CMBA576; Advanced Topics in Marketing 2
+CMBA577; Advanced Topics in Marketing 3
+CMBA578; Advanced Topics in Marketing 4
+CMBA579; Advanced Topics in International Business 1
+CMBA580; Advanced Topics in International Business 2
+CMBA581; Advanced Topics in International Business 3
+CMBA582; Advanced Topics in International Business 4
+CMHC201; Human Health Across the Lifespan
+CMHC211; Enabling Wellness and Ability I
+CMHC301; Applied Aspects of Human Health
+CMHC311; Enabling Wellness and Ability II
+COBE401; Cognitive Behaviour Therapy
+COBE404; Advanced Topics in Cognitive Behaviour Therapy
+COGS495; Master's Thesis Preparation
+COGS515; Special Topic
+COMD701; Research Methods and Dental Epidemiology
+COMD702; Dental Health Services
+COMD801; Research Methods and Dental Epidemiology
+COMD802; Dental Health Services
+COMD830; MComDent Special Topics
+COMO101; Modelling and Computation
+COMO204; Differential Equations
+COMO303; Numerical Methods
+COMO480; Research Project
+COMP101; Foundations of Information Systems
+COMP111; Information and Communications Technology
+COMP120; Practical Data Science
+COMP151; Programming for Scientists
+COMP160; General Programming
+COMP161; Computer Programming
+COMP162; Foundations of Computer Science
+COMP210; Information Assurance
+COMP270; ICT Fundamentals
+COMP371; ICT Studio 1
+COMP372; ICT Studio 2
+COMP373; ICT Studio 3
+COMP390; ICT Industry Project
+COMP421; Machine Learning and Data Mining
+COMP425; Advanced Visual Computing
+COSC201; Algorithms and Data Structures
+COSC202; Software Development
+COSC203; Web, Databases, and Networks
+COSC204; Computer Systems
+COSC301; Network Management and Security
+COSC312; Cryptography and Security
+COSC326; Computational Problem Solving
+COSC341; Theory of Computing
+COSC342; Visual Computing: Graphics & Vision
+COSC343; Artificial Intelligence
+COSC344; Database Theory and Applications
+COSC345; Software Engineering
+COSC349; Cloud Computing Architecture
+COSC360; Computer Game Design
+COSC385; Research Project
+COSC402; Advanced Computer Networks
+COSC412; Advanced Cryptography and Security
+COSC420; Deep Learning
+COSC431; Information Retrieval
+COSC440; Advanced Operating Systems
+COSC444; Advanced Database Technologies
+COSC450; Computer Vision and Graphics
+COSC470; Special Topic
+COSC471; Approved Special Paper
+COSC480; Applied Project
+COSC490; Dissertation
+CRIM201; Crime, Justice and Society
+CTMG401; Pathophysiology of Incontinence
+CTMG402; Management for Continence
+DANC101; Dance and Popular Culture
+DANC201; Contemporary Dance Fusions
+DANC204; Dance for Musical Theatre
+DANC301; Contemporary Dance Fusions
+DANC304; Dance for Musical Theatre
+DENT261; The Dentist and the Patient 1
+DENT262; Biomedical Sciences 1
+DENT263; The Dentist and the Community 1
+DENT361; The Dentist and the Patient 2
+DENT362; Biomedical Sciences 2
+DENT363; The Dentist and the Community 2
+DENT364; Dentistry in the New Zealand Context
+DENT461; The Dentist and the Patient 3
+DENT462; Biomedical Sciences 3
+DENT463; The Dentist and the Community 3
+DENT531; The Dentist and Patient Care
+DENT533; The Dentist in the Community
+DENT552; Biomedical Sciences 4
+DENT570; Clinical Dental Practice for Honours
+DENT572; Dental Research for Honours
+DEOH101; The Body and Its Environment
+DEOH102; The Oral Environment: Health and Disease
+DEOH103; Oral Informatics
+DEOH104; Clinical Oral Health Practice
+DEOH201; Human Disease and Pharmacology
+DEOH202; Oral Health Therapy 1
+DEOH203; Oral Health Therapy 2
+DEOH301; Community Oral Health and Oral Health Promotion
+DEOH302; Advanced Oral Health Therapy 1
+DEOH303; Advanced Oral Health Therapy 2
+DEOH304; Applied Oral Health Research
+DEOH401; Adult Restorative Dental Care
+DEOH501; Advanced Principles of Oral Health I
+DEOH502; Advanced Principles of Oral Health II
+DEOH580; Research Dissertation
+DEOH581; Research Dissertation
+DHUM201; Digital Humanities: Method and Critique
+DHUM303; When Machines Decide
+DHUM403; When Machines Decide
+DIGH701; Principles of Digital Health and Informatics
+DIGH703; Digital Health Technologies and Systems
+DIGH706; Research Methods for Digital Health
+DIGH707; Digital health Information Governance and Ethics
+DIGH708; Patient-Centred Digital Health
+DIGH709; Emerging Technologies in Digital Health
+EAOS111; Earth and Ocean Science
+EAOS121; Special Topic
+ECOL111; Ecology and Conservation of Diversity
+ECOL211; Ecology of Communities and Ecosystems
+ECOL212; Ecological Applications
+ECOL313; Ecology Field Course
+ECOL314; Pacific Field Ecology
+ECOL321; Ecology of Species Introductions and Invasions
+ECOL411; Reading Ecology
+ECOL450; Special Topic
+ECOL480; Research Project
+ECOL490; Dissertation
+ECOL495; Master's Thesis Preparation
+ECON112; Principles of Macroeconomics
+ECON113;
+ECON201; Microeconomics
+ECON202; Macroeconomics
+ECON206; The World Economy
+ECON207; Environmental Economics
+ECON210; Introduction to Econometrics
+ECON271; Intermediate Microeconomic Theory
+ECON301; Labour Economics
+ECON302; International Trade
+ECON303; Economics of Developing Countries
+ECON306; Economics of Health and Education
+ECON308; Public Economics
+ECON316; Open Economy Macroeconomics
+ECON317; Urban and Regional Economics
+ECON318; Behavioural Economics
+ECON319; Game Theory
+ECON350; Special Topic
+ECON351; Special Topic
+ECON371; Microeconomic Theory
+ECON375; Econometrics
+ECON376; Macroeconomic Theory
+ECON377; Mathematical Economics
+ECON410; Advanced Microeconomic Theory
+ECON411; Advanced Macroeconomic Theory
+ECON412; Macroeconometrics
+ECON413; Microeconometrics
+ECON480; Dissertation
+ECON485; Master's Thesis Preparation
+ECON492; Dissertation for Philosophy, Politics and Economics
+ECON502; Growth, Institutions and Development
+ECON503; Monetary Economics
+ECON505; The Economics of Natural Resources and Public Choice
+ECON507; Topics in Advanced Economics
+EDCR101; Exploring Curriculum
+EDCR102; The Languages of Children
+EDCR131; English and Mathematics 1
+EDCR133; Health and Physical Education
+EDCR135; Introduction to The New Zealand Curriculum and Social Sciences
+EDCR152; He Kākano Noaiho, Ngā Reo
+EDCR155; Whakatakinga Marautanga me Tikanga ā Iwi
+EDCR201; Weaving Curriculum
+EDCR202; People Under Three
+EDCR203; Te Ohonga Ake o ngā Marautanga
+EDCR220; Te Ohoka Ake
+EDCR231; English and Mathematics 2
+EDCR232; Science and Technology
+EDCR233; Visual Arts and Music
+EDCR235; Dance and Drama
+EDCR236; Toka Tū Moana – ngā Āhuatanga Māori
+EDCR252; Te Pupuke
+EDCR254; Toi Ataata, Toi Pūoro
+EDCR301; Living Curriculum
+EDCR302; Debating Curriculum
+EDCR331; English and Mathematics 3
+EDCR332; Local Curriculum and Integration
+EDCR334; English and Mathematics 4
+EDCR353; Whakaurunga o ngā Marautanga
+EDDC911; Doctor of Education Coursework
+EDPR101; The Practice of Early Childhood Teaching 1
+EDPR102; From Personal to Professional
+EDPR131; Te Weu
+EDPR151; Te Mōhiotanga
+EDPR201; Relationships and the Practice of Teaching 2
+EDPR202; Relationships in Inclusive Settings
+EDPR231; Te Aka and Learning Languages
+EDPR240; Engaging in Teaching
+EDPR251; Te Mātauranga - Professional Studies and Practice 2
+EDPR301; Professional Inquiry in(to) Practice 3
+EDPR302; Professional Inquiry in(to) Practice 4
+EDPR303; Politics, Policy and the Profession
+EDPR331; Te Puāwaitanga 1
+EDPR333; Te Puāwaitanga 2
+EDPR351; Te Māramatanga
+EDSU110; Children in Action
+EDSU115; Exploring the Visual Arts Through Drawing and Painting
+EDUC101; Education and Society
+EDUC102; Human Development
+EDUC105; Disability Studies: An Introduction
+EDUC211; The Institutions of Childhood
+EDUC251; Education in Aotearoa New Zealand: Policy and Te Tiriti o Waitangi Issues
+EDUC252; How People Learn
+EDUC254; Family Resources, Culture, and Education
+EDUC259; Educating Global Citizens for the 21st Century
+EDUC307; Child Development
+EDUC308; Future-Focused Literacies
+EDUC311; Contemporary Understandings of Young Children as Learners
+EDUC312; Children and Young People in History
+EDUC313; Equity in Education
+EDUC318; Gender Issues in Education
+EDUC321; Educational Psychology
+EDUC331; Special Topic
+EDUC351; Research Methods in Education
+EDUC401; Education in Historical Perspective
+EDUC402; Current Issues in Education
+EDUC403; Perspectives on Teaching and Learning
+EDUC411; Conceptualising and Designing Quality Educational Research
+EDUC412; Research Design and Methodology: Evidence-based Practice in Education
+EDUC422; Quantitative Research Methods in Education
+EDUC423; Technology-enhanced Learning
+EDUC427; Qualitative Research
+EDUC428; Special Topic
+EDUC429; Special Topic 2
+EDUC431; Special Topic
+EDUC432; Special Topic
+EDUC435; Introduction to Internet-based Learning
+EDUC438; Leadership for Learning
+EDUC439; Strategic Educational Management
+EDUC444; Pacific Education Issues: Culture, Identity and Schooling
+EDUC451; Inclusive Education
+EDUC457; Pedagogy in Early Childhood Education
+EDUC459; Equality, Diversity and Education
+EDUC461; The Construction of Curriculum in Early Childhood Education
+EDUC462; Mentoring Teachers
+EDUC464; Writing Journal Articles for Publication
+EDUC465; Science Education for Teachers
+EDUC471; Teaching in an Aotearoa New Zealand Context
+EDUC472; Primary Curriculum 1
+EDUC473; Professional Experience (Primary)
+EDUC474; Early Childhood Curriculum 1
+EDUC475; Professional Experience (Early Childhood)
+EDUC476; Diversity and Inclusion
+EDUC477; Secondary Curriculum 1
+EDUC478; Professional Experience (Secondary)
+EDUC480; Research Study
+EDUC495; Thought in Action
+EDUC572; Primary Curriculum 2
+EDUC574; Early Childhood Curriculum 2
+EDUC577; Secondary Curriculum 2
+EDUC579; Evidence-based Inquiry
+EDUC580; Research Dissertation
+EDUC590; Professional Practice Portfolio
+EDUC591; Research Project
+EDUC592; Professional Inquiry
+EMAN201; Thermoprocesses 1
+EMAN204; Renewable Energy Technologies
+EMAN301; Fluids and Heat Transfer
+EMAN308; Thermoprocesses 2
+EMAN310; Special Topic
+EMAN402; Process Optimisation
+EMAN403; Linear Systems and Control Theory
+EMAN404; Advanced Energy Resources
+EMAN405; Energy Practice
+EMAN410; Energy Policy
+EMAN490; Dissertation
+ENGL120; Creative Writing: How to Captivate and Persuade
+ENGL121; English Literature: The Remix
+ENGL127; Essentials of Writing
+ENGL128; Essentials of Communication
+ENGL131; Controversial Classics
+ENGL216; A Topic in English Language
+ENGL218; Shakespeare: Stage, Page and Screen
+ENGL219; Poetry and Music
+ENGL220; Creative Writing: Reading for Writers
+ENGL222; Literature and Activism: The Art of Protest
+ENGL223; Fantasy and the Imagination
+ENGL227; Essay and Feature Writing
+ENGL228; Writing for the Professions
+ENGL230; Creative Writing for Games and Interactive Media
+ENGL233; Literary Theory: From Marxism to Ecocriticism
+ENGL241; Irish-Scots Gothic and the Gothic as Genre
+ENGL242; New Zealand Literature: Connecting Worlds
+ENGL251; Special Topic
+ENGL254; Magic and Treachery in Medieval Literature
+ENGL311; Renaissance Literature
+ENGL312; Literature in the Age of Invention
+ENGL313; Victorian Literature
+ENGL319; Poetic Revolt from Soho to Social Media
+ENGL320; Creative Writing: Crafting Voices
+ENGL323; Fantasy and the Imagination (Advanced)
+ENGL327; The Essay: Creative Non-Fiction
+ENGL334; Textuality and Visuality
+ENGL335; Romantics, Revolutionaries, and the Imagination
+ENGL337; Creative Writing: Travel Narratives
+ENGL339; Māori and Pacific Literature
+ENGL340; Modernism: Joyce
+ENGL341; Irish-Scots Gothic and the Gothic as Genre
+ENGL342; Digital Literature: Technologies of Storytelling
+ENGL350; Special Topic
+ENGL351; Special Topic
+ENGL353; Reading Minds: Literature and Psychology
+ENGL354; Monsters and Monstrosity in Medieval Literature
+ENGL368; Engaging Literary Stories
+ENGL404; A Topic in English Language
+ENGL454; Medieval Misogyny: Subverting the Antifeminist Tradition
+ENGL465; A Topic in New Zealand Literature
+ENGL467; Special Topic
+ENGL469; Writing Revolutions: How Modernism Changed the World
+ENGL470; Storyworlds and Cognition
+ENGL471; A Topic in Romanticism
+ENGL473; A Topic in 19th Century Literature
+ENGL474; Special Topic
+ENGL475; Reading and Writing Crime Fiction
+ENGL476; A Topic in English Literature 1660-1800
+ENGL477; A Topic in American Literature
+ENGL478; A Topic in Postcolonial Literatures
+ENGL490; Dissertation
+ENGL590; Research Dissertation
+ENTR111; Responsible Entrepreneurship
+ENTR112; Business Model Development and Innovation
+ENTR211; Entrepreneurial Capital and Valuation
+ENTR212; Sustainable Entrepreneurship in Practice
+ENTR312; New Venture Creation Strategy
+ENTR411; Introduction to Entrepreneurship
+ENTR415; New Venture Strategy
+ENTR421; Technology and Entrepreneurship
+ENTR512; Feasibility Analysis
+ENTR513; Finance for Entrepreneurs
+ENTR514; Marketing in a Digital World
+ENTR515; New Venture Strategy
+ENTR520; Sustainable Entrepreneurship
+ENVI111; Environment and Society
+ENVI211; Environmental History of New Zealand
+ENVI311; Understanding Environmental Issues
+ENVI312; Interdisciplinary Aspects of Climate Change
+EURO101; Introduction to European Studies
+EURO202; The Culture of the European City
+EURO302; The Culture of the European City
+EURO304; Europe: Ideas and Nations
+FINC102; Business Mathematics
+FINC202; Investment Analysis and Portfolio Management
+FINC203; Financial Data Analysis
+FINC204; Personal Finance
+FINC206; Fundamentals of Corporate Finance
+FINC299; Special Topic
+FINC302; Applied Investments
+FINC303; Financial Management
+FINC304; Financial Markets and Institutions
+FINC305; International Financial Management
+FINC306; Derivatives
+FINC308; Financial Econometrics
+FINC309; Financial Modelling
+FINC310; Fixed Income Security Analysis
+FINC320; Sustainable Investing
+FINC399; Special Topic
+FINC480; Dissertation or Case Study
+FINC502; Advanced Corporate Finance
+FINC503; Studies in Capital Markets
+FINC505; Mathematical Finance
+FINC510; Advanced International Financial Management
+FINC511; Financial Risk Management
+FINC512; Financial Analytics
+FINC520; Climate and Energy Finance
+FINC544; Behavioural Finance
+FINC598; Special Topic
+FINC599; Special Topic
+FORB201; Forensic Biology
+FORS201; Analytical and Forensic Science
+FORS301; Analytical Forensic Biology
+FORS401; Application of Forensic Science
+FORS490; Forensic Analytical Science
+FOSC111; Food in a Changing World
+FOSC201; Food Components, Processing and Functionality
+FOSC202; Food Systems and Quality
+FOSC214; Psychology of Food
+FOSC301; Food Chemistry, Structure and Function
+FOSC302; Food Preservation and Processing
+FOSC304; Food Science Project
+FOSC306; Food Sensory and Consumer Science
+FOSC311; Food Product Development
+FOSC401; Topics in Advanced Food Science 1
+FOSC402; Topics in Advanced Food Science 2
+FOSC403; Topics in Advanced Food Science 3
+FOSC404; Topics in Advanced Food Science 4
+FOSC405; Topics in Advanced Food Science 5
+FOSC406; Topics in Advanced Food Science 6
+FOSC407; Topics in Advanced Food Science 7
+FOSC460; Cooperative Education Programme
+FOSC480; Research Project
+FOSC490; Dissertation
+FOSC495; Master's Thesis Preparation
+FREN105; Intensive French for Beginners
+FREN131; Introductory French 1
+FREN132; Introductory French 2
+FREN232; Intermediate French
+FREN233; French for Professional Purposes
+FREN250; Crossroads in French Cultural Space
+FREN333; Advanced French 1
+FREN334; Advanced French 2
+FREN335; Advanced French 3
+FREN336; Advanced French 4
+FREN341; Topics in French
+FREN350; Crossroads in French Cultural Space (Advanced)
+FREN441; Advanced Topics in French
+FREN451; Studies in French
+FREN452; Studies in French 2
+FREN490; Dissertation
+FREN590; Research Dissertation
+GDPR701; General Practice I
+GDPR702; General Practice II
+GDPR730; General Practice PGDipClinDent Special Topics
+GEHM701; Introduction to Genomics in Health and Medicine
+GEHM702; Genomic Medicine - Case Based Learning
+GEHM703; Application of Genomic Health and Medicine in practice or research
+GENA702; Sexual and Reproductive Health
+GENA704; Te Tūhauora: Māori Health
+GENA708; Supervised Research Project
+GENA713; Travel Medicine 1: Introductory Concepts
+GENA714; Travel Medicine 2: Applied Concepts
+GENA717; Generalist Medical Echocardiography
+GENA718; Generalist Medical Ultrasound
+GENA719; Tropical Infectious Disease
+GENA720; Refugee and Migrant Health
+GENA723; Trauma and Emergencies in Rural Settings
+GENA724; The Context of Rural Healthcare
+GENA725; Reflections in Rural Clinical Practice
+GENA726; Obstetrics and Paediatrics in Rural Settings
+GENA727; Surgical Specialties in Rural Settings
+GENA728; Cardiorespiratory Medicine in Rural Settings
+GENA729; Medical Specialties in Rural Settings
+GENA737; Obesity Prevention and Management
+GENA820; Nature of Medical Practice
+GENA821; Research Methods in Primary Health Care
+GENA822; Advanced Nature of General Practice
+GENA823; Teaching and Learning in Medical Practice
+GENA824; Ethics in General Practice
+GENA826; Special Topic
+GEND101; Gender in Everyday Life
+GEND102; Bodies, Sexualities and Society
+GEND201; Introduction to Feminist Theory
+GEND205; Gender and the Media
+GEND206; Gender, Work and Consumer Culture
+GEND207; Masculinities
+GEND208; Governing Bodies
+GEND209; Critical Victimology
+GEND210; Gender, Crime and Justice
+GEND234; Special Topic
+GEND305; Gender and the Media
+GEND306; Gender, Work and Consumer Culture
+GEND307; Masculinities
+GEND309; Critical Victimology (Advanced)
+GEND310; Gender, Crime and Justice
+GEND334; Special Topic
+GEND401; Debates in Gender and Sexuality
+GEND490; Dissertation
+GENE221; Molecular and Microbial Genetics
+GENE222; Genes, Chromosomes and Populations
+GENE223; Developmental and Applied Genetics
+GENE312; Evolutionary Genetics
+GENE313; Medical Genetics
+GENE314; Developmental Genetics
+GENE315; Genomes
+GENE360; Extension Topics and Research Skills
+GENE411; Current Topics in Genetics
+GENE412; Current Topics in Genetics
+GENE480; Research Project
+GENE490; Dissertation
+GENE495; Master's Thesis Preparation
+GEOG101; Physical Geography
+GEOG102; Geographies of Sustainable Futures
+GEOG201; Field Research Methods
+GEOG210; Social Geography
+GEOG212; Transformations in Developing Countries
+GEOG214; Geographies of Global Economic Change
+GEOG215; Envisioning Sustainable Cities
+GEOG219; Special Topic in Human Geography
+GEOG276; Geographies of Contestation, Action and Change
+GEOG278; Geographies of the South Pacific
+GEOG280; Engaging with People and Place: Doing Geographical Research
+GEOG281; Topics in Physical Geography
+GEOG282; Climate Change: Present and Future
+GEOG284; Soils and the Environment
+GEOG285; Southern Landscapes
+GEOG286; Climatology
+GEOG287; Plants, People and the Environment
+GEOG288; Rivers and Runoff
+GEOG289; Geomorphology
+GEOG298; Coastal Geomorphology
+GEOG299; Freshwater Resources: Monitoring and Management
+GEOG301; Field Research Studies
+GEOG374; Geographies of Global Economic Change
+GEOG376; Geographies of Contestation, Action and Change
+GEOG378; Geographies of the South Pacific
+GEOG379; Special Topic in Human Geography
+GEOG380; Field Research Studies
+GEOG381; Social Geography
+GEOG382; Transformations in Developing Countries
+GEOG387; Topics in Physical Geography
+GEOG388; Climate Change: Present and Future
+GEOG389; Climate Change: The Past
+GEOG390; Soils and the Environment
+GEOG392; Climatology
+GEOG394; Rivers and Runoff
+GEOG395; Geomorphology
+GEOG397; Environmental Management: Policy and Practice
+GEOG398; Coastal Geomorphology
+GEOG399; Freshwater Resources: Monitoring and Management
+GEOG402; Development Planning and Practice
+GEOG459; Biogeography
+GEOG460; Climatology
+GEOG461; Mountain Hydrology
+GEOG463; Geographies of Justice
+GEOG465; Special Topic in Geography
+GEOG471; Impact Assessment and Sustainability
+GEOG472; Developments in Environmental Management
+GEOG474; Coastal Management
+GEOG490; Dissertation
+GEOG495; Master's Thesis Preparation
+GEOG501; Global Development: Theory and Practice
+GEOG557; Urban Theory and Practice
+GEOG563; Geographies of Justice
+GEOG565; Special Topic in Geography
+GEOG572; Developments in Environmental Management
+GEOG574; Coastal Management
+GEOG590; Research Dissertation
+GEOL112; Dynamic Earth: A New Zealand Perspective
+GEOL221; Special Topic
+GEOL251; Minerals and Rocks
+GEOL252; Field Studies and NZ Geology
+GEOL261; Geophysics
+GEOL262; Geochemistry
+GEOL263; Paleoenvironments and Basin Evolution
+GEOL264; Magmas and Volcanoes of Zealandia
+GEOL265; Natural Hazards of NZ and Beyond
+GEOL272; Evolution of New Zealand Biota
+GEOL273; Modern and Ancient Sedimentary Systems
+GEOL274; Metamorphism, Mineralisation, Tectonics
+GEOL275; Rock Deformation
+GEOL302; Independent Project
+GEOL304; Accelerated Independent Project
+GEOL321; Special Topic
+GEOL341; Special Topic
+GEOL344; Advanced Field Studies
+GEOL353; Earth Evolution and Plate Tectonics
+GEOL361; Geophysics
+GEOL362; Geochemistry
+GEOL363; Paleoenvironments and Basin Evolution
+GEOL364; Magmas and Volcanoes of Zealandia
+GEOL365; Natural Hazards of NZ and Beyond
+GEOL372; Evolution of New Zealand Biota
+GEOL373; Modern and Ancient Sedimentary Systems
+GEOL374; Metamorphism, Mineralisation, Tectonics
+GEOL375; Rock Deformation
+GEOL401; Current Topics and Advanced Methods in Geoscience
+GEOL402; Advanced Research Methods in Geoscience 1
+GEOL403; Advanced Research Methods in Geoscience 2
+GEOL450; Special Topic 1
+GEOL451; Special Topic 2
+GEOL461; Advanced Topics in Geophysics 1
+GEOL462; Advanced Topics in Geochemistry
+GEOL463; Advanced Topics in Paleobiology and Evolution
+GEOL464; Advanced Topics in Igneous Processes
+GEOL465; Advanced Topics in Structural Geology
+GEOL471; Advanced Topics in Geophysics 2
+GEOL472; Advanced Topics in Environmental Geochemistry
+GEOL473; Advanced Topics in Paleoceanography and Paleoclimatology
+GEOL474; Advanced Topics in Metamorphism and Mineralisation
+GEOL475; Advanced Topics in Rock Deformation
+GEOL480; Research Project
+GEOL490; Dissertation
+GEOL495; Master's Thesis Preparation
+GERM101; Introduction to the German Language
+GERM102; Elementary German
+GERM131; Introductory German 1
+GERM132; Introductory German 2
+GERM201; German Language 2A
+GERM202; German Language 2B
+GERM230; German Language 3
+GERM231; Intermediate German 1
+GERM331; Intermediate German 2
+GERM333; German for Professional Purposes
+GERM334; Advanced German 1
+GERM335; Advanced German 2
+GLBL110; Mapping our Interconnected World: An Introduction to Global Studies
+GLBL201; Cultures of the Environment
+GLBL202; A World of Stories: Global Storytelling in the Digital Age
+GLBL211; Global China
+GLBL301; Cultures of the Environment (Advanced)
+GLBL302; A World of Stories: Global Storytelling in the Digital Age (Advanced)
+GLBL303; Applied Research Project
+GLBL310; Topic in Global Studies
+GLBL311; Global China (Advanced)
+GREK111; Introductory Greek 1
+GREK112; Introductory Greek 2
+GREK211; Intermediate Greek
+GREK212; Intermediate Greek Authors
+GREK328; Advanced Greek Authors 1
+GREK329; Advanced Greek Authors 2
+GREK464; A Topic in Greek Literature
+HASC401; Special Topic
+HASC402; Special Topic
+HASC413; Biostatistics
+HASC415; Regression Methods: Health Science Applications
+HASC417; Health Sciences Research Methods
+HASC418; Special Topic
+HASC590; Dissertation
+HASC780; Research Project
+HASC817; Health Sciences Master's Research Methods
+HEBR131; Introductory Biblical Hebrew 1
+HEBR132; Introductory Biblical Hebrew 2
+HEDU501; Critical Reflection on Higher Education
+HEDU502; Learning Theory and Practice in Higher Education
+HEDU503; Research in Higher Education
+HEDU504; Academic Leadership in Higher Education
+HEDU510; Advanced Topics in Higher Education
+HEDU590; Research Dissertation
+HIST102; The Global Twentieth Century
+HIST105;
+HIST107; New Zealand in the World from the 18th Century
+HIST108; From Medieval to Modern Europe
+HIST123; Revolutions
+HIST206; An Introduction to Pacific History
+HIST215; Heretics, Witches, and Inquisitors
+HIST216; Tyrants and Traitors: Britain and France, 1100-1800
+HIST218; Modern Irish History Since 1798
+HIST223; Empires and Globalisations
+HIST225; Totalitarian Regimes: Europe 1922-1945
+HIST229; Darwin versus God? Science and Society, 1789-1914
+HIST230; Special Topic
+HIST231; Special Topic
+HIST232; Special Topic
+HIST234; Crime, Shame and Scandal in New Zealand
+HIST241; War and the Modern World
+HIST242; Histories of Crime and Punishment
+HIST244; New Zealand Society and Religion
+HIST245; Global Migrations: From Slavery to Refugees
+HIST246; Activist Histories: Contesting Settler Colonialism
+HIST303; Modern India
+HIST308; New Zealand Society and Religion
+HIST318; Australia since 1788: Boundaries of Belonging
+HIST325; Modern Italy
+HIST327; Interpreting Māori Lives: Rebels, Radicals and Reformers
+HIST328; Irish and Scottish Migrations in the 19th and 20th Centuries
+HIST331; Special Topic
+HIST333; Special Topic
+HIST337; Environmental History of the Pacific
+HIST341; Patriotism: From Joan of Arc to Kamikaze
+HIST347; Empires Strike Back: A Global History of Decolonization
+HIST348; Origins of Modern Scotland
+HIST353; Practising History
+HIST430; Special Topic
+HIST452; Rethinking History
+HIST481; Historiography Project
+HIST490; Dissertation
+HIST590; Research Dissertation
+HLMT790; Dissertation
+HUBS191; Human Body Systems 1
+HUBS192; Human Body Systems 2
+HUMS301; Internship Practicum
+HUMS501; Writing and Revision for Graduate Research
+HUMS502; Research Methods in the Humanities
+HUMS503; Key Debates in the Humanities
+HUNT141; Understanding Human Nutrition
+HUNT241; Fundamentals of Nutrients and Health
+HUNT242; Nutritional Assessment
+HUNT243; Lifecycle Nutrition
+HUNT245; Sport and Exercise Nutrition
+HUNT246; Applied Nutrition
+HUNT341; Nutrition and Behaviour Change Communication
+HUNT342; Nutrition and Chronic Diseases
+HUNT343; Community and Public Health Nutrition
+HUNT344; Food and Nutrition in Practice
+HUNT345; Applied Sports Nutrition
+HUNT346; Global Nutrition and Health
+HUNT441; Research Methods
+HUNT442; Applied Nutrition & Disease Management
+HUNT443; Practice in Public Health Nutrition
+HUNT444; Food - Systems, Services and Skills
+HUNT445; Applications in Sport and Exercise Nutrition
+HUNT452; Nutrition and Human Health
+HUNT454; Nutritional Biostatistics
+HUNT455; Advanced Topics in Human Nutrition
+HUNT485; Research Project
+HUNT490; Dissertation
+HUNT495; Master's Thesis Preparation
+IBUS480; Dissertation
+IMMU495; Master's Thesis Preparation
+INDS307; Ancient East Polynesian Histories
+INDS401; Indigenous Identities
+INDS402; Taonga and Identity
+INFO130; Fundamentals and practice of spreadsheets
+INFO131;
+INFO201;
+INFO203; Human-Computer Interaction and User Experience
+INFO204; Introduction to Data Science
+INFO250; Special Topic
+INFO302; Information Systems Strategy and Governance
+INFO304; Advanced Data Science
+INFO305; Advanced Human-Computer Interaction and Interactive Systems
+INFO310; Software Project Management
+INFO350; Topics in Information Science
+INFO351; Special Topic
+INFO352; Special Topic
+INFO353; Special Topic
+INFO390; Research Topics
+INFO407; Agent-based Software Technologies
+INFO408; Management of Large-Scale Data
+INFO410; Interactive and Immersive Systems
+INFO411; Machine Learning and Data Mining
+INFO420; Statistical Techniques for Data Science
+INFO424; Adaptive Business Intelligence
+INFO451; Special Topic
+INFO452; Special Topic
+INFO470; Advanced Topics in Information Science
+INFO490; Dissertation
+INFO501; Applied Project
+INFO580; Research Project
+INGS501; Indigenous Theory and Method
+INTS502; International Politics
+INTS509; Global Peace and Conflict
+JAPA131; Introductory Japanese 1
+JAPA132; Introductory Japanese 2
+JAPA231; Intermediate Japanese
+JAPA233; Business and Professional Japanese
+JAPA242; Understanding Japanese Culture
+JAPA243; Issues in Japanese Culture Today
+JAPA331; Advanced Japanese 1
+JAPA332; Advanced Japanese 2
+JAPA342; Understanding Japanese Culture
+JAPA343; Issues in Japanese Culture Today
+JAPA344; Modern Japanese Fiction
+JAPA351; The Structure of the Japanese Language
+JAPA352; Language Cosplay: Japanese Language in Anime and Beyond
+JAPA451; Studies in Japanese
+JAPA490; Dissertation
+JAPA590; Research Dissertation
+LANG301; Languages and Cultures for Global Communication
+LANG303; Directed Individual Study
+LATN111; Introductory Latin 1
+LATN112; Introductory Latin 2
+LATN211; Intermediate Latin
+LATN212; Intermediate Latin Authors
+LATN328; Advanced Latin Authors 1
+LATN329; Advanced Latin Authors 2
+LATN464; A Topic in Latin Literature
+LAWS101; The Legal System
+LAWS201; Criminal Law
+LAWS202; Law of Contract
+LAWS203; Property Law
+LAWS204; Public Law
+LAWS298; Legal Writing
+LAWS301; Law of Torts
+LAWS302; Jurisprudence
+LAWS350; Lawyers, Clients, and the Profession
+LAWS351; Climate Law and Policy
+LAWS352; International Tax Law and Policy
+LAWS353; The Law in the South Pacific
+LAWS354; Insolvency Law
+LAWS356; International Labour Law
+LAWS357; Law and the Biosciences
+LAWS358; Global Governance and Law
+LAWS380; Preliminary Honours Research Papers
+LAWS398; Legal Research Skills
+LAWS401; Children and the Family Justice System
+LAWS403; Immigration and Refugee Law
+LAWS404; Administrative Law
+LAWS405; Civil Liberties and the Private Sector
+LAWS406; Civil Justice
+LAWS407; Company Law
+LAWS409; Private International Law
+LAWS410; Criminology
+LAWS411; Family Law
+LAWS412; International Law
+LAWS413; Labour Law
+LAWS414; Law of Evidence
+LAWS415; Resource Management Law
+LAWS416; Taxation
+LAWS417; Criminal Justice
+LAWS418; Crime and Property
+LAWS419; Securities Market Regulation
+LAWS420; Law and the Democratic Process
+LAWS421; International Environmental Law
+LAWS422; Bill of Rights - Theory and Practice
+LAWS423; Information and Data Protection Law
+LAWS424; International Criminal Court
+LAWS425; Energy Law
+LAWS426; Insurance Law
+LAWS427; Commercial Equity
+LAWS428; Law and Emerging Technologies
+LAWS430; Advanced Criminal Law
+LAWS431; Advanced Contract and Tort
+LAWS432; Animals and the Law
+LAWS433; Advanced Family Property
+LAWS435; Banking Law
+LAWS436; Commercial and Consumer Law
+LAWS437; Competition Law
+LAWS438; Civil Liberties and the Public Sector
+LAWS440; Environmental Law
+LAWS441; Advanced Taxation
+LAWS443; International Investment Law
+LAWS444; Intellectual Property
+LAWS447; Law and Medicine
+LAWS448; Law and Psychiatry
+LAWS449; Criminal Procedure
+LAWS450; Law of Restitution
+LAWS452; Legal Theory
+LAWS453; Advanced Legislation
+LAWS454; Negotiation
+LAWS455; Māori Land Law
+LAWS456; Media Law
+LAWS457; Secured Transactions
+LAWS458; Sentencing
+LAWS459; Treaty of Waitangi
+LAWS460; Vendor and Purchaser
+LAWS461; Laws and Indigenous Peoples
+LAWS462; Wills and Trusts
+LAWS463; Legal Ethics
+LAWS464; Advocacy
+LAWS465; Law and Society
+LAWS466; Gender and the Law
+LAWS467; International Human Rights Law
+LAWS468; Advanced Company Law
+LAWS469; Law and Religion
+LAWS470; Special Topic 1
+LAWS471; Special Topic 2
+LAWS472; Special Topic 3
+LAWS473; Special Topic 4
+LAWS474; Special Topic 5
+LAWS475; Special Topic 6
+LAWS476; Special Topic 7
+LAWS477; Special Topic 8
+LAWS478; Special Topic 9: Remedies in Private and Commercial Law
+LAWS479; Special Topic 10
+LAWS480; Research Paper
+LAWS481; Special Topic 11
+LAWS482; Advanced Evidence Law
+LAWS485; Special Topic 14
+LAWS486; Special Topic 15
+LAWS487; Special Topic 16
+LAWS488; Accidents and the Law
+LAWS490; Final Honours Research Paper
+LAWS498; Research and Writing
+LAWS499; Advocacy Skills
+LAWS512; Family Law
+LAWS515; Resource Management Law
+LAWS521; International Environmental Law
+LAWS528; Law and Emerging Technologies
+LAWS540; Environmental Law
+LAWS547; Law and Medicine
+LAWS548; Law and Psychiatry
+LAWS588; Accidents and the Law
+LING103; Language Myths
+LING111; Language and its Structure
+LING140; Language, Brain, and Being Human
+LING217; What's Behind Language: Sound and Structure
+LING230; Interaction and Identity in Context
+LING231; TESOL: Guide to Language Teaching
+LING314; Morphosyntax: Diversity and Unity
+LING315; Psycholinguistics
+LING317; Child and Adult Language Development
+LING331; Advanced TESOL: Branching Out
+LING332; TESOL in Action: Teaching Practice
+LING342; Laboratory Phonology
+LING421; Special Topic: Computer Assisted Language Learning
+LING422; Special Topic 3
+LING424; Linguistic Fieldwork
+LING432; TESOL in Action: Teaching Practice
+LING433; Sociocultural Language Topics
+LING440; Advanced Topic in Linguistics
+LING490; Dissertation
+LING495; Thesis Preparation
+LING590; Research Dissertation
+MANT101; Managing for Performance
+MANT217; International Management
+MANT222; Interpersonal/International Business Communication
+MANT250; Managing People
+MANT251; Managing Organisations
+MANT252; Developing Responsible Leadership
+MANT301; Technological Innovation and Entrepreneurship
+MANT303; Fundamentals in Entrepreneurship
+MANT330; Leadership and Change
+MANT331; Business Ethics
+MANT332; International Management
+MANT333; Organisational Excellence
+MANT334; Operations and Supply Chain Strategy
+MANT337; Organisations and Sustainability
+MANT338; Cases in Strategy and Innovation
+MANT339; Human Resource Development
+MANT340; Indigenous Management and Organisation
+MANT342; Global Business Strategy
+MANT345; Strategic Human Resource Management
+MANT346; Employment Relations
+MANT347; Occupational Psychology
+MANT358; Special Topic
+MANT359; Special Topic
+MANT360; Special Topic
+MANT361; Special Topic
+MANT437; Organisations and Sustainability
+MANT447; Contemporary Issues in Sustainable Business
+MANT450; Governance and Social Responsibility
+MANT459; Indigenous Management & Organisation (Advanced)
+MANT471; International Business Strategy
+MANT472; Managing International Organisations
+MANT480; Dissertation or Case Study
+MANT501; Applied Project
+MANT543; Special Topic
+MANT551; Strategic Change and Innovation
+MANT553; Human Resource Management
+MANT555; Leadership Development
+MANT556; Global Operations Excellence
+MAOH201; Hauora Māori in Practice: Working with Individuals and Whānau
+MAOH301; Hauora Māori in Practice: Working with Organisations and Communities
+MAOH401; Hauora Māori Advanced Practice
+MAOR102; Māori Society
+MAOR108; Waiata: Te Tīmatanga
+MAOR110; Introduction to Conversational Māori
+MAOR111; Te Kākano 1
+MAOR112; Te Kākano 2
+MAOR120; Introducing the Māori World
+MAOR202; Māori and Tikanga
+MAOR203; Ngāi Tahu Society
+MAOR204; Te Tiriti o Waitangi
+MAOR206; Ngā Pūkenga Tuhi
+MAOR207; Ngā Kōrero Nehe - Tribal Histories
+MAOR208; Ngā Manu Taki
+MAOR210; Special Topic
+MAOR211; Te Pihinga 1
+MAOR212; Te Pihinga 2
+MAOR213; Te Mana o Te Reo
+MAOR301; He Whakarākai
+MAOR303; Ngāi Tahu and the Natural World
+MAOR304; Te Rōpū Whakamana i Te Tiriti - Waitangi Tribunal
+MAOR306; Ngā Pūkenga Tuhi
+MAOR307; Te Tūtakitanga o Ngā Ao e Rua
+MAOR308; Ngā Hākinakina a Te Māori
+MAOR310; Special Topic
+MAOR311; Te Māhuri 1
+MAOR312; Te Māhuri 2
+MAOR313; Te Hiringa Taketake
+MAOR316; Special Topic
+MAOR327; Ngā Pakanga Nunui: New Zealand Wars
+MAOR401; He Whakarākai (Whakatīeke)
+MAOR404; Toitū te Whenua - Land, Lore and Colonialism
+MAOR407; Presenting Pacific Histories
+MAOR410; Special Topic
+MAOR413; Te Tātari i Te Kaupapa - Māori and Indigenous Education
+MAOR414; He Pūkōrero - Theory and Research Methodologies
+MAOR417; Special Topic
+MAOR427; He Tuhituhinga
+MAOR431; Te Kōhure
+MAOR490; He Raukura
+MAOR590; Research Dissertation
+MARI112; Marine Biology: The Living Ocean
+MARI201; Oceanography: The Physical Ocean
+MARI202; Ecology and Biology of Marine Invertebrates
+MARI301; Marine Ecology and Ecosystems
+MART112; Marketing
+MART201; Integrated Marketing Communications
+MART207; Sports Marketing
+MART210; Consumer Behaviour
+MART211; Products to Market
+MART212; Understanding Markets
+MART301; Strategic Marketing
+MART304; Sales and Sales Management
+MART305; Societal Issues in Marketing
+MART306; Market-Led Innovation
+MART308; Integrated Digital Marketing
+MART310; Current Issues in International Branding
+MART328; Business to Business Marketing
+MART329; Consumer Behaviour
+MART330; Special Topic
+MART333; Creative Marketing Communication
+MART355; Business Project
+MART449; Creative Marketing for Behaviour Change, Sustainability and Social Good
+MART461; Marketing Theory
+MART480; Dissertation or Case Study
+MART548; Advanced Business Analytics
+MART563; Food Marketing
+MART564; Consumer Behaviour
+MART566; Digital Marketing
+MART567; Tourism Marketing
+MART570; Special Topic
+MART574; Advertising and Branding
+MATH120; Mathematics for Scientists
+MATH130; Fundamentals of Modern Mathematics 1
+MATH140; Fundamentals of Modern Mathematics 2
+MATH151; General Mathematics
+MATH160; Mathematics 1
+MATH170; Mathematics 2
+MATH201; Real Analysis
+MATH202; Linear Algebra
+MATH203; Calculus of Several Variables
+MATH302; Complex Analysis
+MATH304; Partial Differential Equations
+MATH306; Geometry of Curves and Surfaces
+MATH421; Analytic Number Theory
+MATH422; Functional Analysis
+MATH423; Measure and Integration
+MATH424; Techniques in Applied Mathematics I
+MATH425; Differential Geometry
+MATH426; Techniques in Applied Mathematics II
+MATH427; Advanced Algebra
+MATH431; Topics in Advanced Mathematics
+MATH433; Topics in Advanced Mathematics
+MATH434; Topics in Advanced Mathematics
+MATH435; Topics in Advanced Mathematics
+MATH436; Topics in Advanced Mathematics
+MATH490; Dissertation
+MATH495; Master's Thesis Preparation
+MELS208; Introduction to Diagnostic Pathology
+MELS223; Infection and Immunity (for BMLSc)
+MELS230; Biochemistry (for BMLSc)
+MELS241; Human Biology: Cells to Systems (for BMLSc)
+MELS251; Physiology (for BMLSc)
+MELS301; Diagnostic Chemical Pathology
+MELS302; Haematology and Transfusion Science
+MELS304; Principles of Pathology
+MELS305; Elements of Histotechnology
+MELS306; Medical Microbiology
+MELS401; Advanced Diagnostic Chemical Pathology
+MELS402; Clinical Microbiology
+MELS403; Clinical Virology
+MELS404; Diagnostic Molecular Pathology
+MELS405; Cytopathology
+MELS406; Haematology
+MELS407; Histopathology
+MELS408; Transfusion Science
+MELS409; Clinical Immunology
+MELS410; Medical Laboratory Science for Rural Health
+MELS420; Medical Laboratory Science Practice for Honours
+MELS480; Medical Laboratory Science Research for Honours
+MELS510; Advanced Medical Laboratory Science Practice
+MELS580; Research Project
+MFCO101; Screen Form and Culture
+MFCO102; Media, Power, Society
+MFCO103; Introduction to Communication Studies
+MFCO201; The History of Film
+MFCO202; Theory of Communication Studies
+MFCO203; Media History
+MFCO205; Communication Research Methods
+MFCO210; Theory of Film and Media
+MFCO212; Global Media and Communication
+MFCO213; Media Genres
+MFCO216; Cinema of Aotearoa New Zealand
+MFCO217; Television Studies
+MFCO220; Writing for the Media
+MFCO222; Science, Technology, and Society
+MFCO223; Documentary and Reality Media
+MFCO224; Studying Selfies: Celebrity, Surveillance and Cyberspace
+MFCO225; Crime and the Media
+MFCO231; Special Topic
+MFCO242; Special Topic
+MFCO250; Celebrity
+MFCO251; Television Studio Production
+MFCO301; Critical Problems in Film and Media
+MFCO303; Critical Problems in Communication Studies
+MFCO305; Communication Research Methods
+MFCO306; Cinema of Aotearoa New Zealand
+MFCO307; Political Economy of Communication
+MFCO312; Communication and the City
+MFCO313; Culture, Politics and Media
+MFCO314; French Cinema
+MFCO315; Digital Media and Society
+MFCO316; German Cinema
+MFCO317; Digital Culture
+MFCO318; Indigenous Media
+MFCO319; Contemporary American Cinema
+MFCO323; Documentary and Reality Media
+MFCO330; Special Topic
+MFCO333; Film Festivals
+MFCO350; Celebrity
+MFCO401; Advanced Media, Film and Communication Theory
+MFCO406; Audience Studies
+MFCO408; Screening Gender
+MFCO410; Documentary Film and Media
+MFCO411; Independent Study in Media, Film and Communication
+MFCO412; Communicating the Self
+MFCO414; Discourse Theory and Practice
+MFCO416; Communication Policy: Issues and Approaches
+MFCO417; Postcolonial Media and Communication
+MFCO441; Special Topic
+MFCO490; Dissertation
+MFCO590; Research Dissertation
+MICN201; Medicine Second Year
+MICN301; Medicine Third Year
+MICN401; Medicine Fourth Year
+MICN501; Medicine Fifth Year
+MICN601; Medicine Sixth Year
+MICN621; Medicine Sixth Year 1st Quarter
+MICN622; Medicine Sixth Year 2nd Quarter
+MICN623; Medicine Sixth Year 3rd Quarter
+MICN624; Medicine Sixth Year 4th Quarter
+MICN641; Medicine Sixth Year 1st Quarter
+MICN642; Medicine Sixth Year 2nd Quarter
+MICN643; Medicine Sixth Year 3rd Quarter
+MICN644; Medicine Sixth Year 4th Quarter
+MICN648; Elective Quarter
+MICR221; Microbes to Medicine
+MICR223; Infection and Immunity
+MICR332; Health Microbiology
+MICR334; Advanced Immunology
+MICR335; Molecular Microbiology
+MICR337; Virology
+MICR360; Research Perspectives
+MICR461; Molecular Microbiology
+MICR462; Microbiology and Immunology Research
+MICR463; Trends in Microbiology
+MICR464; Medical Microbiology and Immunology
+MICR480; Research Project
+MICR490; Dissertation
+MICR495; Master's Thesis Preparation
+MINS405; Special Topic
+MINS406; Theological Perspectives on Leadership
+MINS407; Preaching and Communication in a Contemporary Context
+MINS408; Cultures, Migration and Faith
+MINS410; Pastoral Care in Dying, Grief and Loss
+MINS411; Chaplaincy in Diverse Contexts
+MINS412; Church in Mission: Theology in Changing Cultures (Advanced)
+MINS413; Missional God, Missional People (Advanced)
+MINS414; Christian Theology and the Arts (Advanced)
+MINS415; Christian ministry in te ao Māori (the Māori World) (Advanced)
+MINS424; The Chaplain as Ceremonial Leader (Advanced)
+MINS590; Research Project
+MINS592; Research Project
+MSME701; Clinical Diagnosis
+MSME702; Musculoskeletal Tissues
+MSME703; Musculoskeletal Disorders
+MSME705; Regional Disorders - Spine
+MSME706; Regional Disorders - Limbs
+MSME707; Musculoskeletal Management
+MSME709; Clinical Therapeutics
+MSME710; Recreational and Sports Injuries
+MTEC701; Biomedical Science for Medical Technicians
+MTEC702; Physiological Monitoring for Medical Technicians
+MTEC703; Cardiovascular Science for Medical Technicians
+MTEC704; Cardiovascular Technology
+MUSI101; Materials of Music 1
+MUSI103; Popular Music
+MUSI104; World Music
+MUSI105; Music Matters in Human Life
+MUSI131; Composition 1
+MUSI132; Music Production 1
+MUSI135; Songwriting
+MUSI140; Performance Studies 1
+MUSI143; Instrumental or Vocal Performance 1
+MUSI144; Music Ensemble 1
+MUSI191; Introduction to Music
+MUSI201; Materials of Music 2
+MUSI207; Radical Works
+MUSI232; Music Production 2
+MUSI233; Electronic Music Production
+MUSI234; Contemporary Composition
+MUSI240; Performance Studies 2
+MUSI243; Instrumental or Vocal Performance 2
+MUSI244; Music Ensemble 2
+MUSI249; Contemporary Vocal Pedagogy: How to Teach Contemporary Voice
+MUSI259; Special Topic
+MUSI260; Special Topic
+MUSI266; Film Music
+MUSI267; Music in Aotearoa
+MUSI268; Performance in Asia and the Pacific
+MUSI269; Popular Music 2
+MUSI307; Radical Works (Advanced)
+MUSI310; Materials of Music 3
+MUSI331; Composition Projects
+MUSI332; Music Production 3
+MUSI333; Electronic Music Production (Advanced)
+MUSI334; Music Production Projects
+MUSI340; Performance Studies 3
+MUSI343; Instrumental or Vocal Performance 3
+MUSI344; Music Ensemble 3
+MUSI349; Contemporary Vocal Pedagogy: How to Teach Contemporary Voice
+MUSI361; Music and Visual Culture
+MUSI366; Film Music
+MUSI367; Music in Aotearoa (Advanced)
+MUSI368; Performance in Asia and the Pacific
+MUSI369; Popular Music 3
+MUSI371; Research Methods and Approaches
+MUSI375; Music Performance Pedagogy
+MUSI379; Performance, Health and Well-being
+MUSI386; Community Project
+MUSI440; Performance Studies 4
+MUSI443; Creative Project
+MUSI471; Research Methods and Approaches (Advanced)
+MUSI475; Music Performance Pedagogy (Advanced)
+MUSI479; Performance, Health and Well-being (Advanced)
+MUSI486; Community Project (Advanced)
+MUSI487; Creative Practice
+MUSI490; Dissertation
+MUSI543; Creative Project 2
+MUSI590; Research Dissertation
+NEUR201; Cellular and Molecular Neuroscience
+NEUR202; Systems Neuroscience
+NEUR301; Current Topics in Neuroscience
+NEUR303; Neuroendocrinology
+NEUR453; Applied Human Neuroscience
+NEUR455; Sleep
+NEUR456; Magnetic Resonance Imaging in Neuroscience
+NEUR459; Neuroendocrinology
+NEUR471; Special Topic
+NEUR472; Special Topic
+NEUR480; Research Project
+NEUR490; Dissertation
+NPSY701; Foundations of Applied Neuropsychology
+NPSY702; Applied Neuroscience in Neuropsychology
+NPSY703; Neuropsychology of Acquired Brain Injuries and Stroke
+NPSY704; Paediatric/Developmental Neuropsychology
+NPSY705; Neuropsychology of Aging and Degenerative Conditions
+NPSY706; Clinical Practice in Neuropsychology 1
+NPSY707; Clinical Practice in Neuropsychology 2
+NURS403; Mental Health Nursing Practice
+NURS404; Advanced Mental Health Nursing Practice
+NURS405; Health Assessment and Advanced Nursing Practice
+NURS409; Mental Health Nursing Practicum
+NURS411; Nursing - Critical Care & High Acuity
+NURS413; Primary Health Care Nursing - Rural/Urban
+NURS415; Nursing Research Methods
+NURS416; Nursing - Applied Pharmacology
+NURS418; Nursing Education - Principles and Practice
+NURS423; Leadership and Management: Growing an Identity
+NURS424; Leadership and Management: Quality & Strategic Change
+NURS426; Nursing - Gerontology
+NURS427; Long-term Conditions: Pathophysiology and Management
+NURS429; Therapeutics for Advanced Nursing
+NURS431; Rural Nursing
+NURS433; Intellectual Disability: Theory into Practice
+NURS434; Therapeutics: Knowledge and Integration
+NURS435; Evidence Based Nursing Practice
+NURS441; Professional Nursing
+NURS442; Health Care in New Zealand
+NURS443; Nursing Science 1
+NURS444; Nursing Science 2
+NURS445; Introduction to Clinical Nursing Practice
+NURS446; Nursing Clients with Altered Health States
+NURS447; Applied Nursing Research
+NURS471; Special Topic
+NURS472; Special Topic
+NURS501; Nursing Science 3
+NURS502; Mental Health Nursing
+NURS503; Nursing Clients with Complex Health States
+NURS504; Consolidation of Practice
+NURS530; Nurse Practitioner Prescribing Practicum
+NURS531; Clinical Research Project
+NURS580; Nursing Research Project
+NURS581; Integration of Nursing Theory and Practice
+NURS582; Policy Analysis
+NURS590; Dissertation
+NUTN401; Principles of Human Nutrition
+NUTN402; Nutrition and Health Promotion
+NUTN404; Nutrition and Chronic Disease
+NUTN407; Advanced Sports Nutrition
+NUTN590; Dissertation
+OBGY712; Pre and Early Pregnancy Care
+OBGY713; Pregnancy Care in the Community
+OBGY715; Medical Gynaecology I
+OBGY716; Medical Gynaecology II
+OBGY717; Obstetrics and Gynaecology Clinical Training
+OBGY718; Obstetrics and Gynaecology Residential Course 1
+OBGY719; Obstetrics and Gynaecology Residential Course 2
+OCEN201; Physical Oceanography
+OCEN301; Practical and Field Oceanography
+OCEN321; Ocean Physics and Modelling
+OCEN322; Biological Oceanography
+OCEN323; Marine Geology and Geophysics
+OCEN450; Special Topic: Data Analysis Methods in Marine Science
+OPHT801; Ophthalmic Anatomy
+OPHT802; Ophthalmic Physiology
+OPHT803; Ophthalmic Optics
+OPHT804; Practical Ophthalmic Basic Sciences
+ORPA701; Pathology and Microbiology
+ORPA702; Diagnostic Oral Pathology I
+PACH201; Pacific Health: New Zealand and the Pacific Region
+PACH301; Pacific Health: Advanced Applied Knowledge
+PACI101; Pacific Societies
+PACI102; Pacific Dance: An Introduction
+PACI103; Languages and Cultures of the Pacific: An Introduction
+PACI201; Contemporary Pacific Island Issues
+PACI210; Special Topic
+PACI301; Gafa o Tagata Pasifika - Pacific Diaspora in New Zealand
+PACI305; Peace and Conflict in the Pacific
+PACI310; Special Topic
+PACI401; Tinā Pasifika - Women in Polynesian Communities
+PACI402; Resource Conservation and Environment in the Pacific
+PACI405; Indigenous Leadership in the Pacific
+PACI410; Special Topic
+PACI490; Dissertation
+PACI590; Research Dissertation
+PADN701; Paediatric Orofacial Diagnosis and Care
+PADN702; Paediatric Orofacial Development
+PAIN710; Introduction to Pain
+PAIN711; Introduction to Pain Management
+PAIN712; Pain Assessment
+PAIN713; Pain Neurobiology
+PAIN714; Biomedical Pain Management
+PAIN715; Psychosocial and Cultural Aspects of Pain
+PAST216; Current Perspectives on Pastoral Care
+PAST219; Christian Witness in a Secular World
+PAST225; Special Topic: Pastoral Theology: Moana-Pacific Perspectives
+PAST307; Special Topic
+PAST311; Preaching and Communication in a Contemporary Context
+PAST314; Cultures, Migration and Faith
+PAST316; Current Perspectives on Pastoral Care (Advanced)
+PAST318; Pastoral Care in Dying, Grief and Loss
+PAST319; Christian Witness in a Secular World
+PAST320; Church in Mission: Theology in Changing Cultures
+PAST321; Missional God, Missional People
+PAST322; Christian Theology and the Arts
+PAST323; Christian ministry in te ao Māori (the Māori World)
+PAST324; The Chaplain as Ceremonial Leader
+PAST325; Special Topic: Pastoral Theology: Moana-Pacific Perspectives (Advanced)
+PAST490; Dissertation
+PATH201; Foundations in Human Pathology
+PATH301; Advanced Pathology
+PATH302; Cancer Biology
+PEAC501; Theories of Peace and Conflict
+PEAC507; Critical Terrorism Studies
+PEAC509; Introduction to Peace and Justice in Aotearoa New Zealand
+PEAC510; Indigenous Approaches to Peacemaking and Reconciliation
+PEAC590; Research Dissertation
+PEAC595; Practicum Project and Research Report
+PERF205; Creative Industries
+PERF301; Performance Project
+PERI701; Principles of Periodontology
+PERI702; Clinical Periodontology
+PERI711; Principles of Periodontology
+PERI712; Clinical Periodontology
+PERI730; Periodontology PGDipClinDent Special Topics
+PHAL211; Introductory Pharmacology
+PHAL221; Drug Discovery and Development
+PHAL231; Drugs and Society
+PHAL241; Pharmacology: Drugs to Medicine
+PHAL306; Human Toxicology
+PHAL307; Current Topic
+PHAL311; Pharmacology: Molecular Targets of Drugs
+PHAL312; Pharmacology: Drugs and the Brain
+PHAL313; Pharmacology: Medicines and Diseases
+PHAL421; General Pharmacology and Toxicology
+PHAL423; Neuropharmacology
+PHAL428; Current Research Literature in Toxicology
+PHAL430; Advanced Topic in Pharmacology and Toxicology
+PHAL431; Special Project
+PHAL480; Research Project
+PHAL490; Dissertation
+PHAL495; Master's Thesis Preparation
+PHCY210; Introduction to Pharmacy
+PHCY211; Fundamental Pharmaceutical Science
+PHCY220; Integrated Modules A
+PHCY310; Integrated Modules B
+PHCY320; Integrated Modules C
+PHCY410; Elective Studies A
+PHCY420; Pharmacy Practice Leadership and Management
+PHCY430; Elective Studies B
+PHCY431; Structured Practical Experiential Programme
+PHCY432; Applied Pharmacotherapy and Patient Care
+PHCY480; Honours Research Project
+PHCY485; Applied Pharmacotherapy and Patient Care for Honours
+PHCY510; Evidence-Based Practice
+PHCY511; Patient-Centred Care
+PHCY520; Applied patient-centred care
+PHCY521; Elective topics in patient-centred care
+PHCY590; Dissertation
+PHCY621; Pharmacy Prescribing: Access and Equity
+PHCY622; Pharmacist Prescribing
+PHIL101; Mind and Reality
+PHIL103; Ethical Issues
+PHIL105; Critical Thinking
+PHIL106; Radical Philosophy
+PHIL206; Revolutionary Philosophy
+PHIL222; Introduction to Formal Logic
+PHIL223; Metaphysical Questions
+PHIL225; Philosophy of Science
+PHIL227; Morality and Politics: Hobbes to Hume
+PHIL228; Ethics
+PHIL229; Reason, Belief and the Sacred
+PHIL231; Early Modern Philosophy A: Descartes, Spinoza, Leibniz
+PHIL232; Early Modern Philosophy B: Locke, Berkeley, Hume
+PHIL233; Philosophy of Mind and Language
+PHIL234; Are there moral facts?
+PHIL235; Environmental Philosophy
+PHIL236; An Introduction to the Philosophy of Language
+PHIL240; Epistemology: The Theory of Knowledge
+PHIL306; Revolutionary Philosophy (Advanced)
+PHIL312; Advanced Formal Logic
+PHIL315; Are There Moral Facts?
+PHIL323; Metaphysical Questions
+PHIL325; Philosophy of Science (Advanced)
+PHIL327; Morals and Politics: Hobbes to Hume (Advanced)
+PHIL329; Reason, Belief and the Sacred
+PHIL331; Early Modern Philosophy A: Descartes, Spinoza, Leibniz
+PHIL332; Early Modern Philosophy B: Locke, Berkeley, Hume
+PHIL333; Philosophy of Mind and Language
+PHIL335; Why Be Moral?
+PHIL336; An Introduction to the Philosophy of Language (Advanced)
+PHIL338; Ethical Theory
+PHIL340; Epistemology: The Theory of Knowledge (Advanced)
+PHIL401; Advanced History of Philosophy
+PHIL406; Why Be Moral?
+PHIL413; Ethical Theory
+PHIL414; No-Ought-From-Is and the Slavery of Reason
+PHIL415; Meaning and Metaphysics
+PHIL417; Advanced Issues in Foundational Philosophy
+PHIL418; Advanced Problems in Applied Philosophy
+PHIL451; Special Topic
+PHIL458; Special Topic
+PHIL480; Research Essay
+PHIL490; Dissertation
+PHIL590; Research Dissertation
+PHPE201; Political Economy I: Method, Philosophy, Applications
+PHPE301; Research Essay
+PHSE191;
+PHSI131; Fundamentals of Physics I
+PHSI132; Fundamentals of Physics II
+PHSI191; Biological Physics
+PHSI221; Classical and Quantum Mechanics
+PHSI222; Electromagnetism
+PHSI243; Environmental Physics
+PHSI245; Electronics for the Sciences
+PHSI282; Experimental Physics I
+PHSI307; Special Topics
+PHSI308; Special Topics
+PHSI331; Quantum, Atomic and Particle Physics
+PHSI336; Mathematical Physics
+PHSI341; Thermal and Condensed Matter Physics
+PHSI343; Waves in Physical Systems
+PHSI365; Computational Physics
+PHSI381; Experimental Physics II
+PHSI421; Advanced Statistical Mechanics
+PHSI422; Upper Atmospheric and Space Physics
+PHSI423; Advanced Quantum Mechanics I
+PHSI424; Advanced Quantum Mechanics II
+PHSI425; Advanced Electromagnetism
+PHSI426; Fluids, Instability and Turbulence
+PHSI437; Topics in Advanced Physics
+PHSI438; Topics in Advanced Physics
+PHSI480; Research Project
+PHSI490; Dissertation
+PHSL101; Physiology for Sport and Exercise
+PHSL232; Cardiovascular and Respiratory Physiology
+PHSL233; Cellular, Gastrointestinal and Renal Physiology
+PHSL251; Exploring Human Physiology
+PHSL341; Molecular, Cellular and Integrative Neurophysiology (I)
+PHSL344; Cardiovascular Physiology
+PHSL345; Physiological Aspects of Health and Disease
+PHSL471; Systematic Physiology
+PHSL472; Neurophysiology
+PHSL473; Cellular Physiology
+PHSL474; Research Topics
+PHSL480; Research Project
+PHSL490; Dissertation
+PHSL495; Master's Thesis Preparation
+PHTY250; Anatomy (for BPhty)
+PHTY251; Physiology (for BPhty)
+PHTY254; Physiotherapy Rehabilitation Science 1
+PHTY255; Physiotherapy Clinical Practice 1
+PHTY256; Physical Activity for Physiotherapy Practice
+PHTY353; Pathology (for BPhty)
+PHTY354; Physiotherapy Rehabilitation Science 2
+PHTY355; Physiotherapy Clinical Practice 2
+PHTY455; Physiotherapy Clinical Practice 3
+PHTY456; Physiotherapy Clinical Practice 4
+PHTY457; Physiotherapy Clinical Practice 5
+PHTY458; Physiotherapy Clinical Practice 6
+PHTY459; Research for Physiotherapy
+PHTY468; Physiotherapy Clinical Practice for Honours
+PHTY469; Physiotherapy Research for Honours
+PHTY501; Biomedical Science in Physiotherapy
+PHTY530; Theoretical Constructs in Clinical Practice
+PHTY535; Advanced Physiotherapy Management
+PHTY539; Occupational Health Physiotherapy
+PHTY542; Sports Physiotherapy
+PHTY543; Orthopaedic Manipulative Therapy
+PHTY545; Advanced Studies in Physiotherapy
+PHTY548; Introduction to Musculoskeletal Acupuncture
+PHTY561; Clinical Practice
+PHTY610; Research Methods
+PHTY650; Research Project
+PHYS131;
+PHYS132;
+PLAN435; Planning Thinking and Research: Case Study I
+PLAN438; Planning Practice and Law
+PLAN535; Planning Case Study II
+PLBI301; Applied Plant Science
+PLBI302; Plants for the Future
+PLBI351; Research Perspectives in Plant Biotechnology
+PLBI401; Frontiers in Plant Biotechnology
+PLBI480; Research Project
+PLBI490; Dissertation
+PLBI495; Master's Thesis Preparation
+PMAN401; Project Management
+PMAN501; Advanced Project Management
+POLS101;
+POLS102; Aotearoa New Zealand Politics – Introduction
+POLS104; International Relations - Introduction
+POLS105; Comparative Politics - Introduction
+POLS110; Political Ideas in Action
+POLS202; Theories of Justice
+POLS208; Democracy
+POLS210; Politics of the Middle East
+POLS213; New Zealand Foreign Policy
+POLS216; Politics of the European Union
+POLS218; Interventions, Peacekeeping and the Global South
+POLS224; Current Issues in Environmental Politics
+POLS230; Special Topic
+POLS234; Asian Security
+POLS237; New Zealand Government and Constitution
+POLS244; Political Theory: Basic Problems
+POLS250; International Security
+POLS301; Power and Liberty
+POLS303; New Zealand's Political Economy
+POLS306; Politics and the Media in New Zealand
+POLS307; Nature, Conflict, and the State
+POLS308; United States Foreign Policy since 1945
+POLS310; Turkey and Its Neighbours
+POLS315; Nationalism and Identity
+POLS318; Chinese Foreign Policy
+POLS319; Te Tiriti/Treaty Politics
+POLS321; Public Policy in New Zealand
+POLS323; Marxism: Classical and Contemporary
+POLS324; Current Issues in Environmental Politics (Advanced)
+POLS325; International Relations: Concepts and Theories
+POLS326; Politics of the Arabian Peninsula
+POLS330; Special Topic
+POLS337; New Zealand Government and Constitution
+POLS375; Human Rights - From the Cradle to the Grave
+POLS390; Research Project
+POLS413; Political Theory for the Environment
+POLS475; The Ethics and Politics of Resistance
+POLS490; Dissertation
+POLS501; The 'Political': Theory and Practice
+POLS512; The Ethics and Politics of Resistance
+POLS513; Political Theory for the Environment
+POLS520; New Zealand Government and Politics
+POLS521; Politics and Society
+POLS540; International Relations Theory
+POLS541; International Relations and the Global South
+POLS550; Comparative Regional Conflicts
+POLS590; Research Dissertation
+POPH192; Population Health
+PSCI201; Pharmaceutical Chemistry
+PSCI202; Medicines and Disease
+PSCI203; Formulation Principles I
+PSCI204; Formulation Principles II
+PSCI301; Chemical Biology
+PSCI302; Medicinal Chemistry
+PSCI303; Natural Products and Medicines
+PSCI304; Pharmacokinetics and Pharmacodynamics
+PSCI305; Drug Delivery
+PSCI306; Topics in Pharmaceutical Industry
+PSME201; Human Sexuality and Health
+PSME401; Nature, Extent and Assessment of Mental Disorders
+PSME404; Addiction Assessment
+PSME405; Contemporary Approaches to Mental Health Practice
+PSME406; Research Methods: Mental Health
+PSME407; Forensic Psychiatry
+PSME422; Addiction Treatment
+PSME424; Addiction Pharmacotherapy
+PSME428; Psycho-oncology
+PSME432; Introduction to Perinatal Psychiatry
+PSME433; Introduction to Infant Mental Health
+PSME436; Principles of Family and Systems Theory
+PSME437; Applied Systems Theory
+PSME439; Intellectual Disability: Theory into Practice
+PSME449; Introduction to Suicidology and Suicide Prevention
+PSME455; Foundational Clinical Practice in EMDR Therapy
+PSME456; Advanced Clinical Practice in EMDR Therapy
+PSME580; Dissertation
+PSYC111; Brain and Behaviour
+PSYC112; Human Thought and Behaviour
+PSYC203; Abnormal Psychology
+PSYC204; Justice, Race and Class
+PSYC210; Principles of Psychological Research
+PSYC211; Brain and Cognition
+PSYC212; Social and Applied Psychology
+PSYC310; Research Project
+PSYC311; Quantitative Methods
+PSYC313; Cognition and Neuropsychology
+PSYC315; Social Psychology
+PSYC317; Biopsychology
+PSYC318; Developmental Psychology
+PSYC319; Comparative Cognition
+PSYC321; Special Topic
+PSYC323; Sensation and Perception
+PSYC324; Health Psychology
+PSYC325; Psychology in Legal Contexts
+PSYC326; Human Factors and Ergonomics
+PSYC327; Psychology of Language
+PSYC328; Behaviour Analysis in Everyday Life
+PSYC329; Cultural Psychology
+PSYC330; Drugs, Behaviour, Addiction, and Policy
+PSYC331; Applied Psychological Research
+PSYC401; Behaviour Analysis
+PSYC402; Assessment in Child and Adolescent Clinical Psychology
+PSYC403; Adult Psychopathology
+PSYC404; Assessment in Clinical Psychology Practice
+PSYC405; Clinical Neuropsychology
+PSYC406; Foundations of Clinical Intervention
+PSYC421; Advanced Research Methods
+PSYC422; Contemporary Issues in Psychology
+PSYC423; Advanced Topics in Health Psychology
+PSYC424; Contexts of Development
+PSYC425; Advanced Topics in Behaviour Analysis
+PSYC426; Social Cognition
+PSYC427; Topical Issues in Child Development
+PSYC428; Culture and Development
+PSYC429; Advanced Methods in Cognitive Neuroscience
+PSYC430; Synaptic Plasticity Mechanisms
+PSYC432; Special Topic
+PSYC433; Advanced Theoretical Topic
+PSYC434; Advanced Quantitative Methods
+PSYC435; Developmental Psychopathology
+PSYC436; Topical Issues in Adolescent Behaviour
+PSYC437; Cognitive Neuroscience Seminar
+PSYC438; Nervous System Plasticity in Health and Disease
+PSYC439; Neurobiology and Behavioural Effects of Drugs
+PSYC440; Special Topic: Functional Magnetic Resonance Imaging in Psychology
+PSYC441; Personality and Measurement
+PSYC442; Qualitative Methods in Psychology
+PSYC443; Te Waenganui: Intersecting Culture and the Mind
+PSYC480; Dissertation
+PSYC490; Dissertation
+PSYC495; Master's Thesis Preparation
+PSYC501; Clinical Intervention
+PSYC601; Clinical Psychology Internship
+PTWY111; Principles of Economics
+PTWY112; Essential Business Finance
+PTWY131; Introduction to the Human Body
+PTWY132; Introduction to Plant Life
+PUBH192; Foundations of Epidemiology
+PUBH202; Health Promotion
+PUBH203; Health Policy and Politics: Global and Local
+PUBH204; Hauora Māori: Challenges and Opportunities
+PUBH211; Epidemiology of Global Health Conditions
+PUBH303; Public and Global Health: Current Issues
+PUBH304; Rangahau Hauora Māori - Māori Health Research
+PUBH311; Public Health Research
+PUBH711; Principles of Epidemiology
+PUBH712; Foundations of Hauora Māori
+PUBH713; Society, Health and Health Promotion
+PUBH714; Public Policy and Health Systems
+PUBH721; Methods for Epidemiological Research
+PUBH723; Survey Methods
+PUBH724; Introduction to Qualitative Research Methods
+PUBH725; Applied Biostatistics 1 - Fundamentals
+PUBH726; Applied Biostatistics 2 - Regression methods
+PUBH732; Using Epidemiology in Public Health Practice
+PUBH733; Environment and Health
+PUBH734; Health Protection
+PUBH735; The Economics of Health Policy Decision Making
+PUBH736; Economic Evaluation
+PUBH737; Public Health Law and Public Health Ethics - Fundamentals
+PUBH738; Global Health Law and Global Health Ethics
+PUBH739; Special Topic
+PUBH740; Special Topic: One Health
+PUBH741; Hauora Māori- Policy Practice and Research
+PUBH742; Global Health and International Health Systems
+PUBH743; Health Promotion Programme Planning and Evaluation
+PUBH744; Healthy Public Policy
+PUBH745; Introduction to Pacific Public Health
+PUBH890; MPH Dissertation
+QGEN401; Quantitative Genetics and Improvement
+RADT121; Radiation Therapy Practice I
+RADT122; Anatomy and Imaging
+RADT123; Radiation Therapy and Oncology I
+RADT124; Radiation Therapy Planning Concepts 1
+RADT125; Healthcare Communication
+RADT126; Health and Human Behaviour
+RADT127; Radiation Technology I
+RADT211; Radiation Therapy Practice II
+RADT212; Principles of Research
+RADT213; Advanced Healthcare Communication
+RADT214; Radiation Technology II
+RADT215; Radiation Therapy and Oncology II
+RADT216; Radiation Therapy Planning Concepts II
+RADT311; Radiation Therapy Practice III
+RADT312; Literature Analysis
+RADT313; Professional Development
+RADT314; Radiation Therapy and Oncology III
+RADT315; Radiation Therapy Planning Concepts III
+RADT401; Applied Radiation Therapy Advanced Practice
+RADT402; Patient Centred Radiation Therapy Advanced Practice
+RELS102; Introduction to Hinduism and Buddhism
+RELS110; Introduction to the Scientific Study of Religion
+RELS202; The Religions of Southeast Asia
+RELS203; Ancient Religion: Egypt to Mesopotamia
+RELS209; The Body in Asian Religions
+RELS211; The Dead Sea Scrolls
+RELS214; Cults, Prophets, Apocalypse: Understanding New Religious Movements
+RELS216; Zen Buddhism
+RELS217; Religion, Science, and Magic
+RELS218; Yoga: Ancient and Modern
+RELS220; Representing Islam
+RELS225; Science, Religion and Knowledge
+RELS226; Mahayana Buddhism
+RELS227; Buddhist Thought
+RELS231; Special Topic
+RELS235; Religion, Law and Politics
+RELS236; Buddhism, State and Society
+RELS238; Religion and Human Behaviour
+RELS239; Religion and Identity
+RELS241; Religion, Conflict and Conspiracy Theory
+RELS244; Ancient Egypt: Magic and Mystery
+RELS303; Ancient Religion: Egypt to Mesopotamia (Advanced)
+RELS306; Cults, Prophets, Apocalypse: Understanding New Religious Movements (Advanced)
+RELS309; The Body in Asian Religions
+RELS311; The Dead Sea Scrolls (Advanced)
+RELS314; Religion and Identity (Advanced)
+RELS316; Zen Buddhism
+RELS317; Religion, Science, and Magic
+RELS318; Yoga: Ancient and Modern
+RELS325; Science vs Religion? An Inquiry (Advanced)
+RELS326; Mahayana Buddhism
+RELS327; Buddhist Thought
+RELS330; Special Topic: Zionists, Fundamentalists and Liberals: Jews in the Modern World
+RELS331; Special Topic
+RELS332; Pursuing Happiness in the Buddhist Tradition (Advanced)
+RELS335; Religion, Law and Politics (Advanced)
+RELS337; Psychology of Religion (Advanced)
+RELS338; Religion and Human Behaviour (Advanced)
+RELS340; The Cultural Evolution of Religious Systems
+RELS341; Religion, Conflict and Conspiracy Theory (Advanced)
+RELS490; Dissertation
+RELS521; Readings in Religious Texts
+RELS523; Key Debates in Religious Studies
+RELS531; Pali for Postgraduates
+RELS532; Sanskrit for Postgraduates
+RELS590; Research Dissertation
+SANS111; Introductory Sanskrit 1
+SANS112; Introductory Sanskrit 2
+SCOM419; Special Topic: Key Voices in Science Communication
+SCOM432; The Craft of Storytelling
+SCOM434; Science Communication Internship
+SCOM439; Introduction to Science Communication
+SENG301; Software Project Management
+SENG490; Dissertation
+SENG580; Research Project
+SOCI101; Sociology of New Zealand Society
+SOCI102; Cultural and Social Identities
+SOCI103; Crime, Deviance and Social Transformation
+SOCI201; Sociological Research in Practice
+SOCI202; Big Ideas in Sociology
+SOCI203; Young People and Society
+SOCI204; Special Topic
+SOCI205; Social Inequality
+SOCI207; Families and Society
+SOCI208; Environmental Sociology
+SOCI209; Health and Society
+SOCI211; Colonisation, Globalisation and Social Justice
+SOCI213; Concepts of the Self
+SOCI301; Telling Sociological Stories
+SOCI302; Theories of Social Power
+SOCI304; Special Topic: Exploring Neurodisability in Health, Welfare and Justice Systems
+SOCI305; Family Demography
+SOCI306; Public Sociology
+SOCI309; Special Topic 2
+SOCI310; Social Movements and Popular Protest
+SOCI312; Crime, Technology and Social Change
+SOCI313; The Subject in Postmodern Society
+SOCI319; The Global Politics of Food
+SOCI401; Qualitative Research Ethics
+SOCI402; Advanced Sociological Theory
+SOCI403; Micro-Sociology
+SOCI404; Special Topic
+SOCI409; Special Topic in Sociology
+SOCI410; Alternative Futures
+SOCI490; Dissertation
+SOCI590; Research Dissertation
+SOWK111; Working with People: The New Zealand Context
+SOWK201; Fields of Practice
+SOWK236; The Treaty and Social Services
+SOWK301; Theories and Methods of Social Work
+SOWK302; Social Work for Children and Families - Analysis and Theory
+SOWK303; Communities and Organisations - Analysis and Theory
+SOWK304; Kaupapa Māori, and Indigenous Approaches to Social Work
+SOWK320; Introduction to Professional Practice
+SOWK392; Fieldwork Practice 1
+SOWK402; Micro Intervention: Theories and Skills
+SOWK403; Communities and Organisations - Advanced Practice
+SOWK404; Care and Protection
+SOWK405; Social Work Issues Across the Lifespan
+SOWK407; Kaupapa Māori and Social Work Practice
+SOWK408; Pasifika and Social Services
+SOWK409; Decision-making in Child Welfare
+SOWK410; Special Topic
+SOWK411; Advanced Special Topic
+SOWK480; Research Project
+SOWK490; Dissertation
+SOWK492; Fieldwork Practice 2
+SOWK504; Care and Protection
+SOWK505; Lifespan Issues - Advanced Practice with Older Adults
+SOWK508; Pasifika and Social Services
+SOWK509; Decision-making in Child Welfare
+SOWK510; Advanced Social Service Counselling
+SOWK511; Advanced Family Practice
+SOWK514; Advanced Community Development Practice
+SOWK515; Iwi Social Services I - Contextual Issues
+SOWK517; Social Policy Development
+SOWK518; Social Services Supervision
+SOWK520; Social Services Research and Evaluation
+SOWK521; Advanced Special Topic
+SOWK522; Advanced Studies Special Topic
+SOWK551; Theories and Methods of Social Work
+SOWK552; Child and Family Social Work
+SOWK553; Communities and Organisation - Analysis and Theory
+SOWK554; Kaupapa Māori and Indigenous Approaches to Social Work
+SOWK562; Micro Intervention - Theories and Skills
+SOWK563; Communities and Organisations - Advanced Practice
+SOWK570; Introduction to Professional Practice
+SOWK580; Research Project
+SOWK590; Research Dissertation
+SOWK592; Fieldwork Practice 1
+SOWK593; Fieldwork Practice 2
+SOWK680; Research Project
+SPAN131; Introductory Spanish 1
+SPAN132; Introductory Spanish 2
+SPAN231; Intermediate Spanish 1
+SPAN232; Intermediate Spanish 2
+SPAN251; Latin American Cultural Travel
+SPAN331; Advanced Spanish 1
+SPAN332; Advanced Spanish 2
+SPAN341; Special Topic in Hispanic Studies
+SPAN343; Latin American Popular Culture
+SPAN350; Sacred Stories: Myths and Legends in Hispanic Culture (Advanced)
+SPAN351; Latin American Cultural Travel (Advanced)
+SPAN441; Advanced Topics in Spanish
+SPAN452; Studies in Spanish 2
+SPAN490; Dissertation
+SPAN590; Research Dissertation
+SPEX101; Sport, Science and Society
+SPEX102; Principles of Exercise for Health and Performance
+SPEX201; Biomechanics
+SPEX202; Motor Behaviour
+SPEX203; Exercise Physiology
+SPEX204; Psychology of Sport and Exercise
+SPEX205; Physical Activity and Health
+SPEX206; Te Pū o te Ora Māori Physical Education and Health
+SPEX207; Understanding Sports Coaching
+SPEX208; Sociology of Sport and Exercise
+SPEX209; Sport Development and Management
+SPEX301; Performance Analysis
+SPEX303; Exercise Energetics and Physiology
+SPEX304; Sport Psychology
+SPEX305; Athletic Conditioning and Rehabilitation
+SPEX306; Te Pou o Te Koronga Advanced Māori Physical Education and Health
+SPEX307; Coaching, Leadership and Mentoring
+SPEX308; Psychology of Physical Activity
+SPEX309; Active Living and Environment
+SPEX310; Exercise for Clinical Populations
+SPEX311; Sports Technology
+SPEX312; Advanced Sociology of Sport
+SPEX313; Sport and Health Policy
+SPEX314; Advanced Sport Management
+SPEX315; Sport Media
+SPEX316; Practicum
+SPEX317; Neural Control of Movement
+SPEX380; Special Topic
+SPEX401; Research Methods in Sport, Exercise and Health
+SPEX440; Advanced Topics in Physical Education, Activity and Health
+SPEX441; Advanced Topics in Physical Education, Activity and Health
+SPEX450; Advanced Topics in Exercise and Sport Science
+SPEX451; Advanced Topics in Exercise and Sport Science
+SPEX460; Advanced Topics in Sport Development
+SPEX461; Advanced Topics in Sport Management and Policy
+SPEX480; Independent Project
+SPEX481; Independent Study
+SPEX490; Dissertation
+SPEX495; Master's Thesis Preparation
+SPEX516; Practicum
+SPEX517; Practicum Report
+SPME701; Issues in Sports Medicine
+SPME702; Medical Aspects of Exercise
+SPME703; Sports Nutrition
+SPME704; Health and Human Performance A
+SPME705; Health and Human Performance B
+SPME707; Regional Sports Injury 1
+SPME708; Regional Sports Injury 2
+SPME709; Women in Sport: Health Issues
+SPME710; Sports Ergonomics
+SPME711; Exercise Prescription
+STAT110; Statistical Methods
+STAT115; Introduction to Biostatistics
+STAT210; Applied Statistics
+STAT260; Visualisation and Modelling in R
+STAT270; Probability and Inference
+STAT310; Statistical Modelling
+STAT311; Design of Research Studies
+STAT312; Modelling High Dimensional Data
+STAT370; Statistical Inference
+STAT371; Bayesian Data Analysis
+STAT372; Stochastic Modelling
+STAT399; Special Topic
+STAT401; Applied Statistical Methods and Models
+STAT402; Regression Models for Complex Data
+STAT403; Case Studies in Statistics
+STAT404; Advanced Statistical Inference
+STAT405; Probability and Random Processes
+STAT423; Bayesian Modelling
+STAT424; Research Design and Methods
+STAT425; Statistical Learning
+STAT435; Data Analysis for Bioinformatics
+STAT441; Topic in Advanced Statistics
+STAT442; Topic in Advanced Statistics
+STAT490; Dissertation
+STAT498; Special Topic
+STAT499; Special Topic
+SURV102; Geospatial Science
+SURV120; Surveying and Spatial Science
+SURV130; People, Place and the Built Environment
+SURV201; Surveying Methods 1
+SURV202; Surveying Mathematics
+SURV203; Land Development Engineering 1
+SURV204; Land Development Engineering 2
+SURV205; Statutory Land Planning 1
+SURV206; Land Tenure 1
+SURV220; Geographic Information Science
+SURV298; Introductory Field Camp
+SURV301; Surveying Methods 2
+SURV302; Geodetic Reference Systems and Network Analysis
+SURV303; Urban Design 1
+SURV304; Land Development Engineering 3
+SURV306; Land Tenure 2
+SURV307; Cadastral Surveying 1
+SURV309; Remote Sensing for Earth Observation
+SURV314; 3D Reality Capture
+SURV319; Spatial Algorithms and Programming
+SURV320; Spatial Analysis and Visualisation
+SURV322; Hydrographic Surveying
+SURV329; Selected Topics in Surveying 1
+SURV399; Third Year Field Course
+SURV413; Resource Mapping and Image Processing
+SURV418; Advanced Geographic Information Science
+SURV450; Professional Practice
+SURV451; Surveying Methods 3
+SURV452; Hydrographic Surveying 2
+SURV453; Urban Design 2
+SURV455; Statutory Planning B
+SURV456; Land Tenure 3
+SURV457; Cadastral Surveying 3
+SURV458; Marine Law and the Environment
+SURV459; Engineering Surveying
+SURV462; Hydrographic Field Design and Voyage
+SURV463; Advanced Practical Techniques in Hydrography
+SURV465; Land Development Management
+SURV469; Selected Topics in Surveying 2
+SURV470; Professional Project
+SURV473; Special Topic
+SURV474; Special Topic
+SURV480; Research Project
+SURV499; Vacation Employment
+SURV509; Advanced Remote Sensing for Earth Observation
+SURV513; Resource Mapping and Image Processing
+SURV514; Advanced 3D Reality Capture
+SURV518; GIScience for Postgraduates
+SURV519; Spatial Algorithms and Programming
+SURV520; Advanced Spatial Analysis and Visualisation
+SURV551; Advanced Surveying Methods
+SURV552; Advanced Hydrographic Surveying
+SURV553; Advanced Urban Design
+SURV555; Advanced Statutory Planning
+SURV556; Advanced Land Tenure
+SURV557; Advanced Cadastral Surveying
+SURV558; Advanced Marine Law and the Environment
+SURV559; Advanced Engineering Surveying
+SURV562; Hydrographic Field Design and Voyage
+SURV563; Advanced Practical Techniques in Hydrography
+SURV565; Advanced Land Development Management
+SURV569; Advanced Topics in Surveying
+SURV573; Special Topic
+SURV574; Special Topic
+SURV575; Special Topic
+SURV580; Research project
+SURV590; Dissertation
+TELE490; Dissertation
+THEA152; Backstage for Theatre and Performance
+THEA153; Voice and Movement
+THEA154; Staging Worlds: Theatre and Performance
+THEA221; Exploring Worlds Through Theatre and Performance
+THEA241; Writing for Stage and Screen
+THEA252; The Actor
+THEA253; Theatre, Culture and Identity in Aotearoa
+THEA256; Design for Theatre and Performance
+THEA257; Special Topic
+THEA322; Theatre of Australasia
+THEA323; Performance Research
+THEA324; Aspects of Contemporary Theatre and Performance
+THEA341; Advanced Writing for the Stage and Screen
+THEA351; Performing Shakespeare
+THEA352; Directing
+THEA354; Creating Theatre
+THEA356; Design for Theatre and Performance
+THEA357; Special Topic
+THEA358; The Working Dramaturg
+THEA422; Theatre of Australasia
+THEA423; Performance Research
+THEA424; Aspects of Contemporary Theatre and Performance
+THEA441; Advanced Writing for the Stage and Screen
+THEA451; Advanced Directing
+THEA452; Advanced Production Project
+THEA453; Directed Project in Theatre
+THEA454; Special Topic
+THEA455; Shakespeare Text to Performance
+THEA456; Trauma and Violence in Performance
+THEA457; The Working Dramaturg
+THEA480; Research Project
+THEA490; Dissertation
+THEA580; Studio Project in Theatre
+THEA590; Research Dissertation
+TOUR103; Introduction to Hospitality
+TOUR214; Introduction to Wine Business
+TOUR216; Sport Tourism
+TOUR217; Tourist Behaviour
+TOUR218; Tourism and Hospitality Enterprise Management
+TOUR301; Cultural and Heritage Tourism
+TOUR303; Tourist Accommodation Management
+TOUR304; Event and Conventions Management
+TOUR305; Tourism Product Development
+TOUR306; Ecotourism and Sustainable Development
+TOUR310; Leisure: Lives and Societies
+WILM401; Principles of Wildlife Management
+WILM402; Techniques of Wildlife Management
+WILM404; Data Analysis for Wildlife Management
+WILM405; Special Topic
+WILM406; Conservation Biology for Wildlife Management
+WILM501; Wildlife Management Research Placement
+ZOOL221; Animal Designs for Living
+ZOOL222; Evolutionary Biology
+ZOOL223; Animal Physiology
+ZOOL313; Animal Function and Environment
+ZOOL314; Neurobiology
+ZOOL315; Behavioural and Evolutionary Ecology
+ZOOL316; Biological Data Analysis and Computing
+ZOOL318; Freshwater Ecology
+ZOOL319; Conservation Biology
+ZOOL410; Evolutionary Genetics
+ZOOL411; Evaluating Trends and Controversies in Ecology and Evolution
+ZOOL412; Neurobiology and Behaviour
+ZOOL414; Comparative Physiology
+ZOOL415; Disease Ecology
+ZOOL416; Freshwater Ecology
+ZOOL417; Harvest Management
+ZOOL418; Conservation Biology of Marine Mammals
+ZOOL419; Special Topic
+ZOOL420; Advanced Topics in Zoology
+ZOOL422; Advanced Topics in Animal Behaviour
+ZOOL423; From Extinction to De-Extinction
+ZOOL424; Special Topic
+ZOOL425; Conservation Genomics
+ZOOL480; Research Project
+ZOOL490; Dissertation
+ZOOL495; Master's Thesis Preparation

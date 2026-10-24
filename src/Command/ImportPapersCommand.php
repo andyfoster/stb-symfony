@@ -10,11 +10,11 @@ use Symfony\Component\Console\Style\SymfonyStyle;
 use Symfony\Component\DependencyInjection\Attribute\Autowire;
 
 /**
- * Loads Otago papers from a CSV of "code,title" rows (with a header row).
+ * Loads Otago papers from "CODE; Title" lines or a "code,title" CSV.
  * Safe to run again: known papers get their titles updated and are marked
  * official; papers people typed in that turn out to be real are kept.
  */
-#[AsCommand(name: 'app:papers:import', description: 'Import University of Otago papers from a code,title CSV')]
+#[AsCommand(name: 'app:papers:import', description: 'Import University of Otago papers from a "CODE; Title" or code,title file')]
 final class ImportPapersCommand
 {
     public function __construct(
@@ -25,7 +25,7 @@ final class ImportPapersCommand
 
     public function __invoke(
         SymfonyStyle $io,
-        #[Argument('CSV file with code,title rows (defaults to data/otago-papers.csv)')]
+        #[Argument('File of "CODE; Title" lines or code,title rows (defaults to data/otago-papers.csv)')]
         ?string $file = null,
     ): int {
         try {
