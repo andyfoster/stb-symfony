@@ -40,6 +40,19 @@ final class ListingControllerTest extends WebTestCase
         $manager->clear();
     }
 
+    public function testNavbarWordmarkUsesPaleLettersOnlyOnHome(): void
+    {
+        $this->client->request('GET', '/');
+        self::assertSelectorExists('body[data-home="true"] #site-brand.brand-pale[data-turbo-permanent]');
+        self::assertSelectorTextContains('#site-brand', 'scarfietextbooks');
+        self::assertSelectorExists('#site-brand[aria-label="ScarfieTextbooks home"]');
+
+        $this->client->request('GET', '/login');
+        self::assertResponseIsSuccessful();
+        self::assertSelectorExists('body[data-home="false"] #site-brand:not(.brand-pale)[data-turbo-permanent]');
+        self::assertSelectorTextContains('#site-brand', 'scarfietextbooks');
+    }
+
     public function testHomePageShowsThingsForSaleAToZ(): void
     {
         $this->client->request('GET', '/');
