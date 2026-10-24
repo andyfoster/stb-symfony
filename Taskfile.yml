@@ -100,6 +100,11 @@ tasks:
 
   # --- Quality -------------------------------------------------------------
 
+  phpstan:
+    desc: Run PHPStan static analysis (task phpstan -- --level=7)
+    cmds:
+      - vendor/bin/phpstan analyse {{.CLI_ARGS}} --memory-limit=1G
+
   test:
     desc: 'Run the test suite (task test -- --filter ListingControllerTest)'
     cmds:
