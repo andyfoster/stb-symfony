@@ -25,22 +25,16 @@ class Paper extends Base
     #[Assert\Regex(self::CODE_PATTERN, message: 'Paper codes look like CHEM191: four letters, then three numbers.')]
     private ?string $code = null;
 
-    #[ORM\Column(length: 255, nullable: true)]
+    public function __construct(?string $code = null, #[ORM\Column(length: 255, nullable: true)]
     #[Assert\Length(max: 255)]
-    private ?string $title = null;
-
-    /** True for papers from Otago's catalogue, false for ones people typed in. */
+    private ?string $title = null, /** True for papers from Otago's catalogue, false for ones people typed in. */
     #[ORM\Column(options: ['default' => false])]
-    private bool $official = false;
-
-    public function __construct(?string $code = null, ?string $title = null, bool $official = false)
+    private bool $official = false)
     {
         parent::__construct();
         if ($code !== null) {
             $this->setCode($code);
         }
-        $this->title    = $title;
-        $this->official = $official;
     }
 
     /** "chem 191" → "CHEM191"; null if it isn't a paper code at all. */

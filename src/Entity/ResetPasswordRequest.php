@@ -15,14 +15,11 @@ class ResetPasswordRequest extends Base implements ResetPasswordRequestInterface
 {
     use ResetPasswordRequestTrait;
 
-    #[ORM\ManyToOne]
+    public function __construct(#[ORM\ManyToOne]
     #[ORM\JoinColumn(nullable: false, onDelete: 'CASCADE')]
-    private User $user;
-
-    public function __construct(User $user, \DateTimeInterface $expiresAt, string $selector, string $hashedToken)
+    private User $user, \DateTimeInterface $expiresAt, string $selector, string $hashedToken)
     {
         parent::__construct();
-        $this->user = $user;
         $this->initialize($expiresAt, $selector, $hashedToken);
     }
 

@@ -22,10 +22,10 @@ use Symfony\Component\PasswordHasher\Hasher\UserPasswordHasherInterface;
 class AppFixtures extends Fixture
 {
     public function __construct(
-        private UserPasswordHasherInterface $hasher,
-        private PaperCatalog $papers,
-        private PhotoStorage $photos,
-        private PlaceholderPhotos $placeholders,
+        private readonly UserPasswordHasherInterface $hasher,
+        private readonly PaperCatalog $papers,
+        private readonly PhotoStorage $photos,
+        private readonly PlaceholderPhotos $placeholders,
     ) {}
 
     public function load(ObjectManager $manager): void
@@ -144,7 +144,7 @@ class AppFixtures extends Fixture
     private function book(string $author, ?string $edition, ?string $isbn, ?string $papers): BookDetails
     {
         $book = (new BookDetails())->setAuthor($author)->setEdition($edition)->setIsbn($isbn);
-        foreach (array_filter(array_map('trim', explode(',', (string) $papers))) as $code) {
+        foreach (array_filter(array_map(trim(...), explode(',', (string) $papers))) as $code) {
             $book->addPaper($this->papers->get($code));
         }
 

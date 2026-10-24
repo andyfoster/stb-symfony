@@ -20,10 +20,10 @@ use SymfonyCasts\Bundle\VerifyEmail\VerifyEmailHelperInterface;
 class EmailVerifier
 {
     public function __construct(
-        private VerifyEmailHelperInterface $helper,
-        private MailerInterface $mailer,
-        private EntityManagerInterface $entityManager,
-        private AuditLog $audit,
+        private readonly VerifyEmailHelperInterface $helper,
+        private readonly MailerInterface $mailer,
+        private readonly EntityManagerInterface $entityManager,
+        private readonly AuditLog $audit,
     ) {}
 
     public function sendConfirmation(User $user): void

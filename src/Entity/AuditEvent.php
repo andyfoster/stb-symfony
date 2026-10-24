@@ -19,9 +19,6 @@ use Doctrine\ORM\Mapping as ORM;
 #[ORM\Index(columns: ['subject_type', 'subject_id'])]
 class AuditEvent extends Base
 {
-    #[ORM\Column(length: 40, enumType: AuditType::class)]
-    private AuditType $type;
-
     /**
      * The account that acted, or that a failed login or reset request was for.
      * Null for guests, and once the account is deleted (email is kept).
@@ -55,10 +52,10 @@ class AuditEvent extends Base
     #[ORM\Column(type: Types::JSON)]
     private array $context = [];
 
-    public function __construct(AuditType $type)
+    public function __construct(#[ORM\Column(length: 40, enumType: AuditType::class)]
+    private AuditType $type)
     {
         parent::__construct();
-        $this->type = $type;
     }
 
     public function getType(): AuditType

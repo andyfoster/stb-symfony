@@ -10,7 +10,7 @@ use Doctrine\ORM\Mapping as ORM;
  */
 #[ORM\MappedSuperclass]
 #[ORM\HasLifecycleCallbacks]
-abstract class Base
+abstract class Base implements \Stringable
 {
     #[ORM\Id]
     #[ORM\GeneratedValue]
