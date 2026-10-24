@@ -14,7 +14,7 @@ final readonly class BookMetadata
         public string $isbn,
         public string $title,
         public array $authors = [],
-        public ?string $edition = null,
+        public ?int $edition = null,
         public ?string $publishedYear = null,
         public string $source = '',
     ) {}

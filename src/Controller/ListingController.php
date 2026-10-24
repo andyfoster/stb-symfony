@@ -111,7 +111,7 @@ final class ListingController extends AbstractController
                 $messenger->send($request, $listing, $message->setSender($user));
             }
 
-            $this->addFlash('success', \sprintf('Message sent to %s. They’ll reply to your email.', $listing->getSeller()->getDisplayName()));
+            $this->addFlash('success', \sprintf('Message sent to %s.', $listing->getSeller()->getDisplayName()));
 
             return $this->redirectToRoute('app_listing_show', ['id' => $listing->getId()], Response::HTTP_SEE_OTHER);
         }
@@ -221,7 +221,7 @@ final class ListingController extends AbstractController
     {
         $message = new Message();
         if ($user !== null) {
-            $message->setSenderName($user->getDisplayName())->setSenderEmail($user->getEmail());
+            $message->setSenderName($user->getDisplayName())->setSenderEmail($user->getEmail())->setSenderPhone($user->getPhone());
         }
 
         return $this->createForm(ContactSellerType::class, $message, [

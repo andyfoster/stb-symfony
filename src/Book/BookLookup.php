@@ -72,7 +72,7 @@ class BookLookup
             isbn: $isbn,
             title: $title,
             authors: self::authors(array_map(static fn(array $a): string => (string) ($a['name'] ?? ''), $book['authors'] ?? [])),
-            edition: self::edition($book['edition_name'] ?? null),
+            edition: Edition::parse($book['edition_name'] ?? null),
             publishedYear: self::year($book['publish_date'] ?? null),
             source: 'Open Library',
         );
@@ -140,13 +140,6 @@ class BookLookup
         return array_values($authors);
     }
 
-    /** "12th ed." → "12th"; anything else as given. */
-    private static function edition(?string $edition): ?string
-    {
-        $edition = trim((string) preg_replace('/\s*(edition|ed\.?)$/i', '', (string) $edition));
-
-        return $edition === '' ? null : mb_substr($edition, 0, 50);
-    }
 
     private static function year(?string $date): ?string
     {

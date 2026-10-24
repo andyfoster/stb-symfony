@@ -58,6 +58,9 @@ up to date when adding a workflow.
   optional `Condition`, price in integer cents (null = make an offer / name your price;
   0 = free). Book-only data lives in the optional one-to-one `BookDetails` (author, edition,
   year, ISBN, papers), per the scope rule above. Enums in `src/Enum` carry their display `label()`.
+  Editions are whole numbers (12), shown as "12th edition" (`App\Book\Edition`,
+  `BookDetails::getEditionOrdinal()`); the form and ISBN lookup accept "12th", "12e" or "Twelfth"
+  and keep the number.
 - Listings belong to a `seller` (nullable only for imported rows) and have a `ListingStatus`
   (draft / active / sold / archived). "Expired" is not a status: an active listing past `expiresAt`.
   Sellers can't delete listings, only archive them (`/listings/{id}/archive`, or "Take off site",
@@ -113,7 +116,9 @@ up to date when adding a workflow.
 - Contact the seller: `ContactSellerType` on the listing page posts to
   `/listings/{id}/contact`; `SellerMessenger` rate-limits (`config/packages/rate_limiter.yaml`),
   saves a `Message` for the seller's inbox (`/account/messages`) and emails them with Reply-To
-  set to the sender. Guests and unverified users get Cloudflare Turnstile (`App\Captcha`, keys in
+  set to the sender. Senders give an email, a mobile (`Message::senderPhone`) or both
+  (`Assert\Expression` on `senderEmail`); logged-in senders get their account's phone filled in,
+  and phone-only messages have no Reply-To, so the seller texts or calls back. Guests and unverified users get Cloudflare Turnstile (`App\Captcha`, keys in
   `TURNSTILE_SITE_KEY`/`TURNSTILE_SECRET_KEY`; `.env` has Cloudflare's always-pass test keys),
   and a hidden `website` honeypot field. Sellers can show their phone (`User::showPhone`) and set
   it under Your details.

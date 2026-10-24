@@ -9,7 +9,8 @@ use Symfony\Component\Validator\Constraints as Assert;
 
 /**
  * An enquiry sent to a seller through a listing. Emailed to them (Reply-To the
- * sender) and kept for their inbox. Senders don't need an account.
+ * sender, when they gave an email) and kept for their inbox. Senders don't need
+ * an account.
  */
 #[ORM\Entity(repositoryClass: MessageRepository::class)]
 #[ORM\Index(columns: ['recipient_id', 'read_at'])]
@@ -34,11 +35,17 @@ class Message extends Base
     #[Assert\Length(max: 80)]
     private ?string $senderName = null;
 
-    #[ORM\Column(length: 180)]
-    #[Assert\NotBlank]
+    /** The sender gives an email, a phone number or both, so the seller can reply. */
+    #[ORM\Column(length: 180, nullable: true)]
     #[Assert\Email]
     #[Assert\Length(max: 180)]
+    #[Assert\Expression('value or this.getSenderPhone()', message: 'Add an email address or a phone number so the seller can reply.')]
     private ?string $senderEmail = null;
+
+    #[ORM\Column(length: 30, nullable: true)]
+    #[Assert\Length(max: 30)]
+    #[Assert\Regex('/^\+?[0-9 ()-]{6,}$/', message: 'Enter a phone number using digits, spaces and an optional leading +.')]
+    private ?string $senderPhone = null;
 
     #[ORM\Column(type: Types::TEXT)]
     #[Assert\NotBlank]
@@ -107,9 +114,29 @@ class Message extends Base
 
     public function setSenderEmail(?string $senderEmail): static
     {
-        $this->senderEmail = $senderEmail === null ? null : mb_strtolower(trim($senderEmail));
+        $senderEmail       = $senderEmail === null ? null : mb_strtolower(trim($senderEmail));
+        $this->senderEmail = $senderEmail === '' ? null : $senderEmail;
 
         return $this;
+    }
+
+    public function getSenderPhone(): ?string
+    {
+        return $this->senderPhone;
+    }
+
+    public function setSenderPhone(?string $senderPhone): static
+    {
+        $senderPhone       = $senderPhone === null ? null : trim($senderPhone);
+        $this->senderPhone = $senderPhone === '' ? null : $senderPhone;
+
+        return $this;
+    }
+
+    /** The phone number for tel: and sms: links, without spaces or brackets. */
+    public function getSenderPhoneDigits(): ?string
+    {
+        return $this->senderPhone === null ? null : preg_replace('/[^0-9+]/', '', $this->senderPhone);
     }
 
     public function getBody(): ?string

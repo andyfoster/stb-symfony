@@ -48,7 +48,7 @@
                     <p class="listing-byline">
                         {% if listing.book.author %}<span>{{ listing.book.author }}</span>{% endif %}
                         {% if listing.book.year %}<span>{{ listing.book.year }}</span>{% endif %}
-                        {% if listing.book.edition %}<span class="listing-edition">{{ listing.book.edition }} edition</span>{% endif %}
+                        {% if listing.book.edition %}<span class="listing-edition">{{ listing.book.editionOrdinal }} edition</span>{% endif %}
                     </p>
                 {% endif %}
                 <div class="listing-price-row">
@@ -133,16 +133,17 @@
                                 </div>
                                 <p class="muted modal-about">About “{{ listing.title }}”</p>
                                 {{ form_start(contact, {attr: {class: 'contact-form', novalidate: 'novalidate'}}) }}
+                                    <div class="form-field">{{ form_row(contact.senderName) }}</div>
                                     <div class="form-grid">
-                                        <div class="form-field">{{ form_row(contact.senderName) }}</div>
                                         <div class="form-field">{{ form_row(contact.senderEmail) }}</div>
+                                        <div class="form-field">{{ form_row(contact.senderPhone) }}</div>
                                     </div>
                                     <div class="form-field">{{ form_row(contact.body, {attr: {rows: 6}}) }}</div>
                                     {{ form_row(contact.website) }}
                                     {% if contact.children.captcha is defined %}<div class="form-field">{{ form_row(contact.captcha) }}</div>{% endif %}
                                     <div class="modal-actions">
                                         <button class="button contact-send" type="submit">Send message</button>
-                                        <p class="form-help">Your email goes to the seller so they can reply. We don’t show it on the site.</p>
+                                        <p class="form-help">Your details go to the seller so they can reply. We don’t show them on the site.</p>
                                     </div>
                                 {{ form_end(contact) }}
                             </dialog>

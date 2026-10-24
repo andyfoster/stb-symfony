@@ -44,15 +44,15 @@ class AppFixtures extends Fixture
 
         // [type, category, title, description, price ($), condition, book [author, edition, isbn, papers], days ago]
         $examples = [
-            [$sale, Category::Textbooks, 'Campbell Biology', 'Some highlighting in the first few chapters, otherwise clean. Used for BIOL112.', 85, Condition::Good, ['Urry, Cain, Wasserman, Minorsky & Orr', '12th', '9780135188743', 'BIOL112'], 0],
-            [$sale, Category::Textbooks, 'Chemistry: The Central Science', 'No writing inside. Comes with the unused access code.', 95, Condition::LikeNew, ['Brown, LeMay, Bursten, Murphy & Woodward', '15th', '9780137542970', 'CHEM191, CHEM111'], 1],
-            [$sale, Category::Textbooks, 'Principles of Anatomy and Physiology', 'The big one for HUBS191/192. A bit worn on the corners.', 110, Condition::Fair, ['Tortora & Derrickson', '16th', '9781119662792', 'HUBS191, HUBS192'], 1],
-            [$wanted, Category::Textbooks, 'Psychology (Gleitman) for PSYC111', 'Happy with an older edition as long as it is the 10th or later.', 50, null, ['Gleitman, Gross & Reisberg', '10th', null, 'PSYC111'], 2],
-            [$sale, Category::Textbooks, 'Principles of Economics', 'Pencil notes in a couple of chapters, easily rubbed out.', 60, Condition::Good, ['Mankiw', '9th', '9780357038314', 'ECON112'], 3],
+            [$sale, Category::Textbooks, 'Campbell Biology', 'Some highlighting in the first few chapters, otherwise clean. Used for BIOL112.', 85, Condition::Good, ['Urry, Cain, Wasserman, Minorsky & Orr', 12, '9780135188743', 'BIOL112'], 0],
+            [$sale, Category::Textbooks, 'Chemistry: The Central Science', 'No writing inside. Comes with the unused access code.', 95, Condition::LikeNew, ['Brown, LeMay, Bursten, Murphy & Woodward', 15, '9780137542970', 'CHEM191, CHEM111'], 1],
+            [$sale, Category::Textbooks, 'Principles of Anatomy and Physiology', 'The big one for HUBS191/192. A bit worn on the corners.', 110, Condition::Fair, ['Tortora & Derrickson', 16, '9781119662792', 'HUBS191, HUBS192'], 1],
+            [$wanted, Category::Textbooks, 'Psychology (Gleitman) for PSYC111', 'Happy with an older edition as long as it is the 10th or later.', 50, null, ['Gleitman, Gross & Reisberg', 10, null, 'PSYC111'], 2],
+            [$sale, Category::Textbooks, 'Principles of Economics', 'Pencil notes in a couple of chapters, easily rubbed out.', 60, Condition::Good, ['Mankiw', 9, '9780357038314', 'ECON112'], 3],
             [$wanted, Category::Textbooks, 'LAWS101 course reader', 'Need it before the second semester starts.', 40, null, ['Faculty of Law', null, null, 'LAWS101'], 3],
-            [$sale, Category::Textbooks, 'Calculus: Early Transcendentals', 'Solid copy, no missing pages. Great for MATH160 and MATH170.', 70, Condition::Good, ['Stewart', '9th', '9781337613927', 'MATH160, MATH170'], 4],
-            [$sale, Category::Textbooks, 'Introduction to Java Programming', 'Barely opened, lectures covered everything.', 45, Condition::LikeNew, ['Liang', '12th', '9780136520238', 'COMP160'], 6],
-            [$wanted, Category::Textbooks, 'Lehninger Principles of Biochemistry', 'Looking for 7th or 8th edition for BIOC192.', null, null, ['Nelson & Cox', '8th', '9781319228002', 'BIOC192'], 7],
+            [$sale, Category::Textbooks, 'Calculus: Early Transcendentals', 'Solid copy, no missing pages. Great for MATH160 and MATH170.', 70, Condition::Good, ['Stewart', 9, '9781337613927', 'MATH160, MATH170'], 4],
+            [$sale, Category::Textbooks, 'Introduction to Java Programming', 'Barely opened, lectures covered everything.', 45, Condition::LikeNew, ['Liang', 12, '9780136520238', 'COMP160'], 6],
+            [$wanted, Category::Textbooks, 'Lehninger Principles of Biochemistry', 'Looking for 7th or 8th edition for BIOC192.', null, null, ['Nelson & Cox', 8, '9781319228002', 'BIOC192'], 7],
             [$sale, Category::StudyAndTech, 'Lab coat (size M)', 'Worn for one year of chem labs. Washed, no stains.', 20, Condition::Good, null, 2],
             [$sale, Category::StudyAndTech, 'Casio fx-82AU Plus II calculator', 'Approved for exams. Comes with its cover.', 15, Condition::Good, null, 5],
             [$wanted, Category::StudyAndTech, 'Safety glasses for labs', 'Any pair that meets the lab requirements.', 10, null, null, 1],
@@ -100,7 +100,7 @@ class AppFixtures extends Fixture
         $manager->persist((new Listing())
             ->setSeller($sam)->setType($sale)->setCategory(Category::Textbooks)
             ->setTitle('Organic Chemistry (Clayden)')->setPriceCents(6500)->setCondition(Condition::Good)
-            ->setBook($this->book('Clayden, Greeves & Warren', '2nd', '9780199270293', 'CHEM202')));
+            ->setBook($this->book('Clayden, Greeves & Warren', 2, '9780199270293', 'CHEM202')));
         $manager->persist((new Listing())
             ->setSeller($sam)->setType($sale)->setCategory(Category::FlatAndHome)
             ->setTitle('Standing lamp')->setPriceCents(1500)->setCondition(Condition::Fair)
@@ -141,7 +141,7 @@ class AppFixtures extends Fixture
     }
 
     /** $papers: comma-separated codes, e.g. "HUBS191, HUBS192". */
-    private function book(string $author, ?string $edition, ?string $isbn, ?string $papers): BookDetails
+    private function book(string $author, ?int $edition, ?string $isbn, ?string $papers): BookDetails
     {
         $book = (new BookDetails())->setAuthor($author)->setEdition($edition)->setIsbn($isbn);
         foreach (array_filter(array_map(trim(...), explode(',', (string) $papers))) as $code) {

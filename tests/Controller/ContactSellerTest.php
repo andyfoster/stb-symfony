@@ -133,6 +133,51 @@ final class ContactSellerTest extends WebTestCase
         self::assertSame('Jo', $message->getSenderName());
     }
 
+    public function testGuestsCanLeaveAPhoneNumberInsteadOfAnEmail(): void
+    {
+        $this->sendMessage(email: '', phone: '021 123 4567');
+
+        self::assertResponseRedirects();
+        $message = $this->manager->getRepository(Message::class)->findAll()[0];
+        self::assertNull($message->getSenderEmail());
+        self::assertSame('021 123 4567', $message->getSenderPhone());
+
+        $email = self::getMailerMessage();
+        self::assertInstanceOf(Email::class, $email);
+        self::assertSame([], $email->getReplyTo());
+        self::assertEmailHtmlBodyContains($email, 'href="tel:0211234567"');
+
+        $this->client->loginUser($this->seller);
+        $this->client->request('GET', '/account/messages/'.$message->getId());
+        self::assertSelectorExists('a[href="sms:0211234567"]');
+        self::assertSelectorNotExists('a[href^="mailto:"]');
+    }
+
+    public function testGuestsMustGiveAnEmailOrAPhone(): void
+    {
+        $this->sendMessage(email: '', phone: '');
+
+        self::assertResponseStatusCodeSame(422);
+        self::assertSelectorTextContains('.contact-panel', 'Add an email address or a phone number so the seller can reply.');
+        self::assertQueuedEmailCount(0);
+    }
+
+    public function testLoggedInSendersGetTheirPhoneFilledIn(): void
+    {
+        $sender = $this->createUser('jo@example.com', name: 'Jo')->setPhone('021 765 4321');
+        $this->manager->flush();
+        $this->client->loginUser($sender);
+
+        $crawler = $this->client->request('GET', '/listings/'.$this->listing->getId());
+        self::assertInputValueSame('contact_seller[senderPhone]', '021 765 4321');
+        $this->client->submit($crawler->selectButton('Send message')->form(['contact_seller[body]' => 'Can I pick it up tomorrow?']));
+
+        self::assertResponseRedirects();
+        $message = $this->manager->getRepository(Message::class)->findAll()[0];
+        self::assertSame('jo@example.com', $message->getSenderEmail());
+        self::assertSame('021 765 4321', $message->getSenderPhone());
+    }
+
     public function testSellersCantMessageThemselves(): void
     {
         $this->client->loginUser($this->seller);
@@ -181,7 +226,7 @@ final class ContactSellerTest extends WebTestCase
         self::assertResponseStatusCodeSame(422);
     }
 
-    private function sendMessage(?string $captcha = 'ok', ?string $honeypot = null, string $email = 'jo@example.com'): void
+    private function sendMessage(?string $captcha = 'ok', ?string $honeypot = null, string $email = 'jo@example.com', string $phone = ''): void
     {
         $crawler = $this->client->request('GET', '/listings/'.$this->listing->getId());
         $form = $crawler->selectButton('Send message')->form();
@@ -189,6 +234,7 @@ final class ContactSellerTest extends WebTestCase
         $values['contact_seller'] = [
             'senderName' => 'Jo',
             'senderEmail' => $email,
+            'senderPhone' => $phone,
             'body' => 'Hi! Is this still available? I can pick it up this week.',
             'website' => (string) $honeypot,
         ] + $values['contact_seller'];

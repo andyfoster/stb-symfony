@@ -6,6 +6,7 @@ use App\Captcha\TurnstileType;
 use App\Entity\Message;
 use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\Extension\Core\Type\EmailType;
+use Symfony\Component\Form\Extension\Core\Type\TelType;
 use Symfony\Component\Form\Extension\Core\Type\TextareaType;
 use Symfony\Component\Form\Extension\Core\Type\TextType;
 use Symfony\Component\Form\FormBuilderInterface;
@@ -33,9 +34,16 @@ class ContactSellerType extends AbstractType
             ])
             ->add('senderEmail', EmailType::class, [
                 'label'    => 'Your email',
-                'help'     => 'The seller replies to this address.',
+                'required' => false,
                 'disabled' => $known,
                 'attr'     => ['autocomplete' => 'email', 'maxlength' => 180],
+            ])
+            // Editable even when logged in: filled in from the account, but they may not want to share it.
+            ->add('senderPhone', TelType::class, [
+                'label'    => 'Your mobile',
+                'required' => false,
+                'help'     => $known ? 'Optional. Leave it blank to get replies by email only.' : 'Give an email, a mobile or both, so the seller can reply.',
+                'attr'     => ['autocomplete' => 'tel', 'maxlength' => 30],
             ])
             ->add('body', TextareaType::class, [
                 'label' => 'Message',

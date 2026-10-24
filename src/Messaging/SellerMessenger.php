@@ -16,7 +16,7 @@ use Symfony\Component\RateLimiter\RateLimiterFactoryInterface;
 
 /**
  * Delivers "contact the seller" messages: rate-limited, saved for the
- * seller's inbox, and emailed to them with Reply-To set to the sender.
+ * seller's inbox, and emailed to them with Reply-To set to the sender's email, if given.
  */
 class SellerMessenger
 {
@@ -36,7 +36,7 @@ class SellerMessenger
     public function allow(Request $request, Listing $listing, Message $message): bool
     {
         $perIp      = $this->perIpLimiter->create((string) $request->getClientIp())->consume();
-        $perListing = $this->perListingLimiter->create($listing->getId() . '|' . $message->getSenderEmail())->consume();
+        $perListing = $this->perListingLimiter->create($listing->getId() . '|' . ($message->getSenderEmail() ?? $message->getSenderPhoneDigits()))->consume();
 
         if ($perIp->isAccepted() && $perListing->isAccepted()) {
             return true;
@@ -69,11 +69,15 @@ class SellerMessenger
             $message->getSenderEmail(),
         );
 
-        $this->mailer->send((new TemplatedEmail())
+        $email = (new TemplatedEmail())
             ->to(new Address((string) $seller->getEmail(), (string) $seller->getDisplayName()))
-            ->replyTo(new Address((string) $message->getSenderEmail(), (string) $message->getSenderName()))
             ->subject(\sprintf('%s asked about “%s”', $message->getSenderName(), $listing->getTitle()))
             ->htmlTemplate('emails/contact_seller.html.twig')
-            ->context(['listing' => $listing, 'message' => $message, 'seller' => $seller]));
+            ->context(['listing' => $listing, 'message' => $message, 'seller' => $seller]);
+        // Senders who only gave a phone number get a text or call instead.
+        if ($message->getSenderEmail() !== null) {
+            $email->replyTo(new Address($message->getSenderEmail(), (string) $message->getSenderName()));
+        }
+        $this->mailer->send($email);
     }
 }

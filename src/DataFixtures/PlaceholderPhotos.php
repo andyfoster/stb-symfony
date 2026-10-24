@@ -92,7 +92,7 @@ final class PlaceholderPhotos
         if (null !== $book = $listing->getBook()) {
             $this->text($image, (string) $book->getAuthor(), 20, imagecolorallocatealpha($image, 255, 255, 255, 30), $x + 70, $bottom + 30, $width - 130);
             if ($book->getEdition() !== null) {
-                $this->text($image, $book->getEdition() . ' edition', 20, $gold, $x + 70, $y + $height - 80, $width - 130);
+                $this->text($image, $book->getEditionOrdinal() . ' edition', 20, $gold, $x + 70, $y + $height - 80, $width - 130);
             }
         }
     }

@@ -3,8 +3,10 @@
 namespace App\Entity;
 
 use App\Book\BookLookup;
+use App\Book\Edition;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
+use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\Validator\Constraints as Assert;
 
@@ -20,9 +22,10 @@ class BookDetails extends Base
     #[Assert\Length(max: 255)]
     private ?string $author = null;
 
-    #[ORM\Column(length: 50, nullable: true)]
-    #[Assert\Length(max: 50)]
-    private ?string $edition = null;
+    /** The edition number: 12 for the 12th edition. */
+    #[ORM\Column(type: Types::SMALLINT, nullable: true)]
+    #[Assert\Range(min: 1, max: 99)]
+    private ?int $edition = null;
 
     #[ORM\Column(length: 17, nullable: true)]
     #[Assert\Isbn]
@@ -73,16 +76,22 @@ class BookDetails extends Base
         return $this;
     }
 
-    public function getEdition(): ?string
+    public function getEdition(): ?int
     {
         return $this->edition;
     }
 
-    public function setEdition(?string $edition): static
+    public function setEdition(?int $edition): static
     {
         $this->edition = $edition;
 
         return $this;
+    }
+
+    /** "12th", for "12th edition". */
+    public function getEditionOrdinal(): ?string
+    {
+        return $this->edition === null ? null : Edition::ordinal($this->edition);
     }
 
     public function getIsbn(): ?string

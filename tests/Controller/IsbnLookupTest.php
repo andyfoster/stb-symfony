@@ -29,7 +29,7 @@ final class IsbnLookupTest extends WebTestCase
             'isbn' => '9780137542970',
             'title' => 'Chemistry: The Central Science',
             'author' => 'Theodore L. Brown, H. Eugene LeMay',
-            'edition' => '15th',
+            'edition' => 15,
             'year' => '2022',
             'source' => 'Open Library',
         ], $this->json());

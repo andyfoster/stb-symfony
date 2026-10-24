@@ -41,6 +41,32 @@ final class ListingCreateTest extends WebTestCase
         self::assertNull($this->onlyListing()->getBook()->getIsbn());
     }
 
+    public function testEditionIsKeptAsANumberAndShownAsAnOrdinal(): void
+    {
+        $this->client->loginUser($this->createUser('sam@example.com'));
+        $this->client->request('GET', '/sell');
+        $this->client->submitForm('Publish listing', [
+            'listing_form[title]' => 'Chemistry textbook',
+            'listing_form[category]' => 'textbooks',
+            'listing_form[condition]' => 'good',
+            'listing_form[book][author]' => 'Brown & LeMay',
+            'listing_form[book][edition]' => '12e',
+        ]);
+        self::assertResponseRedirects();
+        $listing = $this->onlyListing();
+        self::assertSame(12, $listing->getBook()->getEdition());
+
+        $this->client->request('GET', '/listings/'.$listing->getId());
+        self::assertSelectorTextContains('.listing-edition', '12th edition');
+
+        $this->client->request('GET', '/listings/'.$listing->getId().'/edit');
+        self::assertInputValueSame('listing_form[book][edition]', '12');
+        $this->client->submitForm('Save changes', ['listing_form[book][edition]' => 'Global edition']);
+        self::assertResponseStatusCodeSame(422);
+        self::assertSelectorTextContains('.book-fields', 'Enter the edition as a number, like 12.');
+        self::assertSame(12, $this->listing($listing->getId())->getBook()->getEdition());
+    }
+
     public function testWantedEditorFocusesOnBudgetAndRequirements(): void
     {
         $seller = $this->createUser('sam@example.com');

@@ -2,6 +2,7 @@
 
 namespace App\Legacy;
 
+use App\Book\Edition;
 use App\Entity\Book;
 use App\Entity\BookDetails;
 use App\Entity\Listing;
@@ -273,8 +274,9 @@ class LegacyImporter
                 ++$counts['books_updated'];
             }
 
-            $editions = array_unique(array_filter(array_map(static fn (array $row): ?string => self::edition((int) $row['edition']), $group)));
-            natsort($editions);
+            $editions = array_unique(array_filter(array_map(static fn (array $row): ?int => self::edition((int) $row['edition']), $group)));
+            sort($editions);
+            $editions = array_map(Edition::ordinal(...), $editions);
             $prices = array_values(array_filter(array_map(static fn (array $row): int => (int) $row['price'], $group), static fn (int $price): bool => $price > 0));
             sort($prices);
             $listed = array_filter(array_map(self::listedAt(...), $group));
@@ -422,15 +424,10 @@ class LegacyImporter
         };
     }
 
-    /** 6 → "6th", as people type it here; 0 meant none given, and some typed the year. */
-    private static function edition(int $edition): ?string
+    /** 0 meant none given, and some typed the year. */
+    private static function edition(int $edition): ?int
     {
-        if ($edition <= 0 || $edition > 30) {
-            return null;
-        }
-        $suffix = \in_array($edition % 100, [11, 12, 13], true) ? 'th' : (['th', 'st', 'nd', 'rd'][$edition % 10] ?? 'th');
-
-        return $edition.$suffix;
+        return $edition > 0 && $edition <= 30 ? $edition : null;
     }
 
     /**

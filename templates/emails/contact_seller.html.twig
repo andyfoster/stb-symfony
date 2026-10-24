@@ -6,7 +6,13 @@
 
 <blockquote style="margin:16px 0;padding:12px 16px;border-left:3px solid #0b3a9f;background:#eef3fd">{{ message.body|nl2br }}</blockquote>
 
+{% if message.senderEmail and message.senderPhone %}
+<p>Reply to this email to answer them at {{ message.senderEmail }}, or text or call them on <a href="tel:{{ message.senderPhoneDigits }}">{{ message.senderPhone }}</a>.</p>
+{% elseif message.senderEmail %}
 <p>Reply to this email to answer them at {{ message.senderEmail }}.</p>
+{% else %}
+<p>They didn’t give an email address, so text or call them on <a href="tel:{{ message.senderPhoneDigits }}">{{ message.senderPhone }}</a>. Replying to this email won’t reach them.</p>
+{% endif %}
 
 <p>You can also see your messages at <a href="{{ url('app_account_messages') }}">{{ url('app_account_messages') }}</a>.</p>
 

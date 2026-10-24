@@ -11,6 +11,7 @@ use EasyCorp\Bundle\EasyAdminBundle\Controller\AbstractCrudController;
 use EasyCorp\Bundle\EasyAdminBundle\Field\AssociationField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\DateTimeField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\EmailField;
+use EasyCorp\Bundle\EasyAdminBundle\Field\TelephoneField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\IdField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\TextareaField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\TextField;
@@ -33,7 +34,7 @@ final class MessageCrudController extends AbstractCrudController
             ->setEntityLabelInSingular('Message')
             ->setEntityLabelInPlural('Messages')
             ->setDefaultSort(['createdAt' => 'DESC'])
-            ->setSearchFields(['senderName', 'senderEmail', 'senderIp', 'body']);
+            ->setSearchFields(['senderName', 'senderEmail', 'senderPhone', 'senderIp', 'body']);
     }
 
     public function configureActions(Actions $actions): Actions
@@ -54,6 +55,7 @@ final class MessageCrudController extends AbstractCrudController
         yield DateTimeField::new('createdAt', 'Sent');
         yield TextField::new('senderName', 'From');
         yield EmailField::new('senderEmail', 'Email');
+        yield TelephoneField::new('senderPhone', 'Mobile');
         yield TextField::new('senderIp', 'IP');
         yield AssociationField::new('recipient', 'To')->formatValue(static fn($value, Message $message): string => (string) $message->getRecipient()?->getEmail());
         yield AssociationField::new('listing');

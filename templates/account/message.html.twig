@@ -11,7 +11,13 @@
 
     <div class="message-body">{{ message.body|nl2br }}</div>
     <div class="message-reply">
-        <a class="button" href="mailto:{{ message.senderEmail }}?subject={{ ('Re: ' ~ (message.listing ? message.listing.title : 'your message'))|url_encode }}">Reply by email</a>
-        <span class="muted">{{ message.senderEmail }}</span>
+        {% if message.senderEmail %}
+            <a class="button" href="mailto:{{ message.senderEmail }}?subject={{ ('Re: ' ~ (message.listing ? message.listing.title : 'your message'))|url_encode }}">Reply by email</a>
+            <span class="muted">{{ message.senderEmail }}</span>
+        {% endif %}
+        {% if message.senderPhone %}
+            <a class="button {{ message.senderEmail ? 'button-outline' }}" href="sms:{{ message.senderPhoneDigits }}">Reply by text</a>
+            <a class="muted" href="tel:{{ message.senderPhoneDigits }}">{{ message.senderPhone }}</a>
+        {% endif %}
     </div>
 {% endblock %}

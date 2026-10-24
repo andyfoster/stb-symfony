@@ -53,7 +53,7 @@ final class ImportLegacyCommandTest extends WebTestCase
         self::assertTrue($listing->isLive(new \DateTimeImmutable('2025-10-20 00:00:00 UTC')));
         self::assertSame('jo@example.com', $listing->getSeller()?->getEmail());
         self::assertSame("O'Shea, Moss", $listing->getBook()?->getAuthor());
-        self::assertSame('1st', $listing->getBook()?->getEdition());
+        self::assertSame(1, $listing->getBook()?->getEdition());
         self::assertSame('An introduction to Māori culture.', $listing->getDescription());
         self::assertSame([0, Condition::WellUsed, []], [$listing->getPriceCents(), $listing->getCondition(), $this->paperCodes($listing->getBook()?->getPapers())]);
         // Published when it was last refreshed, with the new year-long lifetime.

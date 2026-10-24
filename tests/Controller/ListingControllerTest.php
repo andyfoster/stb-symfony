@@ -28,7 +28,7 @@ final class ListingControllerTest extends WebTestCase
         (new SchemaTool($manager))->createSchema($manager->getMetadataFactory()->getAllMetadata());
 
         $manager->persist($this->listing(ListingType::ForSale, Category::Textbooks, 'Chemistry: The Central Science', 9500, '-1 day',
-            (new BookDetails())->setAuthor('Brown & LeMay')->setEdition('15th')->setIsbn('9780137542970')
+            (new BookDetails())->setAuthor('Brown & LeMay')->setEdition(15)->setIsbn('9780137542970')
                 ->addPaper(new Paper('chem191'))->addPaper(new Paper('CHEM111'))));
         $manager->persist($this->listing(ListingType::Wanted, Category::Textbooks, 'Psychology for PSYC111', 5000, '-2 days',
             (new BookDetails())->setAuthor('Gleitman')));
