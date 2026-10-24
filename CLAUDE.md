@@ -82,9 +82,11 @@ up to date when adding a workflow.
   `listing-form` controller, mirrored in `_form.html.twig` for the first render), and
   `/sell?type=wanted` starts one.
 - Otago papers: `BookDetails::papers` is many-to-many with `Paper` (code like CHEM191, optional
-  title, `official` when it came from Otago's list). `data/otago-papers.csv` is a starter list
-  (Otago's site blocks scripted downloads); load the full list with `task papers:import -- file.csv`
-  (`app:papers:import`, `PaperCatalog::importCsv()`, safe to rerun). On the form, `PaperTagsType`
+  title, `official` when it came from Otago's list). `data/otago-papers.csv` holds about 2,450
+  papers as `CODE; Title` lines, taken from Wayback Machine copies of Otago's subject and paper
+  pages (Otago's site blocks scripted downloads), so it may miss some. Fixtures load it, and
+  `task papers:import` (`app:papers:import`, `PaperCatalog::importCsv()`, safe to rerun) loads it
+  or another file (`-- file.csv`); that also takes `code,title` CSV, with or without a header. On the form, `PaperTagsType`
   is a comma-separated text field that the `paper-tags` Stimulus controller turns into tags with
   suggestions from `/papers/search`; codes not in the list are added as unofficial papers, which
   admins can review under Papers in `/admin`. Search matches paper codes with or without spaces.

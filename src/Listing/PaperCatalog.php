@@ -43,7 +43,8 @@ class PaperCatalog
     }
 
     /**
-     * Imports a CSV of "code,title" rows with a header row.
+     * Imports a file of "CODE; Title" lines, or a CSV of "code,title" rows. The
+     * first line picks the separator, and a header row is optional.
      *
      * @throws \RuntimeException when the file can't be read
      * @return array{added: int, updated: int, skipped: int}
@@ -57,13 +58,18 @@ class PaperCatalog
         }
 
         try {
-            fgetcsv($handle, escape: ''); // header
+            $separator = str_contains((string) fgets($handle), ';') ? ';' : ',';
+            rewind($handle);
             $rows = [];
-            while (false !== $row = fgetcsv($handle, escape: '')) {
+            while (false !== $row = fgetcsv($handle, separator: $separator, escape: '')) {
                 $rows[] = $row;
             }
         } finally {
             fclose($handle);
+        }
+
+        if ($rows !== [] && Paper::normalise((string) $rows[0][0]) === null) {
+            array_shift($rows); // header
         }
 
         return $this->import($rows);
