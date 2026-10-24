@@ -100,6 +100,34 @@ final class ListingCreateTest extends WebTestCase
         self::assertSame(\App\Enum\Condition::Fair, $this->manager->find(Listing::class, $listing->getId())->getCondition());
     }
 
+    public function testIsbnCoverIsOnlyUsedWithoutSellerPhotos(): void
+    {
+        $listing = $this->createListing($this->createUser('cover@example.com'));
+        $listing->getBook()->setIsbn('9780137542970');
+        $this->manager->flush();
+        $id = $listing->getId();
+
+        $this->client->request('GET', '/');
+        self::assertSelectorExists('.book-cover img[src="https://covers.openlibrary.org/b/isbn/9780137542970-M.jpg?default=false"][loading="lazy"]');
+        self::assertSelectorExists('.book-cover svg');
+        $this->client->request('GET', '/listings/'.$id);
+        self::assertSelectorNotExists('.book-cover-detail svg');
+        self::assertSelectorExists('.book-cover-detail img[loading="eager"]');
+        self::assertSelectorExists('.book-cover-detail img[src="https://covers.openlibrary.org/b/isbn/9780137542970-L.jpg?default=false"]');
+
+        $listing = $this->manager->find(Listing::class, $id);
+        $photo = (new \App\Entity\ListingPhoto())->setFilename('cover-test');
+        $listing->addPhoto($photo);
+        $this->manager->persist($photo);
+        $this->manager->flush();
+        $this->client->request('GET', '/');
+        self::assertSelectorExists('.card-photo');
+        self::assertSelectorNotExists('.book-cover');
+        $this->client->request('GET', '/listings/'.$id);
+        self::assertSelectorExists('.gallery img');
+        self::assertSelectorNotExists('.book-cover');
+    }
+
     public function testGuestsAreSentToLogIn(): void
     {
         $this->client->request('GET', '/sell');

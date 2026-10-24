@@ -6,6 +6,8 @@
 <article data-listing-id="{{ listing.id }}" data-listing-filter-target="item" data-type="{{ listing.type.value }}" data-category="{{ listing.category.value }}" data-search="{{ search|join(' ')|lower }}" class="listing-card {{ wanted ? 'listing-wanted' : '' }}">
     {% if photo %}
         <img class="card-photo" src="{{ path('app_photo', {id: photo.id, size: 'thumb'}) }}" alt="" loading="lazy" width="80" height="80">
+    {% elseif listing.book and listing.book.isbn %}
+        {% include 'listing/_book_cover.html.twig' %}
     {% else %}
         <span class="card-icon card-icon-{{ listing.category.value }}" title="{{ listing.category.label }}">{{ m.category_icon(listing.category) }}</span>
     {% endif %}

@@ -1,0 +1,5 @@
+{% import 'listing/_macros.html.twig' as m %}
+<span class="book-cover card-icon card-icon-{{ listing.category.value }}{{ detail|default(false) ? ' book-cover-detail' : '' }}" data-controller="book-cover" title="Book cover from Open Library">
+    {% if not detail|default(false) %}{{ m.category_icon(listing.category) }}{% endif %}
+    <img src="https://covers.openlibrary.org/b/isbn/{{ listing.book.isbn|replace({'-': '', ' ': ''})|url_encode }}-{{ detail|default(false) ? 'L' : 'M' }}.jpg?default=false" alt="Cover of {{ listing.title }}" loading="{{ detail|default(false) ? 'eager' : 'lazy' }}" width="{{ detail|default(false) ? 180 : 80 }}" height="{{ detail|default(false) ? 240 : 80 }}" data-book-cover-target="image" data-action="load->book-cover#loaded error->book-cover#failed">
+</span>

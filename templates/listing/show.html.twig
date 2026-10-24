@@ -75,6 +75,8 @@
                             <button class="lightbox-close" type="button" data-action="gallery#close" aria-label="Close">×</button>
                         </dialog>
                     </div>
+                {% elseif listing.book and listing.book.isbn %}
+                    {% include 'listing/_book_cover.html.twig' with {detail: true} %}
                 {% endif %}
 
                 {% if listing.description %}
