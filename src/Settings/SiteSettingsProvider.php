@@ -16,16 +16,17 @@ class SiteSettingsProvider
     public function __construct(
         private readonly SiteSettingsRepository $repository,
         private readonly EntityManagerInterface $manager,
-    ) {}
+    ) {
+    }
 
     public function get(): SiteSettings
     {
-        if ($this->settings !== null) {
+        if (null !== $this->settings) {
             return $this->settings;
         }
 
         $settings = $this->repository->findOneBy([], ['id' => 'ASC']);
-        if ($settings === null) {
+        if (null === $settings) {
             $settings = new SiteSettings();
             $this->manager->persist($settings);
             $this->manager->flush();
@@ -36,6 +37,7 @@ class SiteSettingsProvider
 
     public function listingLifetimeDays(): int
     {
-        return $this->get()->getListingLifetimeDays();
+        // The default lifetime must also fit within the one-year limit.
+        return min(SiteSettings::DEFAULT_LISTING_LIFETIME_DAYS, max(1, $this->get()->getListingLifetimeDays()));
     }
 }

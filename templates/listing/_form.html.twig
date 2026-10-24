@@ -1,39 +1,31 @@
+{% set wanted = listing.type and listing.type.value == 'wanted' %}
 {# The create/edit listing form: details on the left, photos on the right. #}
 {{ form_start(form, {attr: {
-    class: 'listing-form',
+    class: 'listing-form' ~ (wanted ? ' is-wanted' : ''),
     novalidate: 'novalidate',
-    'data-controller': 'listing-form title-suggest',
+    'data-controller': 'listing-form title-suggest isbn-lookup',
     'data-listing-form-textbooks-value': 'textbooks',
+    'data-isbn-lookup-url-value': path('app_listing_isbn_lookup'),
     'data-title-suggest-textbooks-value': 'textbooks',
     'data-title-suggest-url-value': path('app_listing_title_suggestions'),
 }}) }}
     <div class="listing-form-main form-panel">
-        <div class="form-field type-choice">{{ form_row(form.type, {attr: {'data-action': 'change->listing-form#toggleCondition', 'data-listing-form-target': 'type'}}) }}</div>
+        <div class="form-field type-choice">{{ form_row(form.type, {label_attr: {class: 'visually-hidden'}, attr: {'data-action': 'change->listing-form#changeType', 'data-listing-form-target': 'type'}}) }}</div>
 
-        <div class="form-field">{{ form_row(form.title, {attr: {'data-listing-form-target': 'title', 'data-title-suggest-target': 'input', 'data-action': 'listing-form#score'}}) }}</div>
+        <div class="form-field">{{ form_label(form.title, wanted ? 'Looking for' : 'Title', {label_attr: {'data-listing-form-target': 'titleLabel'}}) }}{{ form_widget(form.title, {attr: {'data-listing-form-target': 'title', 'data-title-suggest-target': 'input'}}) }}{{ form_errors(form.title) }}</div>
 
         <div class="form-grid">
             <div class="form-field">{{ form_row(form.category, {attr: {'data-listing-form-target': 'category', 'data-title-suggest-target': 'category', 'data-action': 'listing-form#toggleBook'}}) }}</div>
             <div class="form-field">
-                {{ form_label(form.priceCents) }}
-                <div class="input-prefix"><span aria-hidden="true">$</span>{{ form_widget(form.priceCents) }}</div>
-                {{ form_help(form.priceCents) }}
+                {{ form_label(form.priceCents, wanted ? 'Budget (NZD)' : 'Price (NZD)', {label_attr: {'data-listing-form-target': 'priceLabel'}}) }}
+                <div class="input-prefix"><span aria-hidden="true">$</span>{{ form_widget(form.priceCents, {attr: {'data-listing-form-target': 'price'}}) }}</div>
+                <p id="{{ form.priceCents.vars.id }}_help" class="form-help" data-listing-form-target="priceHelp">{{ wanted ? 'Leave blank if flexible.' : 'Leave blank for offers; 0 means free.' }}</p>
                 {{ form_errors(form.priceCents) }}
             </div>
         </div>
 
-        <fieldset class="book-fields" data-listing-form-target="book" data-controller="isbn-lookup" data-isbn-lookup-url-value="{{ path('app_listing_isbn_lookup') }}">
-            <legend>Textbook details</legend>
-            <div class="form-field">
-                {{ form_label(form.book.isbn) }}
-                <div class="input-with-button">
-                    {{ form_widget(form.book.isbn, {attr: {'data-isbn-lookup-target': 'isbn', 'data-action': 'keydown.enter->isbn-lookup#lookup:prevent'}}) }}
-                    <button class="button button-small button-outline" type="button" data-action="isbn-lookup#lookup" data-isbn-lookup-target="button">Look up</button>
-                </div>
-                <p class="lookup-status" data-isbn-lookup-target="status" role="status" aria-live="polite"></p>
-                {{ form_help(form.book.isbn) }}
-                {{ form_errors(form.book.isbn) }}
-            </div>
+        <fieldset class="book-fields" data-listing-form-target="book">
+            <legend>Book details</legend>
             <div class="form-field">{{ form_row(form.book.author, {attr: {'data-isbn-lookup-target': 'author', 'data-title-suggest-target': 'author'}}) }}</div>
             <div class="form-field field-narrow">{{ form_row(form.book.edition, {attr: {'data-isbn-lookup-target': 'edition'}}) }}</div>
             <div class="form-field" data-controller="paper-tags" data-paper-tags-url-value="{{ path('app_paper_search') }}">
@@ -44,11 +36,11 @@
             </div>
         </fieldset>
 
-        <fieldset class="form-field condition-field" data-listing-form-target="conditionField">
+        <fieldset class="form-field condition-field" data-listing-form-target="conditionField" {{ wanted ? 'hidden' }}>
             <legend>Condition</legend>
             <div class="condition-options">
                 {% for choice in form.condition %}
-                    {{ form_widget(choice, {attr: {class: 'condition-input', 'data-action': 'listing-form#score'}}) }}
+                    {{ form_widget(choice, {attr: {class: 'condition-input'}}) }}
                     <label class="condition-option" for="{{ choice.vars.id }}">
                         <strong>{{ choice.vars.label }}</strong>
                         <span>{{ choice.vars.attr['data-description'] }}</span>
@@ -58,12 +50,33 @@
             {{ form_errors(form.condition) }}
         </fieldset>
 
-        <div class="form-field">{{ form_row(form.description, {attr: {'data-listing-form-target': 'description', 'data-action': 'listing-form#score'}}) }}</div>
+        <div class="form-field">
+            {{ form_label(form.description, wanted ? 'Requirements' : 'Description', {label_attr: {'data-listing-form-target': 'descriptionLabel'}}) }}
+            {{ form_widget(form.description, {attr: {'data-listing-form-target': 'description', placeholder: wanted ? 'Edition, acceptable condition, when you need it, or alternatives you’d consider.' : 'Any wear, what’s included, and where you can hand it over.'}}) }}
+            {{ form_errors(form.description) }}
+        </div>
+        <div class="form-field field-narrow">{{ form_row(form.hideAfter) }}</div>
     </div>
 
     <div class="listing-form-side">
-        <div class="form-panel photo-panel" data-controller="photo-slots" data-photo-slots-max-value="{{ constant('App\\Entity\\Listing::MAX_PHOTOS') }}" data-photo-slots-existing-value="{{ listing.photos|length }}" data-action="photo-slots:changed->listing-form#score">
-            {{ form_label(form.photos) }}
+        <fieldset class="isbn-helper" data-listing-form-target="book">
+            <details class="form-panel optional-lookup" {{ form.book.isbn.vars.errors|length ? 'open' }}>
+                <summary>ISBN lookup</summary>
+            <div class="form-field">
+                {{ form_label(form.book.isbn) }}
+                <div class="input-with-button">
+                    {{ form_widget(form.book.isbn, {attr: {'data-isbn-lookup-target': 'isbn', 'data-action': 'keydown.enter->isbn-lookup#lookup:prevent'}}) }}
+                    <button class="button button-small button-outline" type="button" data-action="isbn-lookup#lookup" data-isbn-lookup-target="button">Look up</button>
+                </div>
+                <p class="lookup-status" data-isbn-lookup-target="status" role="status" aria-live="polite"></p>
+
+                {{ form_errors(form.book.isbn) }}
+            </div>
+            </details>
+        </fieldset>
+        <details class="form-panel photo-panel" data-listing-form-target="photoPanel" {{ not wanted or listing.photos|length or form.photos.vars.errors|length ? 'open' }} data-controller="photo-slots" data-photo-slots-max-value="{{ constant('App\\Entity\\Listing::MAX_PHOTOS') }}" data-photo-slots-existing-value="{{ listing.photos|length }}" >
+            <summary data-listing-form-target="photoTitle">{{ wanted ? 'Reference photos' : 'Photos' }}</summary>
+            {{ form_label(form.photos, null, {label_attr: {class: 'visually-hidden'}}) }}
             {{ form_widget(form.photos, {attr: {'data-photo-slots-target': 'input'}}) }}
             {{ form_errors(form.photos) }}
 
@@ -76,25 +89,24 @@
                         {% endif %}
                     </div>
                 {% endfor %}
+                {% if listing.photos|length < constant('App\\Entity\\Listing::MAX_PHOTOS') %}
                 {% for i in (listing.photos|length + 1)..constant('App\\Entity\\Listing::MAX_PHOTOS') %}
                     <label class="photo-slot photo-slot-empty" for="{{ form.photos.vars.id }}" data-photo-slots-target="slot" data-action="dragover->photo-slots#dragOver dragleave->photo-slots#dragLeave drop->photo-slots#drop">
                         <span>Add photo</span>
                     </label>
                 {% endfor %}
+                {% endif %}
             </div>
-            <p class="form-help">JPEG, PNG or WebP, up to 10 MB each. We strip location data from photos.</p>
+            <p class="form-help">JPEG, PNG or WebP. Up to 10 MB each.</p>
             {% if not app.user.verified %}
                 <p class="form-help photo-warning">Your photos stay hidden from other people until you confirm your email address.</p>
             {% endif %}
-        </div>
+        </details>
 
-        <div class="quality-hint" data-listing-form-target="quality" aria-live="polite">
-            <strong>Quality score:</strong> <span data-listing-form-target="qualityText">Add a clear title, 3+ photos and the condition to stand out.</span>
-        </div>
     </div>
 
     <div class="listing-form-actions">
-        {{ form_widget(form.publish, {attr: {class: 'button'}}) }}
+        {{ form_widget(form.publish, {label: listing.live ? 'Save changes' : (wanted ? 'Post wanted listing' : 'Publish listing'), attr: {class: 'button', 'data-listing-form-target': 'publish', 'data-editing': listing.live ? 'true' : 'false'}}) }}
         {{ form_widget(form.saveDraft, {attr: {class: 'button button-outline'}}) }}
         {% if listing.id %}<a class="cancel-link" href="{{ path('app_listing_show', {id: listing.id}) }}">Cancel</a>{% endif %}
     </div>

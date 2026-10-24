@@ -6,6 +6,7 @@ use App\Entity\Book;
 use App\Entity\BookDetails;
 use App\Entity\Listing;
 use App\Entity\Paper;
+use App\Entity\SiteSettings;
 use App\Entity\User;
 use App\Enum\Category;
 use App\Enum\Condition;
@@ -49,7 +50,8 @@ class LegacyImporter
         private readonly BookRepository $books,
         private readonly PaperCatalog $papers,
         private readonly ClockInterface $clock,
-    ) {}
+    ) {
+    }
 
     /**
      * @param int $listedWithinDays listings added or refreshed this many days ago or since are current
@@ -58,22 +60,22 @@ class LegacyImporter
      */
     public function import(string $file, bool $dryRun = false, int $listedWithinDays = self::OLD_LIFETIME_DAYS): array
     {
-        $dump   = new MysqlDumpReader($file);
+        $dump = new MysqlDumpReader($file);
         $counts = array_fill_keys(['users_added', 'users_merged', 'users_existing', 'users_left', 'listings_added', 'listings_existing', 'listings_without_seller', 'books_added', 'books_updated'], 0);
 
         $listingRows = iterator_to_array($dump->rows('launch_table'), false);
-        $since       = $this->clock->now()->modify(\sprintf('-%d days', $listedWithinDays));
-        $current     = array_values(array_filter($listingRows, static fn (array $row): bool => $row['for_sale'] === 'y' && self::listedAt($row) >= $since));
+        $since = $this->clock->now()->modify(\sprintf('-%d days', $listedWithinDays));
+        $current = array_values(array_filter($listingRows, static fn (array $row): bool => 'y' === $row['for_sale'] && self::listedAt($row) >= $since));
 
         // The old site chose "show my number" per listing; this one has it per account,
         // so each account takes the choice from its latest listing.
         $showPhone = [];
         foreach ($current as $row) {
-            $showPhone[(int) $row['user_id']] = $row['number_visible'] === 'y';
+            $showPhone[(int) $row['user_id']] = 'y' === $row['number_visible'];
         }
         $resetEmails = [];
         foreach ($dump->rows('hash_table') as $row) {
-            if ($row['used'] === '1') {
+            if ('1' === $row['used']) {
                 $resetEmails[(int) $row['user_id']] = true;
             }
         }
@@ -111,8 +113,8 @@ class LegacyImporter
         $byEmail = [];
         foreach ($dump->rows('member_list') as $row) {
             $email = mb_strtolower(trim((string) $row['email']));
-            if (filter_var($email, \FILTER_VALIDATE_EMAIL) === false || mb_strlen($email) > 180) {
-                $email = '#' . $row['user_id']; // left behind below: it has no account to sell from
+            if (false === filter_var($email, \FILTER_VALIDATE_EMAIL) || mb_strlen($email) > 180) {
+                $email = '#'.$row['user_id']; // left behind below: it has no account to sell from
             }
             $byEmail[$email][] = $row;
         }
@@ -135,11 +137,11 @@ class LegacyImporter
             usort($rows, static fn (array $a, array $b): int => [(int) $b['last_login'], (int) $b['user_id']] <=> [(int) $a['last_login'], (int) $a['user_id']]);
 
             $user = $existing[$email] ?? null;
-            if ($user !== null) {
+            if (null !== $user) {
                 ++$counts['users_existing'];
             } else {
                 $selling = array_values(array_filter($ids, static fn (int $id): bool => isset($showPhone[$id])));
-                $user    = $this->newUser($email, $rows[0], $showPhone[$selling[0]], array_any($ids, static fn (int $id): bool => isset($resetEmails[$id])));
+                $user = $this->newUser($email, $rows[0], $showPhone[$selling[0]], array_any($ids, static fn (int $id): bool => isset($resetEmails[$id])));
                 $this->manager->persist($user);
                 ++$counts['users_added'];
             }
@@ -157,22 +159,22 @@ class LegacyImporter
      */
     private function newUser(string $email, array $row, bool $showPhone, bool $verified): User
     {
-        $name  = mb_substr(self::text($row['first_name']), 0, 80) ?: strstr($email, '@', true);
+        $name = mb_substr(self::text($row['first_name']), 0, 80) ?: strstr($email, '@', true);
         $phone = self::text($row['phone']);
         $phone = preg_match('/^\+?[0-9 ()-]{6,}$/', $phone) ? $phone : null;
-        $hash  = strtolower((string) $row['pass']);
+        $hash = strtolower((string) $row['pass']);
 
         $user = (new User())
             ->setEmail($email)
             ->setDisplayName($name)
             // LegacySha1PasswordHasher checks these and swaps in a modern hash at first login.
-            ->setPassword(preg_match('/^[0-9a-f]{40}$/', $hash) && $row['access'] !== self::ACCESS_DEACTIVATED ? $hash : null)
+            ->setPassword(preg_match('/^[0-9a-f]{40}$/', $hash) && self::ACCESS_DEACTIVATED !== $row['access'] ? $hash : null)
             ->setPhone($phone)
-            ->setShowPhone($showPhone && $phone !== null)
+            ->setShowPhone($showPhone && null !== $phone)
             ->setVerified($verified);
 
         $joined = self::timestamp($row['join_time']) ?? self::dateTime($row['join_date']);
-        if ($joined !== null) {
+        if (null !== $joined) {
             $user->setCreatedAt($joined)->setUpdatedAt($joined);
         }
 
@@ -216,14 +218,14 @@ class LegacyImporter
                 ->setCondition(self::condition((int) $row['quality']))
                 ->setBook($book);
 
-            // Expires when it would have on the old site; the seller can refresh it from then.
+            // Imported listings get the same year-long window as new listings.
             $listedAt = self::listedAt($row) ?? $this->clock->now();
-            $listing->publish(self::OLD_LIFETIME_DAYS, $listedAt);
+            $listing->publish(SiteSettings::DEFAULT_LISTING_LIFETIME_DAYS, $listedAt);
             $listing->setCreatedAt(self::addedAt($row) ?? $listedAt)->setUpdatedAt($listedAt);
 
             $this->manager->persist($listing);
             ++$counts['listings_added'];
-            if ($listing->getSeller() === null) {
+            if (null === $listing->getSeller()) {
                 ++$counts['listings_without_seller'];
             }
             if ($counts['listings_added'] % self::BATCH_SIZE === 0) {
@@ -254,14 +256,14 @@ class LegacyImporter
         // Several keys can land on one Book, so collect each Book's rows first.
         $targets = [];
         foreach (self::groupBooks($rows) as $key => $group) {
-            $target = isset($known[$key]) ? 'id:' . $known[$key] : $key;
+            $target = isset($known[$key]) ? 'id:'.$known[$key] : $key;
             $targets[$target] = [...$targets[$target] ?? [], ...$group];
         }
 
         $done = 0;
         foreach ($targets as $target => $group) {
             $book = str_starts_with((string) $target, 'id:') ? $this->books->find((int) substr((string) $target, 3)) : null;
-            if ($book === null) {
+            if (null === $book) {
                 $book = new Book((string) $target);
                 $book->setTitle(mb_substr(self::mostCommon($group, 'title'), 0, 255))
                     ->setAuthor(mb_substr(self::mostCommon($group, 'author'), 0, 255));
@@ -276,21 +278,21 @@ class LegacyImporter
             $prices = array_values(array_filter(array_map(static fn (array $row): int => (int) $row['price'], $group), static fn (int $price): bool => $price > 0));
             sort($prices);
             $listed = array_filter(array_map(self::listedAt(...), $group));
-            $added  = array_filter(array_map(self::addedAt(...), $group));
+            $added = array_filter(array_map(self::addedAt(...), $group));
 
             $book->setEditions(mb_substr(implode(', ', $editions), 0, 255) ?: null)
                 ->setTimesListed(\count($group))
-                ->setTimesSold(\count(array_filter($group, static fn (array $row): bool => $row['for_sale'] !== 'y')))
-                ->setMedianPriceCents($prices === [] ? null : $prices[intdiv(\count($prices), 2)] * 100)
-                ->setFirstListedAt($added === [] ? null : min($added))
-                ->setLastListedAt($listed === [] ? null : max($listed));
+                ->setTimesSold(\count(array_filter($group, static fn (array $row): bool => 'y' !== $row['for_sale'])))
+                ->setMedianPriceCents([] === $prices ? null : $prices[intdiv(\count($prices), 2)] * 100)
+                ->setFirstListedAt([] === $added ? null : min($added))
+                ->setLastListedAt([] === $listed ? null : max($listed));
             foreach ($group as $row) {
                 foreach (self::paperCodes(self::text($row['papers'])) as $code) {
                     $book->addPaper($this->paper($code));
                 }
             }
 
-            if (++$done % self::BATCH_SIZE === 0) {
+            if (0 === ++$done % self::BATCH_SIZE) {
                 $this->flushAndClear();
             }
         }
@@ -309,15 +311,15 @@ class LegacyImporter
     private static function groupBooks(array $rows): array
     {
         /** @var array<string, list<array{surnames: array<string, int>, rows: list<array<string, string|null>>}>> $byTitle */
-        $byTitle    = [];
+        $byTitle = [];
         $authorless = [];
         foreach ($rows as $row) {
             $titleKey = Book::titleKey(self::text($row['title']));
-            if ($titleKey === '') {
+            if ('' === $titleKey) {
                 continue;
             }
             $surnames = Book::surnames(self::text($row['author']));
-            if ($surnames === []) {
+            if ([] === $surnames) {
                 $authorless[$titleKey][] = $row;
                 continue;
             }
@@ -325,7 +327,7 @@ class LegacyImporter
             // Join every group sharing a surname with this listing into one.
             $merged = ['surnames' => array_fill_keys($surnames, 1), 'rows' => [$row]];
             foreach ($byTitle[$titleKey] ?? [] as $i => $group) {
-                if (array_intersect_key($group['surnames'], $merged['surnames']) !== []) {
+                if ([] !== array_intersect_key($group['surnames'], $merged['surnames'])) {
                     foreach ($group['surnames'] as $surname => $count) {
                         $merged['surnames'][$surname] = ($merged['surnames'][$surname] ?? 0) + $count;
                     }
@@ -339,7 +341,7 @@ class LegacyImporter
         foreach ($authorless as $titleKey => $listings) {
             $groups = $byTitle[$titleKey] ?? [];
             usort($groups, static fn (array $a, array $b): int => \count($b['rows']) <=> \count($a['rows']));
-            if ($groups === []) {
+            if ([] === $groups) {
                 $groups = [['surnames' => [], 'rows' => []]];
             }
             $groups[0]['rows'] = [...$groups[0]['rows'], ...$listings];
@@ -350,7 +352,7 @@ class LegacyImporter
         foreach ($byTitle as $titleKey => $groups) {
             foreach ($groups as $group) {
                 uksort($group['surnames'], static fn (string $a, string $b): int => [$group['surnames'][$b], $a] <=> [$group['surnames'][$a], $b]);
-                $key         = mb_substr($titleKey . '|' . (array_key_first($group['surnames']) ?? ''), 0, 255);
+                $key = mb_substr($titleKey.'|'.(array_key_first($group['surnames']) ?? ''), 0, 255);
                 $books[$key] = [...$books[$key] ?? [], ...$group['rows']];
             }
         }
@@ -380,12 +382,12 @@ class LegacyImporter
     {
         preg_match_all('/(?<![A-Za-z])([A-Za-z]{4})?[\s-]*(?<!\d)(\d{3})(?!\d)/', $papers, $matches, \PREG_SET_ORDER);
 
-        $codes   = [];
+        $codes = [];
         $subject = null;
         foreach ($matches as $match) {
-            $subject = $match[1] !== '' ? strtoupper($match[1]) : $subject;
-            if ($subject !== null) {
-                $codes[] = $subject . $match[2];
+            $subject = '' !== $match[1] ? strtoupper($match[1]) : $subject;
+            if (null !== $subject) {
+                $codes[] = $subject.$match[2];
             }
         }
 
@@ -413,10 +415,10 @@ class LegacyImporter
     private static function condition(int $quality): Condition
     {
         return match (true) {
-            $quality >= 5  => Condition::LikeNew,
-            $quality === 4 => Condition::Good,
-            $quality === 3 => Condition::Fair,
-            default        => Condition::WellUsed,
+            $quality >= 5 => Condition::LikeNew,
+            4 === $quality => Condition::Good,
+            3 === $quality => Condition::Fair,
+            default => Condition::WellUsed,
         };
     }
 
@@ -428,7 +430,7 @@ class LegacyImporter
         }
         $suffix = \in_array($edition % 100, [11, 12, 13], true) ? 'th' : (['th', 'st', 'nd', 'rd'][$edition % 10] ?? 'th');
 
-        return $edition . $suffix;
+        return $edition.$suffix;
     }
 
     /**
@@ -460,13 +462,13 @@ class LegacyImporter
 
     private static function timestamp(?string $value): ?\DateTimeImmutable
     {
-        return $value !== null && ctype_digit($value) && (int) $value > 1 ? new \DateTimeImmutable('@' . $value) : null;
+        return null !== $value && ctype_digit($value) && (int) $value > 1 ? new \DateTimeImmutable('@'.$value) : null;
     }
 
     /** The dump's datetimes are UTC (it sets TIME_ZONE='+00:00'). */
     private static function dateTime(?string $value): ?\DateTimeImmutable
     {
-        if ($value === null || !preg_match('/^\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}$/', $value) || str_starts_with($value, '0000')) {
+        if (null === $value || !preg_match('/^\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}$/', $value) || str_starts_with($value, '0000')) {
             return null;
         }
 

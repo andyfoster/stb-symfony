@@ -51,11 +51,23 @@ final class AdminTest extends WebTestCase
         $crawler = $this->client->request('GET', '/admin/listing');
         $this->client->click($crawler->selectLink('Settings')->link());
         self::assertResponseIsSuccessful();
-        $this->client->submitForm('Save settings', ['SiteSettings[listingLifetimeDays]' => '28']);
+        $this->client->submitForm('Save settings', ['SiteSettings[listingLifetimeDays]' => '180']);
         self::assertResponseRedirects();
 
         $this->manager->clear();
-        self::assertSame(28, $this->manager->getRepository(SiteSettings::class)->findAll()[0]->getListingLifetimeDays());
+        self::assertSame(180, $this->manager->getRepository(SiteSettings::class)->findAll()[0]->getListingLifetimeDays());
+    }
+
+    public function testAdminCannotExtendTheDefaultBeyondAYear(): void
+    {
+        $this->client->loginUser($this->createUser('admin@example.com', admin: true));
+        $crawler = $this->client->request('GET', '/admin/listing');
+        $this->client->click($crawler->selectLink('Settings')->link());
+        $this->client->submitForm('Save settings', ['SiteSettings[listingLifetimeDays]' => '400']);
+        self::assertResponseStatusCodeSame(422);
+        self::assertSelectorTextContains('body', '365');
+        $this->manager->clear();
+        self::assertSame(365, $this->manager->getRepository(SiteSettings::class)->findAll()[0]->getListingLifetimeDays());
     }
 
     public function testAdminResetsAPassword(): void

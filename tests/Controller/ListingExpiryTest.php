@@ -19,6 +19,61 @@ final class ListingExpiryTest extends WebTestCase
         $this->bootClient();
     }
 
+    public function testNovemberListingIsStillAvailableForNextJuly(): void
+    {
+        $settings = static::getContainer()->get(SiteSettingsProvider::class);
+        // A legacy setting above the limit must not create a listing longer than a year.
+        $settings->get()->setListingLifetimeDays(730);
+        $this->manager->flush();
+        self::assertSame(365, $settings->listingLifetimeDays());
+
+        $seller = $this->createUser('sam@example.com');
+        $listing = $this->createListing($seller, 'Book for next July', published: null)
+            ->publish($settings->listingLifetimeDays(), new \DateTimeImmutable('2026-11-15 12:00:00 UTC'));
+        $this->manager->flush();
+        self::assertTrue($listing->isLive(new \DateTimeImmutable('2027-07-01 00:00:00 UTC')));
+        self::assertFalse($listing->canRefresh(new \DateTimeImmutable('2027-07-01 00:00:00 UTC')));
+        self::assertSame('2027-11-15', $listing->getExpiresAt()->format('Y-m-d'));
+        $reminders = static::getContainer()->get(\App\Repository\ListingRepository::class)
+            ->findNeedingExpiryReminder(3, new \DateTimeImmutable('2027-07-01 00:00:00 UTC'));
+        self::assertSame([], $reminders, 'No renewal nagging before the July course.');
+    }
+
+    public function testYearLongMigrationExtendsActiveListingsWithoutShorteningOthers(): void
+    {
+        require_once dirname(__DIR__, 2).'/migrations/Version20261024042123.php';
+        $seller = $this->createUser('sam@example.com');
+        $posted = new \DateTimeImmutable('2026-11-01 00:00:00 UTC');
+        $short = $this->createListing($seller, 'Short')->publish(42, $posted)
+            ->setExpiryReminderSentAt($posted);
+        $long = $this->createListing($seller, 'Long')->publish(730, $posted);
+        $sold = $this->createListing($seller, 'Sold')->publish(42, $posted)->markSold();
+        $draft = $this->createListing($seller, 'Draft')->publish(42, $posted)
+            ->setStatus(\App\Enum\ListingStatus::Draft);
+        static::getContainer()->get(SiteSettingsProvider::class)->get()->setListingLifetimeDays(42);
+        $this->manager->flush();
+        $ids = array_map(static fn (Listing $listing) => $listing->getId(), [$short, $long, $sold, $draft]);
+
+        $migration = new \DoctrineMigrations\Version20261024042123($this->manager->getConnection(), new \Psr\Log\NullLogger());
+        $migration->up(new \Doctrine\DBAL\Schema\Schema());
+        // Run the generated statements against the isolated test database, twice for idempotency.
+        for ($run = 0; $run < 2; ++$run) {
+            foreach ($migration->getSql() as $query) {
+                $this->manager->getConnection()->executeStatement($query->getStatement(), $query->getParameters(), $query->getTypes());
+            }
+        }
+        $this->manager->clear();
+        [$short, $long, $sold, $draft] = array_map(fn ($id) => $this->manager->find(Listing::class, $id), $ids);
+        self::assertSame('2027-11-01', $short->getExpiresAt()->format('Y-m-d'));
+        self::assertNull($short->getExpiryReminderSentAt());
+        self::assertSame('2028-10-31', $long->getExpiresAt()->format('Y-m-d'));
+        self::assertSame('2026-12-13', $sold->getExpiresAt()->format('Y-m-d'));
+        self::assertTrue($sold->isSold());
+        self::assertSame('2026-12-13', $draft->getExpiresAt()->format('Y-m-d'));
+        self::assertTrue($draft->isDraft());
+        self::assertSame(365, $this->manager->getRepository(\App\Entity\SiteSettings::class)->findAll()[0]->getListingLifetimeDays());
+    }
+
     public function testExpiredListingsAreHidden(): void
     {
         $sam = $this->createUser('sam@example.com');

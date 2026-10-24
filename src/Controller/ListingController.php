@@ -31,7 +31,7 @@ final class ListingController extends AbstractController
     public function index(Request $request, ListingRepository $listings): Response
     {
         $filter = new ListingFilter();
-        $form   = $this->createForm(ListingFilterType::class, $filter);
+        $form = $this->createForm(ListingFilterType::class, $filter);
         $form->handleRequest($request);
 
         // Invalid filters (e.g. an unknown category) show their errors and fall back to everything.
@@ -41,7 +41,7 @@ final class ListingController extends AbstractController
         $total = $counts[$applied->type->value];
         $pages = max(1, (int) ceil($total / ListingRepository::PAGE_SIZE));
         $requestedPage = filter_var($request->query->get('page', '1'), FILTER_VALIDATE_INT);
-        $page = min($pages, max(1, $requestedPage === false ? 1 : $requestedPage));
+        $page = min($pages, max(1, false === $requestedPage ? 1 : $requestedPage));
 
         return $this->render('listing/index.html.twig', [
             'form' => $form->createView(),
@@ -63,7 +63,7 @@ final class ListingController extends AbstractController
     public function cards(Request $request, ListingRepository $listings): Response
     {
         $page = filter_var($request->query->get('page', '1'), FILTER_VALIDATE_INT);
-        if ($page === false || $page < 1) {
+        if (false === $page || $page < 1) {
             throw $this->createNotFoundException();
         }
         $filter = new ListingFilter();
@@ -92,7 +92,7 @@ final class ListingController extends AbstractController
     #[IsGranted(ListingVoter::VIEW, 'listing', 'Listing not found.', 404)]
     public function contact(Listing $listing, Request $request, SellerMessenger $messenger, #[CurrentUser] ?User $user): Response
     {
-        if ($listing->getSeller() === null || $listing->getSeller()->getId() === $user?->getId() || !$listing->isLive()) {
+        if (null === $listing->getSeller() || $listing->getSeller()->getId() === $user?->getId() || !$listing->isLive()) {
             throw $this->createNotFoundException('This listing can’t be contacted.');
         }
 
@@ -102,7 +102,7 @@ final class ListingController extends AbstractController
         if ($form->isSubmitted() && $form->isValid()) {
             $message = $form->getData();
             // Bots fill in the hidden field: act as if it worked and send nothing.
-            if (trim((string) $form->get(ContactSellerType::HONEYPOT)->getData()) === '') {
+            if ('' === trim((string) $form->get(ContactSellerType::HONEYPOT)->getData())) {
                 if (!$messenger->allow($request, $listing, $message)) {
                     $this->addFlash('error', 'You’ve sent a lot of messages recently. Please try again later.');
 
@@ -126,7 +126,8 @@ final class ListingController extends AbstractController
     #[IsGranted('ROLE_USER')]
     public function new(Request $request, ListingEditor $editor, #[CurrentUser] User $user): Response
     {
-        $listing = (new Listing())->setSeller($user)->setType(ListingType::ForSale)->setCategory(Category::Textbooks);
+        $type = ListingType::tryFrom((string) $request->query->get('type', ListingType::ForSale->value)) ?? ListingType::ForSale;
+        $listing = (new Listing())->setSeller($user)->setType($type)->setCategory(Category::Textbooks);
 
         return $this->edit($listing, $request, $editor);
     }
@@ -135,8 +136,8 @@ final class ListingController extends AbstractController
     #[IsGranted(ListingVoter::EDIT, 'listing')]
     public function edit(Listing $listing, Request $request, ListingEditor $editor): Response
     {
-        $isNew = $listing->getId() === null;
-        $form  = $this->createForm(ListingFormType::class, $listing);
+        $isNew = null === $listing->getId();
+        $form = $this->createForm(ListingFormType::class, $listing);
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
@@ -146,12 +147,13 @@ final class ListingController extends AbstractController
                 $publish,
                 array_filter($form->get('photos')->getData() ?? []),
                 $form->has('removePhotos') ? $form->get('removePhotos')->getData() : [],
+                $form->get('hideAfter')->getData(),
             );
 
             $this->addFlash('success', match (true) {
                 !$publish => 'Saved as a draft. Publish it when you’re ready.',
-                $isNew    => 'Your listing is live.',
-                default   => 'Listing updated.',
+                $isNew => 'Your listing is live.',
+                default => 'Listing updated.',
             });
 
             return $this->redirectToRoute(
@@ -163,7 +165,7 @@ final class ListingController extends AbstractController
 
         return $this->render($isNew ? 'listing/new.html.twig' : 'listing/edit.html.twig', [
             'listing' => $listing,
-            'form'    => $form,
+            'form' => $form,
         ]);
     }
 
@@ -211,14 +213,14 @@ final class ListingController extends AbstractController
     private function contactForm(Listing $listing, ?User $user): FormInterface
     {
         $message = new Message();
-        if ($user !== null) {
+        if (null !== $user) {
             $message->setSenderName($user->getDisplayName())->setSenderEmail($user->getEmail());
         }
 
         return $this->createForm(ContactSellerType::class, $message, [
-            'action'       => $this->generateUrl('app_listing_contact', ['id' => $listing->getId()]),
-            'captcha'      => !$user?->isVerified(),
-            'known_sender' => $user !== null,
+            'action' => $this->generateUrl('app_listing_contact', ['id' => $listing->getId()]),
+            'captcha' => !$user?->isVerified(),
+            'known_sender' => null !== $user,
         ]);
     }
 }

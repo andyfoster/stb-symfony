@@ -1,12 +1,12 @@
 <p>Hi {{ seller.displayName }},</p>
 
 {% if listings|length == 1 %}
-    <p>Your listing <a href="{{ url('app_listing_show', {id: listings[0].id}) }}">{{ listings[0].title }}</a> expires on {{ listings[0].expiresAt|date('l j F', 'Pacific/Auckland') }}.</p>
+    <p>Your listing <a href="{{ url('app_listing_show', {id: listings[0].id}) }}">{{ listings[0].title }}</a> expires on {{ listings[0].expiresAt|date('l j F Y', 'Pacific/Auckland') }}.</p>
 {% else %}
     <p>These listings expire soon:</p>
     <ul>
         {% for listing in listings %}
-            <li><a href="{{ url('app_listing_show', {id: listing.id}) }}">{{ listing.title }}</a>, on {{ listing.expiresAt|date('l j F', 'Pacific/Auckland') }}</li>
+            <li><a href="{{ url('app_listing_show', {id: listing.id}) }}">{{ listing.title }}</a>, on {{ listing.expiresAt|date('l j F Y', 'Pacific/Auckland') }}</li>
         {% endfor %}
     </ul>
 {% endif %}

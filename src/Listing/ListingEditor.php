@@ -26,16 +26,19 @@ class ListingEditor
         private readonly SiteSettingsProvider $settings,
         private readonly MessageBusInterface $bus,
         private readonly AuditLog $audit,
+        private readonly ListingExpiry $expiry,
     ) {}
 
     /**
      * @param UploadedFile[] $newPhotos
      * @param ListingPhoto[] $removedPhotos
      */
-    public function save(Listing $listing, bool $publish, array $newPhotos = [], array $removedPhotos = []): void
+    public function save(Listing $listing, bool $publish, array $newPhotos = [], array $removedPhotos = [], ?\DateTimeImmutable $hideAfter = null): void
     {
         $isNew   = $listing->getId() === null;
         $wasLive = !$isNew && $listing->isLive();
+        $oldExpiry = $listing->getExpiresAt();
+        $chosenExpiry = $hideAfter === null ? null : $this->expiry->expiresAfter($hideAfter);
 
         // Their files go when Doctrine removes them (RemovePhotoFiles).
         $removedIds = [];
@@ -60,10 +63,15 @@ class ListingEditor
             $listing->publish($this->settings->listingLifetimeDays());
         }
 
+        // Editing the hide date never bumps the listing's publication date.
+        if ($chosenExpiry !== null && $hideAfter->format('Y-m-d') !== $this->expiry->dateFor($oldExpiry)?->format('Y-m-d')) {
+            $listing->setExpiresAt($chosenExpiry)->setExpiryReminderSentAt(null);
+        }
+
         $this->manager->persist($listing);
         $this->manager->flush();
 
-        $this->audit->record($isNew ? AuditType::ListingCreated : AuditType::ListingUpdated, $listing, ['status' => $listing->getStatus()->value]);
+        $this->audit->record($isNew ? AuditType::ListingCreated : AuditType::ListingUpdated, $listing, ['status' => $listing->getStatus()->value, 'expiresAt' => $listing->getExpiresAt()?->format(\DATE_ATOM)]);
         if (!$wasLive && $listing->isLive()) {
             $this->audit->record(AuditType::ListingPublished, $listing, ['expiresAt' => $listing->getExpiresAt()?->format(\DATE_ATOM)]);
         }

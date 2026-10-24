@@ -18,24 +18,22 @@ class BookDetailsFormType extends AbstractType
     {
         $builder
             ->add('isbn', TextType::class, [
-                'label'    => 'ISBN',
+                'label' => 'ISBN',
                 'required' => false,
-                'help'     => 'On the back cover or copyright page. Look it up to fill in the details.',
-                'attr'     => ['inputmode' => 'numeric', 'autocomplete' => 'off', 'placeholder' => '978…'],
+                'attr' => ['inputmode' => 'numeric', 'autocomplete' => 'off', 'placeholder' => '978…'],
             ])
             ->add('author', TextType::class, [
-                'label'      => 'Author(s)',
+                'label' => 'Author(s)',
                 'empty_data' => '',
             ])
             ->add('edition', TextType::class, [
-                'label'    => 'Edition',
+                'label' => 'Edition',
                 'required' => false,
-                'attr'     => ['placeholder' => 'e.g. 12th'],
+                'attr' => ['placeholder' => 'e.g. 12th'],
             ])
             ->add('papers', PaperTagsType::class, [
                 'label' => 'Papers (optional)',
-                'help'  => 'The Otago papers it’s for, like CHEM191. Add as many as you like.',
-                'attr'  => ['placeholder' => 'CHEM191, CHEM192', 'autocomplete' => 'off'],
+                'attr' => ['placeholder' => 'CHEM191, CHEM192', 'autocomplete' => 'off'],
             ]);
     }
 
@@ -43,7 +41,7 @@ class BookDetailsFormType extends AbstractType
     {
         $resolver->setDefaults([
             'data_class' => BookDetails::class,
-            'required'   => false,
+            'required' => false,
         ]);
     }
 }

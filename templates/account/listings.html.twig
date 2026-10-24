@@ -48,6 +48,6 @@
     {% endfor %}
 
     {% if listings|length %}
-        <p class="form-help account-note">Listings stay up for {{ lifetime_days }} days. You can refresh one in the last {{ constant('App\\Entity\\Listing::REFRESH_WINDOW_DAYS') }} days before it expires, or once it has.</p>
+        <p class="form-help account-note">Choose or extend your hide date from Edit. <a href="{{ path('app_about') }}">How it works</a></p>
     {% endif %}
 {% endblock %}

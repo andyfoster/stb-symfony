@@ -27,7 +27,7 @@ final class ImportLegacyCommandTest extends WebTestCase
     use ClockSensitiveTrait;
     use DatabaseTestTrait;
 
-    private const string DUMP = __DIR__ . '/../Fixtures/legacy-dump.sql';
+    private const string DUMP = __DIR__.'/../Fixtures/legacy-dump.sql';
 
     private CommandTester $command;
 
@@ -56,9 +56,9 @@ final class ImportLegacyCommandTest extends WebTestCase
         self::assertSame('1st', $listing->getBook()?->getEdition());
         self::assertSame('An introduction to Māori culture.', $listing->getDescription());
         self::assertSame([0, Condition::WellUsed, []], [$listing->getPriceCents(), $listing->getCondition(), $this->paperCodes($listing->getBook()?->getPapers())]);
-        // Published when it was last refreshed, and expires when the old site would have hidden it.
+        // Published when it was last refreshed, with the new year-long lifetime.
         self::assertEquals(new \DateTimeImmutable('@1760000000'), $listing->getPublishedAt());
-        self::assertEquals(new \DateTimeImmutable('@1760000000')->modify('+56 days'), $listing->getExpiresAt());
+        self::assertEquals(new \DateTimeImmutable('@1760000000')->modify('+365 days'), $listing->getExpiresAt());
         self::assertEquals(new \DateTimeImmutable('@1700000000'), $listing->getCreatedAt());
     }
 
@@ -177,7 +177,7 @@ final class ImportLegacyCommandTest extends WebTestCase
 
     public function testMissingFileFails(): void
     {
-        $this->command->execute(['file' => __DIR__ . '/nope.sql']);
+        $this->command->execute(['file' => __DIR__.'/nope.sql']);
 
         self::assertSame(1, $this->command->getStatusCode());
         self::assertStringContainsString('read', $this->command->getDisplay());
@@ -244,16 +244,16 @@ final class ImportLegacyCommandTest extends WebTestCase
     public function testAdminsMergeBooksThatAreReallyOne(): void
     {
         $this->import();
-        $kept   = $this->book('Principles of Anatomy and Physiology');
+        $kept = $this->book('Principles of Anatomy and Physiology');
         $merged = $this->book('Writing for Psychology');
-        $ids    = [$kept->getId(), $merged->getId()];
+        $ids = [$kept->getId(), $merged->getId()];
 
         $this->client->loginUser($this->createUser('admin@example.com', admin: true));
         $token = $this->client->request('GET', '/admin/book')->filter('[data-action-name="mergeSelected"]')->attr('data-action-csrf-token');
         $this->client->request('POST', '/admin/book/merge-selected', [
-            'batchActionName'      => 'mergeSelected',
+            'batchActionName' => 'mergeSelected',
             'batchActionEntityIds' => $ids,
-            'entityFqcn'           => Book::class,
+            'entityFqcn' => Book::class,
             'batchActionCsrfToken' => $token,
         ]);
 

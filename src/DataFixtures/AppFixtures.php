@@ -104,11 +104,11 @@ class AppFixtures extends Fixture
         $manager->persist((new Listing())
             ->setSeller($sam)->setType($sale)->setCategory(Category::FlatAndHome)
             ->setTitle('Standing lamp')->setPriceCents(1500)->setCondition(Condition::Fair)
-            ->publish(SiteSettings::DEFAULT_LISTING_LIFETIME_DAYS, new \DateTimeImmutable('-40 days')));
+            ->publish(SiteSettings::DEFAULT_LISTING_LIFETIME_DAYS, new \DateTimeImmutable(\sprintf('-%d days', SiteSettings::DEFAULT_LISTING_LIFETIME_DAYS - 2))));
         $manager->persist((new Listing())
             ->setSeller($sam)->setType($sale)->setCategory(Category::StudyAndTech)
             ->setTitle('Bluetooth speaker')->setPriceCents(2000)->setCondition(Condition::Good)
-            ->publish(SiteSettings::DEFAULT_LISTING_LIFETIME_DAYS, new \DateTimeImmutable('-50 days')));
+            ->publish(SiteSettings::DEFAULT_LISTING_LIFETIME_DAYS, new \DateTimeImmutable(\sprintf('-%d days', SiteSettings::DEFAULT_LISTING_LIFETIME_DAYS + 8))));
         $manager->persist((new Listing())
             ->setSeller($sam)->setType($sale)->setCategory(Category::Textbooks)
             ->setTitle('Microeconomics (Pindyck)')->setPriceCents(4000)->setCondition(Condition::Good)

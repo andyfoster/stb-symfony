@@ -7,8 +7,10 @@ use App\Entity\ListingPhoto;
 use App\Enum\Category;
 use App\Enum\Condition;
 use App\Enum\ListingType;
+use App\Listing\ListingExpiry;
 use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\Extension\Core\Type\ChoiceType;
+use Symfony\Component\Form\Extension\Core\Type\DateType;
 use Symfony\Component\Form\Extension\Core\Type\EnumType;
 use Symfony\Component\Form\Extension\Core\Type\FileType;
 use Symfony\Component\Form\Extension\Core\Type\MoneyType;
@@ -28,12 +30,35 @@ use Symfony\Component\Validator\Constraints as Assert;
  */
 class ListingFormType extends AbstractType
 {
+    public function __construct(private readonly ListingExpiry $expiry) {}
+
     public function buildForm(FormBuilderInterface $builder, array $options): void
     {
         /** @var Listing $listing */
         $listing = $builder->getData();
 
+        $hideAfter = $this->expiry->dateFor($listing->getExpiresAt());
+        if ($hideAfter !== null && ($hideAfter < $this->expiry->today() || $hideAfter > $this->expiry->latestDate())) {
+            $hideAfter = null;
+        }
+
         $builder
+            ->add('hideAfter', DateType::class, [
+                'label' => 'Hide after',
+                'mapped' => false,
+                'required' => false,
+                'widget' => 'single_text',
+                'input' => 'datetime_immutable',
+                'model_timezone' => 'Pacific/Auckland',
+                'view_timezone' => 'Pacific/Auckland',
+                'data' => $hideAfter,
+                'help' => 'Optional. You can change this later. Up to '.$this->expiry->latestDate()->format('j M Y').'.',
+                'attr' => ['min' => $this->expiry->today()->format('Y-m-d'), 'max' => $this->expiry->latestDate()->format('Y-m-d')],
+                'constraints' => [
+                    new Assert\GreaterThanOrEqual($this->expiry->today(), message: 'Choose today or a later date.'),
+                    new Assert\LessThanOrEqual($this->expiry->latestDate(), message: 'Choose a date within the next year.'),
+                ],
+            ])
             ->add('type', EnumType::class, [
                 'class'        => ListingType::class,
                 'label'        => 'I want to',

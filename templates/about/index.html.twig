@@ -1,0 +1,23 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}About · ScarfieTextbooks{% endblock %}
+
+{% block body %}
+    <article class="about-page">
+        <h1>About ScarfieTextbooks</h1>
+        <p>A free noticeboard for students buying, selling or looking for textbooks and other student essentials. No listing fees or commission.</p>
+
+        <h2>Post now for next year</h2>
+        <p>Listings default to a year online. Choose an earlier hide date if you like. Post a book in November and someone starting their course next July can still find it. There’s no need to keep bumping it.</p>
+        <p>Mark it sold or remove it when you’re done. Change the hide date on your listing’s edit page whenever you need, up to a year from today. We’ll email you near expiry.</p>
+
+        <h2>Selling or looking?</h2>
+        <p><a href="{{ path('app_listing_new') }}">Sell an item</a> with its price, condition and photos, or <a href="{{ path('app_listing_new', {type: 'wanted'}) }}">post a wanted listing</a> with your budget and requirements. ISBN lookup is an optional way to fill in textbook details.</p>
+
+        <h2>Contact and collection</h2>
+        <p>Messages go to the seller’s inbox and email. Replies happen by email; phone numbers appear only when a seller chooses to share one. Arrange collection and payment directly with each other. The site doesn’t process payments or deliveries.</p>
+
+        <h2>Accounts and photos</h2>
+        <p>You need an account to post. Confirm your email to make your listing photos visible to others. Uploaded photos have location metadata removed.</p>
+    </article>
+{% endblock %}

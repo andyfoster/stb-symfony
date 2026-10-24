@@ -1754,14 +1754,6 @@ turbo-frame[aria-busy=true] .listing-grid {
     color:#7a5d00
 }
 
-.quality-hint {
-    margin-top:16px;
-    padding:14px 16px;
-    background:var(--blue-tint);
-    color:var(--navy);
-    font-size:14px
-}
-
 /* Account dashboard */
 .dashboard {
     display:grid;
@@ -2082,7 +2074,7 @@ turbo-frame[aria-busy=true] .listing-grid {
 
 .condition-options {
     display:grid;
-    grid-template-columns:repeat(5,minmax(0,1fr));
+    grid-template-columns:1fr;
     gap:8px
 }
 
@@ -2264,10 +2256,6 @@ turbo-frame[aria-busy=true] .listing-grid {
 }
 
 @media(max-width:900px) {
-    .condition-options {
-        grid-template-columns:repeat(3,minmax(0,1fr))
-    }
-
     .dashboard {
         grid-template-columns:1fr;
         gap:20px;
@@ -2445,10 +2433,6 @@ turbo-frame[aria-busy=true] .listing-grid {
         padding:20px 16px
     }
 
-    .condition-options {
-        grid-template-columns:1fr 1fr
-    }
-
     .form-grid {
         grid-template-columns:1fr
     }
@@ -2460,3 +2444,23 @@ turbo-frame[aria-busy=true] .listing-grid {
 }
 
 .pagination { display: flex; justify-content: center; align-items: center; gap: 1rem; margin: 2rem 0; }
+
+/* Listing composer: intent first, optional shortcuts and useful guidance. */
+.isbn-helper { margin:0 0 16px; padding:0; border:0; min-width:0; }
+.optional-lookup { padding:18px 20px; background:rgb(255 255 255 / 80%); }
+.optional-lookup summary,.photo-panel summary { font-weight:600; cursor:pointer; }
+.optional-lookup[open] > .form-help,.photo-panel[open] > .form-help { margin:12px 0 16px; }
+.optional-lookup .form-field { margin-bottom:0; }
+.form-field .condition-option { position:relative; padding:12px 44px 12px 14px; gap:2px; border-radius:10px; }
+.condition-option::after { content:''; position:absolute; right:16px; top:50%; transform:translateY(-50%); width:16px; height:16px; border:1px solid var(--field); border-radius:50%; }
+.condition-input:checked + .condition-option::after { border:5px solid var(--blue); }
+.condition-option span { font-size:13px; }
+
+/* Explanations live on About rather than in the everyday forms. */
+
+.about-page { max-width:70ch; margin:0 auto; padding:36px 0; }
+.about-page h1 { margin-bottom:16px; font-size:30px; }
+.about-page h2 { margin:28px 0 10px; font-size:20px; }
+.about-page p { margin-bottom:12px; line-height:1.7; }
+.optional-lookup[open] .form-field { margin-top:16px; }
+.photo-panel[open] summary { margin-bottom:16px; }

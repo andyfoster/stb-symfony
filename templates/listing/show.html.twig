@@ -12,7 +12,7 @@
             {% if state == 'draft' %}Only you can see it.
             {% elseif state == 'sold' %}Hidden from everyone else.
             {% elseif state == 'expired' %}Since {{ listing.expiresAt|date('j M Y') }}.
-            {% else %}Until {{ listing.expiresAt|date('j M Y') }}.{% endif %}
+            {% else %}Hides {{ listing.expiresAt|date('j M Y', 'Pacific/Auckland') }}.{% endif %}
             </p>
         </div>
         <div class="owner-actions">

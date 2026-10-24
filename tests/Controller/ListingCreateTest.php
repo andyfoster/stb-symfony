@@ -21,6 +21,67 @@ final class ListingCreateTest extends WebTestCase
         $this->bootClient();
     }
 
+    public function testIsbnLookupIsAnOptionalSidebarShortcut(): void
+    {
+        $this->client->loginUser($this->createUser('sam@example.com'));
+        $this->client->request('GET', '/sell');
+
+        self::assertSelectorExists('.listing-form-side .optional-lookup:not([open])');
+        self::assertSelectorNotExists('.listing-form-main input[name="listing_form[book][isbn]"]');
+        self::assertSelectorTextContains('.optional-lookup summary', 'ISBN lookup');
+        self::assertSelectorNotExists('.listing-intent, .listing-readiness, .listing-lifetime-note');
+        self::assertSelectorExists('.photo-panel[open]');
+        $this->client->submitForm('Publish listing', [
+            'listing_form[title]' => 'Chemistry textbook',
+            'listing_form[category]' => 'textbooks',
+            'listing_form[condition]' => 'good',
+            'listing_form[book][author]' => 'Brown & LeMay',
+        ]);
+        self::assertResponseRedirects();
+        self::assertNull($this->onlyListing()->getBook()->getIsbn());
+    }
+
+    public function testWantedEditorFocusesOnBudgetAndRequirements(): void
+    {
+        $seller = $this->createUser('sam@example.com');
+        $listing = $this->createListing($seller, 'Looking for a desk', category: \App\Enum\Category::FlatAndHome)
+            ->setType(\App\Enum\ListingType::Wanted)->setCondition(null);
+        $this->manager->flush();
+        $this->client->loginUser($seller);
+        $this->client->request('GET', '/listings/'.$listing->getId().'/edit');
+
+        self::assertResponseIsSuccessful();
+        self::assertSelectorTextContains('label[for="listing_form_title"]', 'Looking for');
+        self::assertSelectorTextContains('label[for="listing_form_priceCents"]', 'Budget');
+        self::assertSelectorTextContains('label[for="listing_form_description"]', 'Requirements');
+        self::assertSelectorExists('.condition-field[hidden]');
+        self::assertSelectorExists('.photo-panel:not([open])');
+        self::assertSelectorTextContains('.photo-panel summary', 'Reference photos');
+        self::assertSelectorNotExists('.listing-readiness');
+        $this->client->submitForm('Save changes', ['listing_form[priceCents]' => '45']);
+        self::assertResponseRedirects();
+        self::assertSame(4500, $this->onlyListing()->getPriceCents());
+        self::assertNull($this->onlyListing()->getCondition());
+    }
+
+    public function testWantedListingCanBeStartedDirectlyWithoutPhotosOrCondition(): void
+    {
+        $this->client->loginUser($this->createUser('sam@example.com'));
+        $this->client->request('GET', '/sell?type=wanted');
+        self::assertSelectorExists('input[name="listing_form[type]"][value="wanted"][checked]');
+        self::assertSelectorExists('.condition-field[hidden]');
+        $this->client->submitForm('Post wanted listing', [
+            'listing_form[title]' => 'Looking for a small desk',
+            'listing_form[category]' => 'flat_and_home',
+            'listing_form[description]' => 'Happy with some wear. I can collect this week.',
+        ]);
+        self::assertResponseRedirects();
+        self::assertSame(\App\Enum\ListingType::Wanted, $this->onlyListing()->getType());
+        self::assertNull($this->onlyListing()->getPriceCents());
+        self::assertNull($this->onlyListing()->getCondition());
+        self::assertCount(0, $this->onlyListing()->getPhotos());
+    }
+
     public function testGuestsAreSentToLogIn(): void
     {
         $this->client->request('GET', '/sell');
@@ -52,7 +113,7 @@ final class ListingCreateTest extends WebTestCase
         self::assertSame(ListingStatus::Active, $listing->getStatus());
         self::assertSame(8550, $listing->getPriceCents());
         self::assertSame('sam@example.com', $listing->getSeller()->getEmail());
-        self::assertEqualsWithDelta(new \DateTimeImmutable('+42 days'), $listing->getExpiresAt(), 5);
+        self::assertEqualsWithDelta(new \DateTimeImmutable('+365 days'), $listing->getExpiresAt(), 5);
 
         $this->client->followRedirect();
         self::assertSelectorTextContains('.flash', 'Your listing is live.');
@@ -162,6 +223,7 @@ final class ListingCreateTest extends WebTestCase
         self::assertResponseStatusCodeSame(422);
         self::assertAnySelectorTextContains('.form-field', 'This value should not be blank.');
         self::assertAnySelectorTextContains('.form-field', 'This value is neither a valid ISBN-10 nor a valid ISBN-13.');
+        self::assertSelectorExists('.optional-lookup[open]');
     }
 
     public function testOnlyTheSellerCanEdit(): void

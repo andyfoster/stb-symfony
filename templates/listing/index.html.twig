@@ -7,6 +7,7 @@
         <section class="hero" aria-labelledby="hero-title">
             <h1 id="hero-title" class="wordmark"><span class="wm-blue">scarfie</span><span class="wm-gold">textbooks</span><span class="wm-blue">.com</span></h1>
 
+
             {% do form.type.setRendered() %}
             {{ form_start(form, {attr: {
                 id: 'listing-filters',
@@ -74,7 +75,7 @@
                     <div data-empty="wanted" {{ not filter.narrowed and filter.type.value == 'wanted' ? '' : 'hidden' }}>
                         <h3>Nobody’s asking for anything right now.</h3>
                         <p>Looking for something? Post a wanted listing and sellers can message you.</p>
-                        <a class="button" href="{{ path('app_listing_new') }}">Post a wanted listing</a>
+                        <a class="button" href="{{ path('app_listing_new', {type: 'wanted'}) }}">Post a wanted listing</a>
                     </div>
                     <div data-empty="for_sale" {{ not filter.narrowed and filter.type.value == 'for_sale' ? '' : 'hidden' }}>
                         <h3>No listings yet.</h3>

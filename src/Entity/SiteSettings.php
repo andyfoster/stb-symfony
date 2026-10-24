@@ -13,11 +13,11 @@ use Symfony\Component\Validator\Constraints as Assert;
 #[ORM\Entity(repositoryClass: SiteSettingsRepository::class)]
 class SiteSettings extends Base
 {
-    public const int DEFAULT_LISTING_LIFETIME_DAYS = 42;
+    public const int DEFAULT_LISTING_LIFETIME_DAYS = 365;
 
     /** How long a published or refreshed listing stays up. */
     #[ORM\Column]
-    #[Assert\Range(min: 1, max: 365)]
+    #[Assert\Range(min: 1, max: self::DEFAULT_LISTING_LIFETIME_DAYS)]
     private int $listingLifetimeDays = self::DEFAULT_LISTING_LIFETIME_DAYS;
 
     public function getListingLifetimeDays(): int

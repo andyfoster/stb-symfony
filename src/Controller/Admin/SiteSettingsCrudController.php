@@ -33,12 +33,12 @@ final class SiteSettingsCrudController extends AbstractCrudController
     {
         return $actions
             ->disable(Action::NEW, Action::DELETE, Action::INDEX, Action::DETAIL, Action::SAVE_AND_RETURN)
-            ->update(Crud::PAGE_EDIT, Action::SAVE_AND_CONTINUE, static fn(Action $action): Action => $action->setLabel('Save settings'));
+            ->update(Crud::PAGE_EDIT, Action::SAVE_AND_CONTINUE, static fn (Action $action): Action => $action->setLabel('Save settings'));
     }
 
     public function configureFields(string $pageName): iterable
     {
         yield IntegerField::new('listingLifetimeDays', 'Listing lifetime (days)')
-            ->setHelp('How long a listing stays up after it’s published or refreshed. Applies to listings published or refreshed from now on.');
+            ->setHelp('Default when no hide date is chosen (1–365 days). Owners can choose or extend their date up to a year from today.');
     }
 }
