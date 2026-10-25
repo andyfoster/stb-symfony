@@ -194,6 +194,12 @@ tasks:
       - symfony console messenger:setup-transports --no-interaction
       - task: db:seed
 
+  db:clear:
+    desc: 'Delete all local data and photos, reload the paper list and create admin user #1 (admin@scarfietextbooks.com / password; --email=, --password= to change)'
+    prompt: This deletes every user, listing, message and photo in the local database. Continue?
+    cmds:
+      - symfony console app:database:clear --force {{.CLI_ARGS}}
+
   db:validate:
     desc: Check Doctrine mapping matches the database schema
     cmds:
@@ -413,6 +419,46 @@ tasks:
     deps: [prod:env]
     cmds:
       - kamal console app:papers:import
+
+  prod:maintenance:on:
+    desc: 'Show visitors a "back soon" page and pause the worker (emails, scheduled jobs) while you fix things; console tasks still work'
+    prompt: Take stb.gitforked.com offline for visitors?
+    deps: [prod:env]
+    cmds:
+      - kamal app maintenance --roles=web --message="ScarfieTextbooks is down for maintenance and will be back shortly."
+      - kamal app stop --roles=job
+
+  prod:maintenance:off:
+    desc: Put the site back online and restart the worker
+    deps: [prod:env]
+    cmds:
+      - kamal app start --roles=job
+      - kamal app live --roles=web
+
+  prod:db:clear:
+    desc: 'Delete ALL production data and photos, reload the paper list and create admin user #1 (admin@scarfietextbooks.com / password; --email=, --password= to change)'
+    prompt: This deletes every user, listing, message and photo on stb.gitforked.com. Did you run prod:db:dump and prod:maintenance:on first?
+    deps: [prod:env]
+    cmds:
+      # No --force: the command asks once more, naming the database.
+      - kamal console app:database:clear {{.CLI_ARGS}}
+
+  prod:legacy:import:
+    desc: 'Import the old site''s MariaDB dump into production (task prod:legacy:import -- dump.sql; add --dry-run to try it)'
+    deps: [prod:env]
+    vars:
+      FILE: '{{index (splitArgs .CLI_ARGS) 0}}'
+      OPTIONS: '{{range $i, $arg := splitArgs .CLI_ARGS}}{{if $i}} {{$arg}}{{end}}{{end}}'
+      # The running web container (stb-web-<version>), looked up on the server.
+      WEB: docker ps -q --filter label=service=stb --filter label=role=web | head -1
+    preconditions:
+      - sh: test -f "{{.FILE}}"
+        msg: 'Pass the dump file first: task prod:legacy:import -- scarfie.sql --dry-run'
+    cmds:
+      # Straight over ssh like prod:db:dump: kamal exec can't pipe a file in.
+      - ssh {{.PROD_SSH}} 'docker exec -i $({{.WEB}}) sh -c "cat > /tmp/legacy-dump.sql"' < "{{.FILE}}"
+      - defer: ssh {{.PROD_SSH}} 'docker exec $({{.WEB}}) rm -f /tmp/legacy-dump.sql'
+      - ssh {{.PROD_SSH}} 'docker exec $({{.WEB}}) php bin/console app:legacy:import /tmp/legacy-dump.sql {{.OPTIONS}}'
 
   prod:user:reset-password:
     desc: 'Reset a production account''s password to Password1! (task prod:user:reset-password -- them@example.com)'

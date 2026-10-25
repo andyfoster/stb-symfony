@@ -260,6 +260,15 @@ up to date when adding a workflow.
   `config/deploy.yml`), because `kamal ... exec` adds its own lines to the output.
   `task db:restore -- var/backups/….dump` loads a dump into the local Docker database;
   `task db:dump` saves the local one first if you want to keep it.
+- Rehearsing the move from the old site: `task db:clear` (`app:database:clear`) empties every table
+  except `doctrine_migration_versions` (Postgres `TRUNCATE ... RESTART IDENTITY`, so ids start at 1
+  again), deletes all photo folders, reloads `data/otago-papers.csv` and creates admin user #1
+  (`admin@scarfietextbooks.com` / `password` unless `--email`/`--password`); then
+  `task legacy:import -- dump.sql`. In production: `task prod:db:dump`, `prod:maintenance:on`,
+  `prod:db:clear`, `prod:legacy:import -- dump.sql` (copies the dump into the web container over
+  `ssh`), `prod:maintenance:off`. Maintenance is Kamal's own (`kamal app maintenance`: kamal-proxy
+  answers 503 with a message, `/admin` included) and also stops the `job` role so no emails or
+  scheduled jobs run; `kamal console` tasks keep working.
 - Migrations are not run on deploy (all `.kamal/hooks` are samples); run `task prod:migrate`
   after `task deploy`. Migrations create `messenger_messages`; `task prod:messenger:setup`
   (`messenger:setup-transports`, idempotent) makes sure it exists, since `auto_setup=0`.
