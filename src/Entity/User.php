@@ -50,6 +50,10 @@ class User extends Base implements UserInterface, PasswordAuthenticatedUserInter
     #[ORM\Column(length: 255, nullable: true)]
     private ?string $googleId = null;
 
+    /** The Google account's address, which can differ from $email. Shown on the Account page. */
+    #[ORM\Column(length: 180, nullable: true)]
+    private ?string $googleEmail = null;
+
     /** Cellphone, shown on listings only when showPhone is on. */
     #[ORM\Column(length: 30, nullable: true)]
     #[Assert\Length(max: 30)]
@@ -139,6 +143,18 @@ class User extends Base implements UserInterface, PasswordAuthenticatedUserInter
     public function setGoogleId(?string $googleId): static
     {
         $this->googleId = $googleId;
+
+        return $this;
+    }
+
+    public function getGoogleEmail(): ?string
+    {
+        return $this->googleEmail;
+    }
+
+    public function setGoogleEmail(?string $googleEmail): static
+    {
+        $this->googleEmail = $googleEmail === null ? null : mb_strtolower(trim($googleEmail));
 
         return $this;
     }

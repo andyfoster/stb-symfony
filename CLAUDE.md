@@ -118,8 +118,11 @@ up to date when adding a workflow.
   pages through every photo with whether it's shown on the site, to delete or regenerate them.
   The listing enums implement `TranslatableInterface` so EasyAdmin shows their `label()`.
 - Account dashboard: everything about your account is under `/account` (`AccountController`,
-  templates extend `account/_layout.html.twig` for the sidebar): overview (`app_account`),
-  My listings, Messages and Your details (`app_account_details`).
+  templates extend `account/_layout.html.twig` for the sidebar): My listings, Messages and
+  Account (`app_account`, `/account`; `/account/details` redirects there), which is also in the
+  header's menu. There is no overview page. Account holds the profile, Change email, Change (or
+  Set a) password (`ChangePasswordFormType` with `current_password`, `PasswordSetter::change()`,
+  no email involved) and, when linked, the Google address the account is connected to.
 - Contact the seller: `ContactSellerType` on the listing page posts to
   `/listings/{id}/contact`; `SellerMessenger` rate-limits (`config/packages/rate_limiter.yaml`),
   saves a `Message` for the seller's inbox (`/account/messages`) and emails them with Reply-To
@@ -130,7 +133,7 @@ up to date when adding a workflow.
   the widget is `interaction-only`, shows Cloudflare's error code if it fails, and rejected tokens
   are logged with Cloudflare's reason; the site's hostname must be on the widget's list in Cloudflare),
   and a hidden `website` honeypot field. Sellers can show their phone (`User::showPhone`) and set
-  it under Your details.
+  it under Account.
 - Admin: EasyAdmin 5 at `/admin` (`src/Controller/Admin`, `ROLE_ADMIN`, also in
   `access_control`); the "Admin" menu link only renders for admins. EasyAdmin 5's API differs
   from 4: read `vendor/easycorp/easyadmin-bundle/skills/easyadmin/SKILL.md` first.
@@ -176,9 +179,15 @@ up to date when adding a workflow.
   verifies it and clears its password, since whoever set it never proved they own the address.
   Failures land on the login page's `.login-error`. Buttons (`security/_google_button.html.twig`
   on login and sign-up) only show when `GOOGLE_CLIENT_ID` is set (Twig global `google_client_id`;
-  `.env` leaves it empty, `.env.test` sets it). Tests swap the provider's Guzzle client
-  (`GoogleSignInTest`).
-  Your details has a Change email form (`ChangeEmailFormType`, checked with the current password
+  `.env` leaves it empty, `.env.test` sets it). `User::googleEmail` is the Google account's
+  address (it can differ from `email`), refreshed on every Google sign-in. Accounts with a Google
+  link and no password change their email or set a password by signing in to Google again
+  instead of typing one: Account keeps the new email or the password's *hash* in the session
+  (`GoogleController::PENDING_CHANGE`) and `GoogleController::confirm()` (second client
+  `google_confirm`, `/account/google/check`, `max_age=0`) applies it only if the Google account
+  matches `googleId`. Register both callback URIs with Google. Tests swap the providers'
+  Guzzle clients (`GoogleSignInTest`).
+  Account has a Change email form (`ChangeEmailFormType`, checked with the current password
   by `UserPassword`): `EmailChanger` marks the account unverified, sends a confirmation link to
   the new address and a notice to the old one (`emails/email_changed.html.twig`). The dev login
   from `task db:seed` is `sam@example.com` / `password` (`admin@example.com` is an admin).
@@ -250,7 +259,7 @@ up to date when adding a workflow.
   sidebar cover navigation.
 - Styling is hand-written CSS in `assets/styles/app.css` (no framework, system fonts only),
   kept deliberately quiet: white pages, navy text, blue (`--blue`) for links and buttons, and
-  gold (`--gold`) only for the monospaced wordmark and "Wanted" listings (which also get a gold
+  gold (`--gold`) only for the monospaced wordmark (just "st" at full size on phones) and "Wanted" listings (which also get a gold
   left edge). Listings are tiger-striped rows: a photo or category icon, title and details, paper
   and condition tags, price on the right. Avoid adding cards, shadows or all-caps labels.
 - The project `php.ini` (read by the Symfony CLI) raises upload limits to match the dockerfile

@@ -14,7 +14,8 @@ use Symfony\Component\Validator\Constraints as Assert;
 use Symfony\Component\Validator\Context\ExecutionContextInterface;
 
 /**
- * A new email address for the signed-in `user`, confirmed with their current password.
+ * A new email address for the signed-in `user`, confirmed with their current password,
+ * or with Google when `confirm_with_google` (accounts without a password).
  * Not mapped, so a rejected address never touches the logged-in User.
  */
 class ChangeEmailFormType extends AbstractType
@@ -45,8 +46,11 @@ class ChangeEmailFormType extends AbstractType
                         }
                     }),
                 ],
-            ])
-            ->add('currentPassword', PasswordType::class, [
+            ]);
+
+        // Accounts that only sign in with Google prove it's them there instead (GoogleController).
+        if (!$options['confirm_with_google']) {
+            $builder->add('currentPassword', PasswordType::class, [
                 'label'       => 'Your password',
                 'attr'        => ['autocomplete' => 'current-password'],
                 'constraints' => [
@@ -54,11 +58,14 @@ class ChangeEmailFormType extends AbstractType
                     new UserPassword(message: 'That isn’t your password.'),
                 ],
             ]);
+        }
     }
 
     public function configureOptions(OptionsResolver $resolver): void
     {
         $resolver->setRequired('user');
         $resolver->setAllowedTypes('user', User::class);
+        $resolver->setDefault('confirm_with_google', false);
+        $resolver->setAllowedTypes('confirm_with_google', 'bool');
     }
 }

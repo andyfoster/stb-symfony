@@ -2,14 +2,15 @@
 
 namespace App\Controller;
 
-use App\Entity\Listing;
 use App\Entity\Message;
 use App\Entity\User;
 use App\Form\ChangeEmailFormType;
+use App\Form\ChangePasswordFormType;
 use App\Form\ProfileFormType;
 use App\Repository\ListingRepository;
 use App\Repository\MessageRepository;
 use App\Security\EmailChanger;
+use App\Security\PasswordSetter;
 use App\Settings\SiteSettingsProvider;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
@@ -25,33 +26,43 @@ use Symfony\Component\Security\Http\Attribute\IsGranted;
 final class AccountController extends AbstractController
 {
     /**
-     * The dashboard: what needs doing, at a glance.
+     * Your name, phone, email, password and Google sign-in. Accounts that only
+     * sign in with Google have no password to check, so changing their email or
+     * setting a password waits on signing in to Google again (GoogleController).
      */
-    #[Route('', name: 'app_account', methods: ['GET'])]
-    public function overview(ListingRepository $listings, MessageRepository $messages, #[CurrentUser] User $user): Response
+    #[Route('', name: 'app_account', methods: ['GET', 'POST'])]
+    public function account(Request $request, EntityManagerInterface $manager, EmailChanger $emailChanger, PasswordSetter $passwords, #[CurrentUser] User $user): Response
     {
-        $mine = $listings->findBySeller($user);
+        $confirmWithGoogle = $user->getPassword() === null && $user->getGoogleId() !== null;
 
-        return $this->render('account/overview.html.twig', [
-            'live'        => array_filter($mine, static fn(Listing $listing): bool => $listing->isLive()),
-            'refreshable' => array_filter($mine, static fn(Listing $listing): bool => $listing->canRefresh()),
-            'drafts'      => array_filter($mine, static fn(Listing $listing): bool => $listing->isDraft()),
-            'messages'    => \array_slice($messages->findInbox($user), 0, 3),
-            'unread'      => $messages->countUnread($user),
-        ]);
-    }
-
-    #[Route('/details', name: 'app_account_details', methods: ['GET', 'POST'])]
-    public function details(Request $request, EntityManagerInterface $manager, EmailChanger $emailChanger, #[CurrentUser] User $user): Response
-    {
-        $emailForm = $this->createForm(ChangeEmailFormType::class, options: ['user' => $user]);
+        $emailForm = $this->createForm(ChangeEmailFormType::class, options: ['user' => $user, 'confirm_with_google' => $confirmWithGoogle]);
         $emailForm->handleRequest($request);
 
         if ($emailForm->isSubmitted() && $emailForm->isValid()) {
-            $emailChanger->change($user, $emailForm->get('email')->getData());
+            $email = $emailForm->get('email')->getData();
+            if ($confirmWithGoogle) {
+                return $this->confirmWithGoogle($request, ['email' => $email]);
+            }
+
+            $emailChanger->change($user, $email);
             $this->addFlash('success', \sprintf('Your email is now %s. We’ve sent a link there to confirm it.', $user->getEmail()));
 
-            return $this->redirectToRoute('app_account_details', [], Response::HTTP_SEE_OTHER);
+            return $this->redirectToRoute('app_account', [], Response::HTTP_SEE_OTHER);
+        }
+
+        $passwordForm = $this->createForm(ChangePasswordFormType::class, options: ['current_password' => $user->getPassword() !== null]);
+        $passwordForm->handleRequest($request);
+
+        if ($passwordForm->isSubmitted() && $passwordForm->isValid()) {
+            $hash = $passwords->hash($user, $passwordForm->get('plainPassword')->getData());
+            if ($confirmWithGoogle) {
+                return $this->confirmWithGoogle($request, ['password' => $hash]);
+            }
+
+            $passwords->change($user, $hash);
+            $this->addFlash('success', 'Your password is changed.');
+
+            return $this->redirectToRoute('app_account', [], Response::HTTP_SEE_OTHER);
         }
 
         $form = $this->createForm(ProfileFormType::class, $user);
@@ -61,7 +72,7 @@ final class AccountController extends AbstractController
             $manager->flush();
             $this->addFlash('success', 'Your details are saved.');
 
-            return $this->redirectToRoute('app_account_details', [], Response::HTTP_SEE_OTHER);
+            return $this->redirectToRoute('app_account', [], Response::HTTP_SEE_OTHER);
         }
 
         if ($form->isSubmitted()) {
@@ -69,7 +80,19 @@ final class AccountController extends AbstractController
             $manager->refresh($user);
         }
 
-        return $this->render('account/details.html.twig', ['form' => $form, 'email_form' => $emailForm]);
+        return $this->render('account/account.html.twig', [
+            'form'                => $form,
+            'email_form'          => $emailForm,
+            'password_form'       => $passwordForm,
+            'confirm_with_google' => $confirmWithGoogle,
+        ]);
+    }
+
+    /** The page's old address. */
+    #[Route('/details', name: 'app_account_details', methods: ['GET'])]
+    public function details(): Response
+    {
+        return $this->redirectToRoute('app_account', [], Response::HTTP_MOVED_PERMANENTLY);
     }
 
     #[Route('/listings', name: 'app_account_listings', methods: ['GET'])]
@@ -102,5 +125,13 @@ final class AccountController extends AbstractController
         }
 
         return $this->render('account/message.html.twig', ['message' => $message]);
+    }
+
+    /** @param array{email: string}|array{password: string} $change */
+    private function confirmWithGoogle(Request $request, array $change): Response
+    {
+        $request->getSession()->set(GoogleController::PENDING_CHANGE, $change);
+
+        return $this->redirectToRoute('app_account_google', [], Response::HTTP_SEE_OTHER);
     }
 }

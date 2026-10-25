@@ -13,10 +13,12 @@ use GuzzleHttp\HandlerStack;
 use GuzzleHttp\Psr7\Response;
 use League\OAuth2\Client\Provider\Google;
 use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
+use Symfony\Component\PasswordHasher\Hasher\UserPasswordHasherInterface;
 
 /**
  * "Continue with Google": new accounts, linking to an existing one by email,
- * and the ways it fails. Google's token and profile endpoints are answered by
+ * the ways it fails, and confirming an email change with Google instead of a
+ * password. Google's token and profile endpoints are answered by
  * a Guzzle mock on the provider, so nothing leaves the test.
  */
 final class GoogleSignInTest extends WebTestCase
@@ -47,6 +49,7 @@ final class GoogleSignInTest extends WebTestCase
 
         $user = $this->user('jo@gmail.com');
         self::assertSame('1001', $user->getGoogleId());
+        self::assertSame('jo@gmail.com', $user->getGoogleEmail());
         self::assertTrue($user->isVerified());
         self::assertNull($user->getPassword());
         self::assertSame([AuditType::UserRegistered, AuditType::LoginSucceeded], $this->auditTypes());
@@ -120,6 +123,119 @@ final class GoogleSignInTest extends WebTestCase
         self::assertCount(0, static::getContainer()->get(UserRepository::class)->findAll());
     }
 
+    public function testPasswordlessAccountConfirmsAnEmailChangeWithGoogle(): void
+    {
+        $user = $this->googleOnlyUser('sam@gmail.com', '6006');
+        $this->createUser('jo@example.com');
+        $this->client->loginUser($user);
+
+        $this->client->request('GET', '/account');
+        self::assertSelectorNotExists('[name="change_email_form[currentPassword]"]');
+        $this->client->submitForm('Change email with Google', ['change_email_form[email]' => 'jo@example.com']);
+        self::assertResponseStatusCodeSame(422);
+        self::assertAnySelectorTextContains('.form-field', 'There is already an account with this email.');
+
+        $this->client->submitForm('Change email with Google', ['change_email_form[email]' => 'Sam.New@example.com']);
+        self::assertResponseRedirects('/account/google');
+        $this->client->followRedirect();
+        $query = $this->googleQuery();
+        self::assertSame('0', $query['max_age']);
+        self::assertStringEndsWith('/account/google/check', $query['redirect_uri']);
+        self::assertSame('sam@gmail.com', $this->user('sam@gmail.com')->getEmail());
+
+        $this->comeBackFromGoogle('google_confirm', '/account/google/check', $query['state'], ['sub' => '6006', 'email' => 'sam@gmail.com', 'email_verified' => true]);
+
+        self::assertResponseRedirects('/account');
+        self::assertQueuedEmailCount(2);
+        self::assertEmailAddressContains(self::getMailerMessage(0), 'To', 'sam.new@example.com');
+        self::assertEmailAddressContains(self::getMailerMessage(1), 'To', 'sam@gmail.com');
+        $this->client->followRedirect();
+        self::assertSelectorTextContains('.flash', 'Your email is now sam.new@example.com.');
+        self::assertSame('6006', $this->user('sam.new@example.com')->getGoogleId());
+    }
+
+    public function testAnotherGoogleAccountCannotConfirmTheChange(): void
+    {
+        $this->client->loginUser($this->googleOnlyUser('sam@gmail.com', '7007'));
+
+        $this->client->request('GET', '/account');
+        $this->client->submitForm('Change email with Google', ['change_email_form[email]' => 'sam.new@example.com']);
+        $this->client->followRedirect();
+        $this->comeBackFromGoogle('google_confirm', '/account/google/check', $this->googleQuery()['state'], ['sub' => '9999', 'email' => 'someone@gmail.com', 'email_verified' => true]);
+
+        self::assertResponseRedirects('/account');
+        $this->client->followRedirect();
+        self::assertSelectorTextContains('.flash-error', 'That isn’t the Google account you sign in with');
+        self::assertSame('sam@gmail.com', $this->user('sam@gmail.com')->getEmail());
+        self::assertQueuedEmailCount(0);
+
+        // The pending address is gone, so coming back again changes nothing.
+        $this->client->request('GET', '/account/google/check', ['code' => 'abc', 'state' => 'x']);
+        self::assertResponseRedirects('/account');
+        self::assertSame('sam@gmail.com', $this->user('sam@gmail.com')->getEmail());
+    }
+
+    public function testAccountPageShowsTheLinkedGoogleAddressAndKeepsItCurrent(): void
+    {
+        $this->createUser('sam@example.com')->setGoogleId('1111')->setGoogleEmail('sam@gmail.com');
+        $this->manager->flush();
+
+        // Their Google account's address changed since they linked it.
+        $this->signInWithGoogle(['sub' => '1111', 'email' => 'sam.smith@gmail.com', 'email_verified' => true, 'name' => 'Sam']);
+        $this->client->request('GET', '/account');
+
+        self::assertSelectorTextContains('.google-connection', 'Connected to sam.smith@gmail.com');
+        self::assertSame('sam@example.com', $this->user('sam@example.com')->getEmail());
+    }
+
+    public function testNoGoogleSectionWithoutALink(): void
+    {
+        $this->client->loginUser($this->createUser('sam@example.com'));
+        $this->client->request('GET', '/account');
+
+        self::assertSelectorNotExists('.google-connection');
+    }
+
+    public function testPasswordlessAccountSetsAPasswordAfterSigningInToGoogle(): void
+    {
+        $this->client->loginUser($this->googleOnlyUser('sam@gmail.com', '1212'));
+
+        $this->client->request('GET', '/account');
+        self::assertSelectorTextContains('.dashboard-section h2', 'Change your email');
+        self::assertAnySelectorTextContains('.dashboard-section h2', 'Set a password');
+        self::assertSelectorNotExists('[name="change_password_form[currentPassword]"]');
+        $this->client->submitForm('Set password with Google', [
+            'change_password_form[plainPassword][first]' => 'correct horse',
+            'change_password_form[plainPassword][second]' => 'correct horse',
+        ]);
+        self::assertResponseRedirects('/account/google');
+        self::assertNull($this->user('sam@gmail.com')->getPassword());
+
+        $this->client->followRedirect();
+        $this->comeBackFromGoogle('google_confirm', '/account/google/check', $this->googleQuery()['state'], ['sub' => '1212', 'email' => 'sam@gmail.com', 'email_verified' => true]);
+
+        self::assertResponseRedirects('/account');
+        $this->client->followRedirect();
+        self::assertSelectorTextContains('.flash', 'Your password is set.');
+        self::assertAnySelectorTextContains('.dashboard-section h2', 'Change your password');
+        $hasher = static::getContainer()->get(UserPasswordHasherInterface::class);
+        self::assertTrue($hasher->isPasswordValid($this->user('sam@gmail.com'), 'correct horse'));
+        self::assertSame(['hadPassword' => false], $this->auditEvents()[0]->getContext());
+    }
+
+    public function testAccountsWithAPasswordStillConfirmWithIt(): void
+    {
+        $user = $this->createUser('sam@example.com')->setGoogleId('8008');
+        $this->manager->flush();
+        $this->client->loginUser($user);
+
+        $this->client->request('GET', '/account');
+        self::assertSelectorExists('[name="change_email_form[currentPassword]"]');
+        self::assertSelectorExists('[name="change_password_form[currentPassword]"]');
+        self::assertSelectorTextContains('.dashboard-section button', 'Change email');
+        self::assertSelectorTextContains('.google-connection', 'Connected. You can log in');
+    }
+
     /**
      * Starts at /connect/google, then comes back the way Google would, with
      * $profile as what Google's userinfo endpoint says about the account.
@@ -129,19 +245,39 @@ final class GoogleSignInTest extends WebTestCase
     private function signInWithGoogle(array $profile): void
     {
         $this->client->request('GET', '/connect/google');
+        $this->comeBackFromGoogle('google', '/connect/google/check', $this->googleQuery()['state'], $profile);
+    }
+
+    /** The query string of the redirect to Google's sign-in page that was just sent. */
+    private function googleQuery(): array
+    {
         self::assertResponseRedirects();
         $location = (string) $this->client->getResponse()->headers->get('Location');
         self::assertStringStartsWith('https://accounts.google.com/', $location);
         parse_str((string) parse_url($location, \PHP_URL_QUERY), $query);
 
-        $google = static::getContainer()->get('knpu.oauth2.provider.google');
+        return $query;
+    }
+
+    /** @param array<string, mixed> $profile */
+    private function comeBackFromGoogle(string $client, string $callback, string $state, array $profile): void
+    {
+        $google = static::getContainer()->get('knpu.oauth2.provider.' . $client);
         \assert($google instanceof Google);
         $google->setHttpClient(new Client(['handler' => HandlerStack::create(new MockHandler([
             new Response(200, ['Content-Type' => 'application/json'], json_encode(['access_token' => 'token', 'token_type' => 'Bearer', 'expires_in' => 3600])),
             new Response(200, ['Content-Type' => 'application/json'], json_encode($profile)),
         ]))]));
 
-        $this->client->request('GET', '/connect/google/check', ['code' => 'abc', 'state' => $query['state']]);
+        $this->client->request('GET', $callback, ['code' => 'abc', 'state' => $state]);
+    }
+
+    private function googleOnlyUser(string $email, string $googleId): User
+    {
+        $user = $this->createUser($email)->setGoogleId($googleId)->setPassword(null);
+        $this->manager->flush();
+
+        return $user;
     }
 
     private function user(string $email): User

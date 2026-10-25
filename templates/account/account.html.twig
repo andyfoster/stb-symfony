@@ -1,0 +1,70 @@
+{% extends 'account/_layout.html.twig' %}
+
+{% block title %}Account · ScarfieTextbooks{% endblock %}
+
+{% block account %}
+    <h1 class="dashboard-title">Account</h1>
+    <p class="muted">Signed in as {{ app.user.email }}{% if not app.user.verified %}, which isn’t confirmed yet{% endif %}.</p>
+
+    {{ form_start(form, {attr: {class: 'dashboard-form', novalidate: 'novalidate'}}) }}
+        <div class="form-field">{{ form_row(form.displayName) }}</div>
+        <div class="form-field">{{ form_row(form.phone) }}</div>
+        <div class="checkbox-field">{{ form_widget(form.showPhone) }} {{ form_label(form.showPhone) }}</div>
+        {{ form_help(form.showPhone) }}
+        <div class="form-actions">
+            <button class="button" type="submit">Save</button>
+        </div>
+    {{ form_end(form) }}
+
+    {# Google's sign-in page is on another site, which Turbo can't follow to. #}
+    {% set turbo = confirm_with_google ? 'false' : null %}
+
+    <section class="dashboard-section">
+        <h2>Change your email</h2>
+        <p class="muted">We’ll send a link to the new address to confirm it. Until you do, your listings’ photos are hidden.</p>
+        {% if confirm_with_google %}
+            <p class="muted">You log in with Google, so we’ll ask you to sign in there again to confirm it’s you.</p>
+        {% endif %}
+
+        {{ form_start(email_form, {attr: {class: 'dashboard-form', novalidate: 'novalidate', 'data-turbo': turbo}}) }}
+            <div class="form-field">{{ form_row(email_form.email) }}</div>
+            {% if email_form.currentPassword is defined %}
+                <div class="form-field">{{ form_row(email_form.currentPassword) }}</div>
+            {% endif %}
+            <div class="form-actions">
+                <button class="button" type="submit">{{ confirm_with_google ? 'Change email with Google' : 'Change email' }}</button>
+            </div>
+        {{ form_end(email_form) }}
+    </section>
+
+    <section class="dashboard-section">
+        {% if app.user.password is null %}
+            <h2>Set a password</h2>
+            <p class="muted">You log in with Google. Set a password if you’d also like to log in with your email.{% if confirm_with_google %} We’ll ask you to sign in to Google again to confirm it’s you.{% endif %}</p>
+        {% else %}
+            <h2>Change your password</h2>
+            <p class="muted">This logs you out on your other devices.</p>
+        {% endif %}
+
+        {{ form_start(password_form, {attr: {class: 'dashboard-form', novalidate: 'novalidate', 'data-turbo': turbo}}) }}
+            {% if password_form.currentPassword is defined %}
+                <div class="form-field">{{ form_row(password_form.currentPassword) }}</div>
+            {% endif %}
+            <div class="form-field">{{ form_row(password_form.plainPassword.first) }}</div>
+            <div class="form-field">{{ form_row(password_form.plainPassword.second) }}</div>
+            <div class="form-actions">
+                <button class="button" type="submit">{{ confirm_with_google ? 'Set password with Google' : (app.user.password is null ? 'Set password' : 'Change password') }}</button>
+                {% if app.user.password is not null %}
+                    <a class="cancel-link" href="{{ path('app_forgot_password') }}">Forgotten it?</a>
+                {% endif %}
+            </div>
+        {{ form_end(password_form) }}
+    </section>
+
+    {% if app.user.googleId %}
+        <section class="dashboard-section google-connection">
+            <h2>Google</h2>
+            <p>Connected{% if app.user.googleEmail %} to <strong>{{ app.user.googleEmail }}</strong>{% endif %}. You can log in with “Continue with Google”.</p>
+        </section>
+    {% endif %}
+{% endblock %}

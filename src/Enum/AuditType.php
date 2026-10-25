@@ -26,6 +26,7 @@ enum AuditType: string implements TranslatableInterface
     case PasswordResetRequested = 'password.reset_requested';
     case PasswordReset = 'password.reset';
     case PasswordUpgraded = 'password.upgraded';
+    case PasswordChanged = 'password.changed';
     case PasswordSet = 'password.set';
     case RoleChanged = 'user.role_changed';
 
@@ -64,6 +65,7 @@ enum AuditType: string implements TranslatableInterface
             self::PasswordResetRequested => 'Password reset requested',
             self::PasswordReset => 'Password reset',
             self::PasswordUpgraded => 'Password rehashed',
+            self::PasswordChanged => 'Password changed',
             self::PasswordSet => 'Password set by admin',
             self::RoleChanged => 'Admin access changed',
             self::ListingCreated => 'Listing created',
@@ -90,7 +92,7 @@ enum AuditType: string implements TranslatableInterface
     {
         return match ($this) {
             self::LoginFailed, self::LoginThrottled, self::MessageThrottled, self::ContactThrottled, self::ListingDeleted, self::AdminDeleted => 'danger',
-            self::PasswordSet, self::RoleChanged, self::EmailChanged, self::GoogleLinked, self::PasswordReset, self::PasswordResetRequested => 'warning',
+            self::PasswordSet, self::RoleChanged, self::EmailChanged, self::GoogleLinked, self::PasswordReset, self::PasswordResetRequested, self::PasswordChanged => 'warning',
             self::LoginSucceeded, self::RememberMeLogin, self::Logout => 'info',
             default => 'secondary',
         };
