@@ -20,15 +20,20 @@
     <section class="dashboard-section">
         <h2>Change your email</h2>
         <p class="muted">We’ll send a link to the new address to confirm it. Until you do, your listings’ photos are hidden.</p>
-        {% if app.user.password is null %}
+        {% if confirm_with_google %}
+            <p class="muted">You sign in with Google, so we’ll ask you to sign in there again to confirm it’s you.</p>
+        {% elseif app.user.password is null %}
             <p class="muted">Your account doesn’t have a password yet. <a href="{{ path('app_forgot_password') }}">Set one</a> first.</p>
         {% endif %}
 
-        {{ form_start(email_form, {attr: {class: 'dashboard-form', novalidate: 'novalidate'}}) }}
+        {# Google's sign-in page is on another site, which Turbo can't follow to. #}
+        {{ form_start(email_form, {attr: {class: 'dashboard-form', novalidate: 'novalidate', 'data-turbo': confirm_with_google ? 'false' : null}}) }}
             <div class="form-field">{{ form_row(email_form.email) }}</div>
-            <div class="form-field">{{ form_row(email_form.currentPassword) }}</div>
+            {% if email_form.currentPassword is defined %}
+                <div class="form-field">{{ form_row(email_form.currentPassword) }}</div>
+            {% endif %}
             <div class="form-actions">
-                <button class="button" type="submit">Change email</button>
+                <button class="button" type="submit">{{ confirm_with_google ? 'Confirm with Google' : 'Change email' }}</button>
             </div>
         {{ form_end(email_form) }}
     </section>

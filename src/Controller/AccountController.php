@@ -44,8 +44,16 @@ final class AccountController extends AbstractController
     #[Route('/details', name: 'app_account_details', methods: ['GET', 'POST'])]
     public function details(Request $request, EntityManagerInterface $manager, EmailChanger $emailChanger, #[CurrentUser] User $user): Response
     {
-        $emailForm = $this->createForm(ChangeEmailFormType::class, options: ['user' => $user]);
+        // Accounts that only sign in with Google confirm the change there instead of with a password.
+        $confirmWithGoogle = $user->getPassword() === null && $user->getGoogleId() !== null;
+        $emailForm         = $this->createForm(ChangeEmailFormType::class, options: ['user' => $user, 'confirm_with_google' => $confirmWithGoogle]);
         $emailForm->handleRequest($request);
+
+        if ($emailForm->isSubmitted() && $emailForm->isValid() && $confirmWithGoogle) {
+            $request->getSession()->set(GoogleController::PENDING_EMAIL, $emailForm->get('email')->getData());
+
+            return $this->redirectToRoute('app_account_email_google', [], Response::HTTP_SEE_OTHER);
+        }
 
         if ($emailForm->isSubmitted() && $emailForm->isValid()) {
             $emailChanger->change($user, $emailForm->get('email')->getData());
@@ -69,7 +77,7 @@ final class AccountController extends AbstractController
             $manager->refresh($user);
         }
 
-        return $this->render('account/details.html.twig', ['form' => $form, 'email_form' => $emailForm]);
+        return $this->render('account/details.html.twig', ['form' => $form, 'email_form' => $emailForm, 'confirm_with_google' => $confirmWithGoogle]);
     }
 
     #[Route('/listings', name: 'app_account_listings', methods: ['GET'])]

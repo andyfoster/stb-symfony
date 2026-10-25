@@ -8,3 +8,11 @@ knpu_oauth2_client:
             client_id: '%env(GOOGLE_CLIENT_ID)%'
             client_secret: '%env(GOOGLE_CLIENT_SECRET)%'
             redirect_route: app_google_check
+        # The same Google client, coming back to a different place: confirming an email
+        # change on an account without a password (GoogleController::confirmEmail()).
+        # Register https://<host>/account/email/google/check with Google too.
+        google_confirm:
+            type: google
+            client_id: '%env(GOOGLE_CLIENT_ID)%'
+            client_secret: '%env(GOOGLE_CLIENT_SECRET)%'
+            redirect_route: app_account_email_google_check

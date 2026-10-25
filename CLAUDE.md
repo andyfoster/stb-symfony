@@ -176,8 +176,12 @@ up to date when adding a workflow.
   verifies it and clears its password, since whoever set it never proved they own the address.
   Failures land on the login page's `.login-error`. Buttons (`security/_google_button.html.twig`
   on login and sign-up) only show when `GOOGLE_CLIENT_ID` is set (Twig global `google_client_id`;
-  `.env` leaves it empty, `.env.test` sets it). Tests swap the provider's Guzzle client
-  (`GoogleSignInTest`).
+  `.env` leaves it empty, `.env.test` sets it). Accounts with a Google link and no password
+  change their email by signing in to Google again instead of typing a password: Your details
+  keeps the new address in the session and `GoogleController::confirmEmail()` (second client
+  `google_confirm`, `/account/email/google/check`, `max_age=0`) changes it only if the Google
+  account matches `googleId`. Register both callback URIs with Google. Tests swap the providers'
+  Guzzle clients (`GoogleSignInTest`).
   Your details has a Change email form (`ChangeEmailFormType`, checked with the current password
   by `UserPassword`): `EmailChanger` marks the account unverified, sends a confirmation link to
   the new address and a notice to the old one (`emails/email_changed.html.twig`). The dev login
