@@ -1,6 +1,9 @@
 twig:
     file_name_pattern: '*.twig'
     form_themes: ['form/theme.html.twig']
+    globals:
+        # Empty when Google sign-in isn't set up, which hides its buttons.
+        google_client_id: '%env(GOOGLE_CLIENT_ID)%'
 
 when@test:
     twig:

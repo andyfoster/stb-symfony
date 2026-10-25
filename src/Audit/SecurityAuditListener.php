@@ -5,6 +5,7 @@ namespace App\Audit;
 use App\Entity\User;
 use App\Enum\AuditType;
 use App\Repository\UserRepository;
+use App\Security\GoogleAuthenticator;
 use Symfony\Component\EventDispatcher\Attribute\AsEventListener;
 use Symfony\Component\Security\Core\Exception\TooManyLoginAttemptsAuthenticationException;
 use Symfony\Component\Security\Http\Authenticator\Passport\Badge\UserBadge;
@@ -14,7 +15,7 @@ use Symfony\Component\Security\Http\Event\LoginSuccessEvent;
 use Symfony\Component\Security\Http\Event\LogoutEvent;
 
 /**
- * Logins (form, remember-me, and signing in after sign-up), failed and
+ * Logins (form, Google, remember-me, and signing in after sign-up), failed and
  * throttled logins, and logouts. Firewall events bubble up to these global
  * listeners.
  */
@@ -34,9 +35,13 @@ final class SecurityAuditListener
         }
 
         $rememberMe = $event->getAuthenticator() instanceof RememberMeAuthenticator;
+        $context    = ['firewall' => $event->getFirewallName()];
+        if ($event->getAuthenticator() instanceof GoogleAuthenticator) {
+            $context['via'] = 'google';
+        }
         $this->audit->record(
             $rememberMe ? AuditType::RememberMeLogin : AuditType::LoginSucceeded,
-            context: ['firewall' => $event->getFirewallName()],
+            context: $context,
             actor: $user,
         );
     }
