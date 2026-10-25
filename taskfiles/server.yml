@@ -123,6 +123,17 @@ tasks:
       # No --force: the command asks once more, naming the database.
       - 'kamal console {{.D}} app:database:clear {{.CLI_ARGS}}'
 
+  seed:
+    desc: 'Replace ALL {{.DEST}} data with example sellers, listings, photos and messages (test site only; prints the logins'' password, or pass -- --password=...)'
+    prompt: This deletes every user, listing, message and photo on {{.SITE}} and loads example data instead. Continue?
+    deps: [env]
+    preconditions:
+      # Production has live data. The command refuses too, unless the destination sets ALLOW_SEED.
+      - sh: test "{{.DEST}}" != production
+        msg: 'Seeding replaces everything, so it never runs on production. Use task test:seed.'
+    cmds:
+      - 'kamal console {{.D}} app:seed --force {{.CLI_ARGS}}'
+
   legacy:import:
     desc: 'Import the old site''s MariaDB dump into {{.SITE}} (task {{.NS}}:legacy:import -- dump.sql; add --dry-run to try it)'
     deps: [env]

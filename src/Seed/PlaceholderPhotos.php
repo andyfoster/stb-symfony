@@ -1,6 +1,6 @@
 <?php
 
-namespace App\DataFixtures;
+namespace App\Seed;
 
 use App\Entity\Listing;
 use App\Enum\Category;
@@ -9,7 +9,7 @@ use Symfony\Component\HttpFoundation\File\File;
 /**
  * Draws stand-in listing photos for the example data: a book cover for
  * textbooks, a plain card with the item's name for everything else.
- * Dev only; it uses a system TrueType font when it finds one.
+ * It uses a system TrueType font when it finds one (the image installs DejaVu).
  */
 final class PlaceholderPhotos
 {

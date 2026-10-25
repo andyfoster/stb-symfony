@@ -19,6 +19,8 @@ proxy:
 env:
   clear:
     DEFAULT_URI: https://stb.gitforked.com
+    # Lets app:seed (task test:seed) replace this site's data with example content.
+    ALLOW_SEED: "1"
 
 accessories:
   db:

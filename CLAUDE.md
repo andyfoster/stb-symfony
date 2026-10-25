@@ -31,9 +31,14 @@ up to date when adding a workflow.
   **5441**) and Mailpit run in Docker. The compose project is named `scarfietextbooks`.
 - `.env` holds the local Docker `DATABASE_URL`, so plain `bin/console` works as well as
   `symfony console` (which injects the same values from Docker, plus `MAILER_DSN` for Mailpit).
-- Example data lives in `src/DataFixtures/AppFixtures.php` (DoctrineFixturesBundle, dev/test
-  only). `task db:seed` wipes and reloads it, including generated stand-in photos
-  (`PlaceholderPhotos`: book covers for textbooks) and a few messages in Sam's inbox.
+- Example data lives in `src/Seed/ExampleData.php`: ten sellers, about 60 listings for sale and
+  wanted in every category (textbooks with authors, editions and Otago papers; Sam's in every
+  status), generated stand-in photos (`PlaceholderPhotos`: book covers for textbooks) and
+  messages in several inboxes. `app:seed` (`task db:seed`) empties everything with
+  `DatabaseCleaner` (as `app:database:clear` does) and loads it. It runs in dev and test, and
+  elsewhere only where `ALLOW_SEED=1` (`.env` sets 0; `config/deploy.test.yml` sets 1), so never
+  on production. Logins share the password `password` locally and a random one, printed, on a
+  server (or `--password=`).
 - Mailer/Notifier messages are routed to the Doctrine `async` Messenger transport
   (`auto_setup=0`, tables created by `messenger:setup-transports`). `symfony serve` (so
   `task start`) also runs a `messenger:consume async` worker, configured in
@@ -84,7 +89,7 @@ up to date when adding a workflow.
 - Otago papers: `BookDetails::papers` is many-to-many with `Paper` (code like CHEM191, optional
   title, `official` when it came from Otago's list). `data/otago-papers.csv` holds about 2,450
   papers as `CODE; Title` lines, taken from Wayback Machine copies of Otago's subject and paper
-  pages (Otago's site blocks scripted downloads), so it may miss some. Fixtures load it, and
+  pages (Otago's site blocks scripted downloads), so it may miss some. `app:seed` loads it, and
   `task papers:import` (`app:papers:import`, `PaperCatalog::importCsv()`, safe to rerun) loads it
   or another file (`-- file.csv`); that also takes `code,title` CSV, with or without a header. On the form, `PaperTagsType`
   is a comma-separated text field that the `paper-tags` Stimulus controller turns into tags with
@@ -165,7 +170,7 @@ up to date when adding a workflow.
   Your details has a Change email form (`ChangeEmailFormType`, checked with the current password
   by `UserPassword`): `EmailChanger` marks the account unverified, sends a confirmation link to
   the new address and a notice to the old one (`emails/email_changed.html.twig`). The dev login
-  from fixtures is `sam@example.com` / `password`.
+  from `task db:seed` is `sam@example.com` / `password` (`admin@example.com` is an admin).
 - Legacy import: `task legacy:import -- dump.sql` (`app:legacy:import`, `--dry-run` rolls back)
   reads the old site's MariaDB dump in PHP (`App\Legacy\MysqlDumpReader`, which also undoes the
   old latin1 columns' double-encoded UTF-8), and `LegacyImporter` moves over, in one transaction,
@@ -272,6 +277,10 @@ up to date when adding a workflow.
   `config/deploy.yml`), because `kamal ... exec` adds its own lines to the output.
   `task db:restore -- var/backups/….dump` loads a dump into the local Docker database;
   `task db:dump` saves the local one first if you want to keep it.
+- Example content on the test site: `task test:seed` (after a deploy) replaces all of
+  stb.gitforked.com's data with the example data and prints the logins' password. `prod:seed` exists
+  only because both destinations share `taskfiles/server.yml`; it refuses, and so does the command
+  there, because production doesn't set `ALLOW_SEED`.
 - Rehearsing the move from the old site: `task db:clear` (`app:database:clear`) empties every table
   except `doctrine_migration_versions` (Postgres `TRUNCATE ... RESTART IDENTITY`, so ids start at 1
   again), deletes all photo folders, reloads `data/otago-papers.csv` and creates admin user #1

@@ -203,10 +203,9 @@ tasks:
       - echo "Restored {{.CLI_ARGS}}. Production users' passwords work locally too; reset them with task user:reset-password if needed."
 
   db:seed:
-    desc: Replace all data with the example listings and their stand-in photos (src/DataFixtures)
+    desc: 'Replace all local data with example sellers, listings, stand-in photos and messages (app:seed; log in as sam@example.com / password)'
     cmds:
-      - rm -rf var/uploads
-      - symfony console doctrine:fixtures:load --no-interaction
+      - symfony console app:seed --force {{.CLI_ARGS}}
 
   db:reset:
     desc: Drop and recreate the database, run migrations and load example data

@@ -12,6 +12,11 @@ RUN install-php-extensions \
     zip \
     gd
 
+# A TrueType font for the example data's stand-in photos (app:seed on the test site).
+RUN apt-get update \
+    && apt-get install -y --no-install-recommends fonts-dejavu-core \
+    && rm -rf /var/lib/apt/lists/*
+
 # Listing photos: up to 4 x 10 MB per form, and room to resize a phone photo with GD.
 RUN printf 'upload_max_filesize = 10M\npost_max_size = 45M\nmemory_limit = 256M\n' > "$PHP_INI_DIR/conf.d/app.ini"
 
