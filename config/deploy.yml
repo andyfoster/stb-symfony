@@ -73,6 +73,9 @@ env:
     # Cloudflare Turnstile. The site key is public, but lives next to its secret.
     - TURNSTILE_SITE_KEY
     - TURNSTILE_SECRET_KEY
+    # "Continue with Google" (config/packages/knpu_oauth2_client.yaml).
+    - GOOGLE_CLIENT_ID
+    - GOOGLE_CLIENT_SECRET
 
 # Aliases are triggered with "bin/kamal <alias>". You can overwrite arguments on invocation:
 # "bin/kamal app logs -r job" will tail logs from the first server in the job section.

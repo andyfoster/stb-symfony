@@ -26,8 +26,12 @@ security:
             lazy: true
             provider: app_user_provider
 
-            # Further authenticators (OAuth via knpuniversity/oauth2-client-bundle,
-            # login_link for magic links) sit alongside this one.
+            # "Continue with Google" (GoogleController starts it). A magic-link
+            # login_link could sit alongside these.
+            custom_authenticators:
+                - App\Security\GoogleAuthenticator
+            # The firewall's entry point (where signed-out visitors are sent) stays the login page.
+            entry_point: form_login
             form_login:
                 login_path: app_login
                 check_path: app_login

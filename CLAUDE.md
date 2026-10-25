@@ -8,7 +8,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ScarfieTextbooks ("stb"): a marketplace where students buy and sell textbooks and other goods, and post things they're looking for. Stack:
 Symfony 8.1, PHP 8.4, Doctrine ORM 3 on PostgreSQL 18, Twig + AssetMapper (importmap, no Node
-build) + Stimulus/Turbo. SecurityBundle with email + password login (see Accounts below).
+build) + Stimulus/Turbo. SecurityBundle with email + password and Google login (see Accounts below).
 
 Goal and scope:
 - The immediate goal is a modern replacement for an existing ScarfieTextbooks site that is
@@ -167,6 +167,17 @@ up to date when adding a workflow.
   `LegacySha1PasswordHasher` (`migrate_from` in `security.yaml`) checks it, trimmed and
   untrimmed as the old site did, and `UserRepository::upgradePassword()` stores a modern hash on
   first login. Unverified users can still log in and see a banner. Sign-up asks for the password twice.
+  "Continue with Google" (`knpuniversity/oauth2-client-bundle` + `league/oauth2-google`, bundle
+  registered by hand because contrib recipes are off): `GoogleController` (`/connect/google`)
+  sends people to Google, and `GoogleAuthenticator` (a `custom_authenticators` entry; `form_login`
+  stays the entry point) handles `/connect/google/check`. `GoogleAccounts` finds the account by
+  `User::googleId` (Google's `sub`), else by email (linking it), else creates a verified,
+  password-less one; Google must say the email is verified. Linking an *unverified* account
+  verifies it and clears its password, since whoever set it never proved they own the address.
+  Failures land on the login page's `.login-error`. Buttons (`security/_google_button.html.twig`
+  on login and sign-up) only show when `GOOGLE_CLIENT_ID` is set (Twig global `google_client_id`;
+  `.env` leaves it empty, `.env.test` sets it). Tests swap the provider's Guzzle client
+  (`GoogleSignInTest`).
   Your details has a Change email form (`ChangeEmailFormType`, checked with the current password
   by `UserPassword`): `EmailChanger` marks the account unverified, sends a confirmation link to
   the new address and a notice to the old one (`emails/email_changed.html.twig`). The dev login
@@ -259,7 +270,7 @@ up to date when adding a workflow.
   all have both forms). `.kamal/secrets.production` and `.kamal/secrets.test` are committed and
   hold only references: they fetch `APP_SECRET`, `POSTGRES_PASSWORD` and `MAILER_DSN` from
   1Password (account `my.1password.ca`, items `Private/ScarfieTextbooks-production` and
-  `Private/ScarfieTextbooks-test`), along with `TURNSTILE_SITE_KEY` and `TURNSTILE_SECRET_KEY`,
+  `Private/ScarfieTextbooks-test`), along with `TURNSTILE_SITE_KEY`, `TURNSTILE_SECRET_KEY`, `GOOGLE_CLIENT_ID` and `GOOGLE_CLIENT_SECRET`,
   and build `DATABASE_URL` from them. Never put raw values in them. `task prod:secrets:check`
   confirms they resolve; `prod:deploy`, `prod:migrate` and `prod:db:boot` run the same check
   first. The registry is Kamal's local one (`localhost:5555`), so no registry password is needed.

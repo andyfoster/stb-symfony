@@ -17,6 +17,7 @@ use Symfony\Component\Validator\Constraints as Assert;
 // "user" is reserved in PostgreSQL.
 #[ORM\Table(name: 'app_user')]
 #[ORM\UniqueConstraint(name: 'UNIQ_IDENTIFIER_EMAIL', fields: ['email'])]
+#[ORM\UniqueConstraint(name: 'UNIQ_USER_GOOGLE_ID', fields: ['googleId'])]
 #[UniqueEntity(fields: ['email'], message: 'There is already an account with this email.')]
 class User extends Base implements UserInterface, PasswordAuthenticatedUserInterface
 {
@@ -44,6 +45,10 @@ class User extends Base implements UserInterface, PasswordAuthenticatedUserInter
 
     #[ORM\Column]
     private bool $verified = false;
+
+    /** Google's "sub" for the account that signs in with Google (GoogleAccounts). */
+    #[ORM\Column(length: 255, nullable: true)]
+    private ?string $googleId = null;
 
     /** Cellphone, shown on listings only when showPhone is on. */
     #[ORM\Column(length: 30, nullable: true)]
@@ -122,6 +127,18 @@ class User extends Base implements UserInterface, PasswordAuthenticatedUserInter
     public function setVerified(bool $verified): static
     {
         $this->verified = $verified;
+
+        return $this;
+    }
+
+    public function getGoogleId(): ?string
+    {
+        return $this->googleId;
+    }
+
+    public function setGoogleId(?string $googleId): static
+    {
+        $this->googleId = $googleId;
 
         return $this;
     }

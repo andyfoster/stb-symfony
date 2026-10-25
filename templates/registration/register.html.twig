@@ -8,6 +8,7 @@
             <h1>Create an account</h1>
         </div>
         {{ include('security/_old_site_notice.html.twig') }}
+        {{ include('security/_google_button.html.twig', {action: 'sign up'}) }}
 
         {{ form_start(form, {attr: {class: 'form-panel', novalidate: 'novalidate'}}) }}
             <div class="form-field">{{ form_row(form.displayName) }}</div>

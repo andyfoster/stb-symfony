@@ -1586,6 +1586,22 @@ turbo-frame[aria-busy=true] .listing-grid {
     margin-bottom:18px
 }
 
+.social-login {
+    margin-bottom:18px;
+    text-align:center
+}
+
+.google-button {
+    gap:10px;
+    width:100%
+}
+
+.social-login-or {
+    margin-top:14px;
+    color:var(--muted);
+    font-size:14px
+}
+
 /* Listing form */
 .listing-form-page {
     padding-top:32px

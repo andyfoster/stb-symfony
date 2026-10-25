@@ -1,0 +1,10 @@
+knpu_oauth2_client:
+    clients:
+        # "Continue with Google" (App\Security\GoogleAuthenticator). The buttons only show
+        # when GOOGLE_CLIENT_ID is set; the redirect URI to register with Google is
+        # https://<host>/connect/google/check.
+        google:
+            type: google
+            client_id: '%env(GOOGLE_CLIENT_ID)%'
+            client_secret: '%env(GOOGLE_CLIENT_SECRET)%'
+            redirect_route: app_google_check

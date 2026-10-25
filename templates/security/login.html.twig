@@ -8,13 +8,13 @@
             <h1>Log in</h1>
         </div>
         {{ include('security/_old_site_notice.html.twig') }}
+        {% if error %}
+            <div class="flash flash-error login-error" role="alert">{{ error.messageKey|trans(error.messageData, 'security') }}</div>
+        {% endif %}
+        {{ include('security/_google_button.html.twig', {action: 'log in'}) }}
 
         {# Posted to the firewall's form_login; field names match security.yaml. #}
         <form class="form-panel" method="post" action="{{ path('app_login') }}">
-            {% if error %}
-                <div class="flash flash-error login-error" role="alert">{{ error.messageKey|trans(error.messageData, 'security') }}</div>
-            {% endif %}
-
             <div class="form-field">
                 <label for="email">Email</label>
                 <input type="email" id="email" name="email" value="{{ last_email }}" autocomplete="email" required autofocus>
