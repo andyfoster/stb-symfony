@@ -53,6 +53,9 @@ tasks:
     deps: [env]
     cmds:
       - 'kamal console {{.D}} doctrine:migrations:migrate --no-interaction'
+      # The worker may have started before the tables it reads existed (a first deploy creates
+      # messenger_messages only here) and crashed until Docker gave up; start it again.
+      - task: worker:restart
 
   messenger:setup:
     desc: 'Make sure the Messenger queue table exists on {{.SITE}} (auto_setup=0; migrations create it, safe to rerun)'
@@ -190,6 +193,12 @@ tasks:
     desc: Follow the {{.DEST}} Messenger worker (email sending) logs
     cmds:
       - 'kamal app logs {{.D}} -f --roles=job'
+
+  worker:restart:
+    desc: Restart the {{.DEST}} Messenger worker (the job role), e.g. if it stopped
+    deps: [env]
+    cmds:
+      - 'kamal app boot {{.D}} --roles=job'
 
   worker:failed:
     desc: Show messages (e.g. emails) that failed on {{.SITE}}
