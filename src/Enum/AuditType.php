@@ -40,6 +40,8 @@ enum AuditType: string implements TranslatableInterface
     case PhotoRemoved = 'photo.removed';
     case MessageSent = 'message.sent';
     case MessageThrottled = 'message.throttled';
+    case ContactSent = 'contact.sent';
+    case ContactThrottled = 'contact.throttled';
 
     // The admin panel
     case AdminCreated = 'admin.created';
@@ -73,6 +75,8 @@ enum AuditType: string implements TranslatableInterface
             self::PhotoRemoved => 'Photo removed',
             self::MessageSent => 'Message sent',
             self::MessageThrottled => 'Message throttled',
+            self::ContactSent => 'Contact form sent',
+            self::ContactThrottled => 'Contact form throttled',
             self::AdminCreated => 'Admin: created',
             self::AdminUpdated => 'Admin: edited',
             self::AdminDeleted => 'Admin: deleted',
@@ -83,7 +87,7 @@ enum AuditType: string implements TranslatableInterface
     public function badge(): string
     {
         return match ($this) {
-            self::LoginFailed, self::LoginThrottled, self::MessageThrottled, self::ListingDeleted, self::AdminDeleted => 'danger',
+            self::LoginFailed, self::LoginThrottled, self::MessageThrottled, self::ContactThrottled, self::ListingDeleted, self::AdminDeleted => 'danger',
             self::PasswordSet, self::RoleChanged, self::EmailChanged, self::PasswordReset, self::PasswordResetRequested => 'warning',
             self::LoginSucceeded, self::RememberMeLogin, self::Logout => 'info',
             default => 'secondary',

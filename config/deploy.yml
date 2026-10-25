@@ -61,6 +61,8 @@ env:
     APP_ENV: prod
     # DEFAULT_URI (the link host for emails the job role sends) is set per destination.
     MAILER_FROM: ScarfieTextbooks <noreply@scarfietextbooks.com>
+    # Where the contact form on /about sends messages.
+    CONTACT_EMAIL: andy@andyfoster.net
     # File locks must live on the same volume in web and worker containers.
     LOCK_DSN: flock:///app/var/uploads/.locks
 #     DB_HOST: 192.168.0.2

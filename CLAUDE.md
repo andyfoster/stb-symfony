@@ -218,8 +218,11 @@ up to date when adding a workflow.
   answers from `tests/MockHttpResponses.php`. `tests/DatabaseTestTrait.php` boots the SQLite
   client and creates users and listings; new tests log in with `loginUser()`.
 - `HealthController` (`/up`) is the Kamal proxy healthcheck; keep it dependency-free.
-- `/about` (`AboutController`, linked from the footer) explains how listings work; keep it in
-  step with the expiry and archiving rules. HTML emails extend `emails/_layout.html.twig`, and
+- `/about` (`AboutController`, linked from the header and footer) explains how listings work; keep it in
+  step with the expiry and archiving rules. It opens with a notice about the infrastructure upgrade
+  and ends with a contact form (`ContactAdminType`, `#contact`): `AdminContact` rate-limits it
+  per IP (`contact_admin`) and emails `CONTACT_EMAIL` (set in `.env` and `config/deploy.yml`) with
+  Reply-To set to the sender. Same Turnstile and honeypot rules as contacting a seller. HTML emails extend `emails/_layout.html.twig`, and
   those about a listing include `emails/_listing_actions.html.twig` (mark sold or archive).
 - Success and error flashes render as toasts at the bottom left (`toast` Stimulus controller,
   they dismiss themselves); keep the `.flash` / `.flash-error` classes, tests assert on them.

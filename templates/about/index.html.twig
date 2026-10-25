@@ -4,6 +4,8 @@
 
 {% block body %}
     <article class="about-page">
+        <p class="about-notice" role="note">We’ve upgraded the site’s infrastructure. If anything isn’t working as it should, please <a href="#contact">contact the site admins</a>.</p>
+
         <h1>About ScarfieTextbooks</h1>
         <p>A free noticeboard for students buying, selling or looking for textbooks and other student essentials. No listing fees or commission.</p>
 
@@ -19,5 +21,18 @@
 
         <h2>Accounts and photos</h2>
         <p>You need an account to post. Confirm your email to make your listing photos visible to others. Uploaded photos have location metadata removed. Books without a photo may show a cover from <a href="https://openlibrary.org/">Open Library</a>.</p>
+
+        <h2 id="contact">Contact us</h2>
+        <p>Found a problem or have a question? Send the site admins a message and we’ll reply by email.</p>
+        {{ form_start(contact, {attr: {class: 'about-contact', novalidate: 'novalidate'}}) }}
+            <div class="form-grid">
+                <div class="form-field">{{ form_row(contact.name) }}</div>
+                <div class="form-field">{{ form_row(contact.email) }}</div>
+            </div>
+            <div class="form-field">{{ form_row(contact.body) }}</div>
+            {{ form_row(contact.website) }}
+            {% if contact.children.captcha is defined %}<div class="form-field">{{ form_row(contact.captcha) }}</div>{% endif %}
+            <button class="button" type="submit">Send message</button>
+        {{ form_end(contact) }}
     </article>
 {% endblock %}

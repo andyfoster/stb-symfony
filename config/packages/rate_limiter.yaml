@@ -10,6 +10,11 @@ framework:
             policy: sliding_window
             limit: 3
             interval: '1 day'
+        # The contact form on /about, per IP address.
+        contact_admin:
+            policy: sliding_window
+            limit: 5
+            interval: '1 hour'
         # ISBN lookups while writing a listing, per user.
         isbn_lookup:
             policy: sliding_window
