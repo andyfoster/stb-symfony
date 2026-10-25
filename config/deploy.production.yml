@@ -1,0 +1,32 @@
+# Production: scarfietextbooks.com and www (kamal ... -d production, secrets in
+# .kamal/secrets.production). Containers scarfietextbooks-*, database accessory
+# scarfietextbooks-db, photo volume scarfietextbooks_uploads.
+service: scarfietextbooks
+image: scarfietextbooks
+
+servers:
+  web:
+    options:
+      # /var/lib/docker/volumes/scarfietextbooks_uploads on the server: task prod:uploads:backup.
+      volume: "scarfietextbooks_uploads:/app/var/uploads"
+  job:
+    options:
+      volume: "scarfietextbooks_uploads:/app/var/uploads"
+
+proxy:
+  hosts:
+    - scarfietextbooks.com
+    - www.scarfietextbooks.com
+
+env:
+  clear:
+    DEFAULT_URI: https://scarfietextbooks.com
+
+accessories:
+  db:
+    env:
+      clear:
+        POSTGRES_USER: scarfietextbooks
+        POSTGRES_DB: scarfietextbooks
+    directories:
+      - scarfietextbooks-postgres:/var/lib/postgresql

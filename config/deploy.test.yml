@@ -1,0 +1,30 @@
+# Test environment: stb.gitforked.com (kamal ... -d test, secrets in .kamal/secrets.test).
+# Was the only environment before production moved to scarfietextbooks.com, so it keeps the
+# original names: containers stb-*, database accessory stb-db, photo volume stb_uploads.
+service: stb
+image: stb
+
+servers:
+  web:
+    options:
+      # /var/lib/docker/volumes/stb_uploads on the server: task test:uploads:backup.
+      volume: "stb_uploads:/app/var/uploads"
+  job:
+    options:
+      volume: "stb_uploads:/app/var/uploads"
+
+proxy:
+  host: stb.gitforked.com
+
+env:
+  clear:
+    DEFAULT_URI: https://stb.gitforked.com
+
+accessories:
+  db:
+    env:
+      clear:
+        POSTGRES_USER: stb
+        POSTGRES_DB: stb
+    directories:
+      - stb-postgres:/var/lib/postgresql

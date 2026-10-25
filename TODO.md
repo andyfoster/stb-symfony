@@ -1,36 +1,38 @@
 # TODO
 
-## Send account emails in production (Mailgun)
+## Split test (stb.gitforked.com) from production (scarfietextbooks.com)
 
-The code side is done (`config/deploy.yml` has a `job` worker role, `.kamal/secrets` fetches
-`MAILER_DSN`). Until the steps below are done, `task prod:secrets:check`, and so `task deploy`,
-fail.
+The config is done: Kamal destinations `test` and `production` (`config/deploy.*.yml`,
+`.kamal/secrets.*`), tasks `test:*` and `prod:*`. Plain `kamal` and the old `task deploy` no
+longer work.
 
-- [ ] **Mailgun:** add the sending domain `stb.gitforked.com` (matches the From address
-      `noreply@stb.gitforked.com` in `config/packages/mailer.yaml`). Pick US or EU, then create a
-      sending API key.
-- [ ] **DNS for `stb.gitforked.com`** (Mailgun shows the exact values):
-  - [ ] SPF: TXT on `stb.gitforked.com`: `v=spf1 include:mailgun.org ~all`
-  - [ ] DKIM: TXT on `<selector>._domainkey.stb.gitforked.com` with Mailgun's key
-  - [ ] DMARC: TXT on `_dmarc.stb.gitforked.com`: `v=DMARC1; p=none` (Gmail/Yahoo require one)
-  - [ ] Optional: MX `mxa`/`mxb.mailgun.org` (EU: `mxa`/`mxb.eu.mailgun.org`) for bounces, and a
-        tracking CNAME `email.stb.gitforked.com` → `mailgun.org` (EU: `eu.mailgun.org`)
-  - [ ] Wait for Mailgun to show the domain as verified
-- [ ] **1Password:** add a `MAILER_DSN` field to `Private/ScarfieTextbooks-production`
-      (account `my.1password.ca`), e.g. `mailgun+api://API_KEY:stb.gitforked.com@default?region=eu`
-      (`region=us` for US). Then check it resolves with `task prod:secrets:check`.
-- [ ] **Deploy**, in this order:
-  1. `task deploy` (creates the new `stb-job-*` worker container; DayWatch is untouched)
-  2. `task prod:migrate` (also creates `messenger_messages`)
-  3. `task prod:messenger:setup` (safety check, safe to rerun)
-  4. Sign up as a test user and watch `task prod:worker:logs` for the confirmation email
+- [ ] **1Password:** rename `Private/ScarfieTextbooks-production` to `ScarfieTextbooks-test`
+      (it holds test's live database password). Then create a new `ScarfieTextbooks-production`
+      with a fresh `APP_SECRET` and `POSTGRES_PASSWORD` (`openssl rand -hex 32` each) and the
+      same `MAILER_DSN`, `TURNSTILE_SITE_KEY` and `TURNSTILE_SECRET_KEY`. Check both with
+      `task test:secrets:check` and `task prod:secrets:check`.
+- [ ] **Move test onto its destination** (a few minutes' downtime on stb.gitforked.com; its
+      database `stb-db` and photos `stb_uploads` are untouched). Its containers become
+      `stb-web-test-*`, so first remove the old ones and their proxy route, then deploy:
+  1. `ssh root@89.167.96.7 'docker exec kamal-proxy kamal-proxy remove stb-web; docker ps -a --format "{{.Names}}" | grep -E "^stb-(web|job)-[0-9a-f]{40}$" | xargs -r docker rm -f'`
+  2. `task test:deploy`
+- [ ] **DNS:** A records for `scarfietextbooks.com` and `www.scarfietextbooks.com` → `89.167.96.7`
+      (if behind Cloudflare, SSL mode "Full", or DNS-only until Let's Encrypt has issued).
+- [ ] **Cloudflare Turnstile:** add `scarfietextbooks.com` and `www.scarfietextbooks.com` to the
+      widget's hostnames.
+- [ ] **Start production:**
+  1. `task prod:db:boot` (creates `scarfietextbooks-db`)
+  2. `task prod:deploy`
+  3. `task prod:migrate`, then `task prod:messenger:setup`
+  4. `task prod:db:clear` (loads the paper list and creates admin user #1; change its password)
+  5. `task prod:legacy:import -- dump.sql` at cutover
 
 ## Other
 
 - [ ] `composer audit` reports an advisory in `symfony/expression-language` (fixed in 8.1.9):
       run `composer update symfony/expression-language`.
-- [ ] Import the live vanilla PHP site in production at cutover: copy the latest MariaDB dump
-      into the `web` container and run `app:legacy:import` there (try `--dry-run` first; locally
+- [ ] Import the live vanilla PHP site in production at cutover:
+      `task prod:legacy:import -- dump.sql` (try `--dry-run` first; locally
       `task legacy:import -- dump.sql`). It brings over only current listings and their sellers,
       and builds the Book list (~1,600 books from 6,400 listings).
 - [ ] Tidy the Book list under Books in `/admin`: merge duplicates such as "Anatomy & Physiology"

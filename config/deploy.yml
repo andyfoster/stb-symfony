@@ -1,18 +1,16 @@
-# Name of your application. Used to uniquely configure containers.
-service: stb
-
-# Name of the container image.
-image: stb
+# Settings shared by both environments. Every kamal command needs a destination, which adds
+# its own file and secrets on top of this one:
+#   -d test        config/deploy.test.yml, .kamal/secrets.test (stb.gitforked.com)
+#   -d production  config/deploy.production.yml, .kamal/secrets.production (scarfietextbooks.com)
+# Both run on the same server. Each sets its own service and image name, so containers,
+# the database accessory (<service>-db) and the photo volume (<service>_uploads) stay apart.
 
 # Deploy to these servers.
 servers:
   web:
     hosts:
       - 89.167.96.7
-    # Listing photos (PhotoStorage, UPLOAD_DIR). Shared by the web and photo worker roles.
-    # Lives in /var/lib/docker/volumes/stb_uploads on the server: include it in backups.
-    options:
-      volume: "stb_uploads:/app/var/uploads"
+    # Listing photos (PhotoStorage, UPLOAD_DIR): options.volume is set per destination.
   # Messenger worker: sends queued emails (async transport) and runs scheduled jobs
   # (scheduler_default, see src/Schedule.php). It exits after an hour or 128M and Kamal's
   # restart policy starts it again. No proxy: only "web" serves HTTP.
@@ -21,7 +19,6 @@ servers:
       - 89.167.96.7
     cmd: php bin/console messenger:consume async scheduler_default --time-limit=3600 --memory-limit=128M
     options:
-      volume: "stb_uploads:/app/var/uploads"
       # The FrankenPHP base image's HEALTHCHECK curls Caddy, which the worker doesn't run.
       no-healthcheck: true
 
@@ -31,7 +28,7 @@ servers:
 # Note: If using Cloudflare, set encryption mode in SSL/TLS setting to "Full" to enable CF-to-app encryption.
 proxy:
   ssl: true
-  host: stb.gitforked.com
+  # hosts: set per destination.
   # Proxy connects to your container on port 80 by default.
   app_port: 80
   healthcheck:
@@ -62,8 +59,7 @@ builder:
 env:
   clear:
     APP_ENV: prod
-    # Links in emails the job role sends (expiry reminders) have no request to take the host from.
-    DEFAULT_URI: https://stb.gitforked.com
+    # DEFAULT_URI (the link host for emails the job role sends) is set per destination.
     MAILER_FROM: ScarfieTextbooks <noreply@scarfietextbooks.com>
     # File locks must live on the same volume in web and worker containers.
     LOCK_DSN: flock:///app/var/uploads/.locks
@@ -115,17 +111,13 @@ accessories:
     network: kamal
 
     env:
-      clear:
-        POSTGRES_USER: stb
-        POSTGRES_DB: stb
-
+      # clear: POSTGRES_USER and POSTGRES_DB are set per destination.
       secret:
         - POSTGRES_PASSWORD
 #     files:
 #       - config/mysql/production.cnf:/etc/mysql/my.cnf
 #       - db/production.sql:/docker-entrypoint-initdb.d/setup.sql
-    directories:
-      - stb-postgres:/var/lib/postgresql
+    # directories: set per destination.
 #   redis:
 #     image: valkey/valkey:8
 #     host: 192.168.0.2

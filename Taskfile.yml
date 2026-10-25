@@ -2,13 +2,37 @@
 #
 # PHP runs on this machine through the Symfony CLI (`symfony serve`, `symfony console`).
 # Postgres and Mailpit run in Docker (compose.yaml, compose.override.yaml).
-# Production is deployed with Kamal (config/deploy.yml).
+# Production (scarfietextbooks.com) and test (stb.gitforked.com) are deployed with Kamal
+# destinations: config/deploy.yml plus deploy.production.yml or deploy.test.yml.
 version: '3'
+
+# The deployed environments (Kamal destinations), both on SERVER_SSH, with the same tasks
+# from taskfiles/server.yml: task prod:deploy, task test:db:dump, ...
+includes:
+  prod:
+    taskfile: ./taskfiles/server.yml
+    dir: .
+    vars:
+      NS: prod
+      DEST: production
+      SERVICE: scarfietextbooks
+      ITEM: ScarfieTextbooks-production
+      SITE: scarfietextbooks.com
+  test:
+    taskfile: ./taskfiles/server.yml
+    dir: .
+    vars:
+      NS: test
+      DEST: test
+      SERVICE: stb
+      ITEM: ScarfieTextbooks-test
+      SITE: stb.gitforked.com
 
 vars:
   URL: https://127.0.0.1:8000
-  # The production server (config/deploy.yml: servers, and Kamal's default ssh user, root).
-  PROD_SSH: root@89.167.96.7
+  # The server both deployed environments run on (config/deploy.yml: servers, and Kamal's
+  # default ssh user, root).
+  SERVER_SSH: root@89.167.96.7
   BACKUPS: var/backups
 
 tasks:
@@ -290,190 +314,3 @@ tasks:
     desc: 'Make an account an admin (task user:promote -- sam@example.com; add --demote to undo)'
     cmds:
       - symfony console app:user:promote {{.CLI_ARGS}}
-
-  # --- Production (Kamal, stb.gitforked.com) -------------------------------
-  # .kamal/secrets fetches APP_SECRET, POSTGRES_PASSWORD, MAILER_DSN (Mailgun) and the
-  # Cloudflare Turnstile keys (TURNSTILE_SITE_KEY, TURNSTILE_SECRET_KEY) from
-  # 1Password (account my.1password.ca, item Private/ScarfieTextbooks-production).
-  # config/deploy.yml has two roles: web, and job (the Messenger worker that sends emails).
-
-  prod:env:
-    internal: true
-    preconditions:
-      - sh: command -v op >/dev/null
-        msg: 'Install the 1Password CLI first: brew install 1password-cli'
-      - sh: op item get ScarfieTextbooks-production --vault Private --account my.1password.ca --fields label=APP_SECRET,label=POSTGRES_PASSWORD,label=MAILER_DSN --reveal >/dev/null
-        msg: 'Could not read APP_SECRET, POSTGRES_PASSWORD and MAILER_DSN from 1Password item Private/ScarfieTextbooks-production (account my.1password.ca). Is it created, and are you signed in?'
-
-  prod:secrets:check:
-    desc: Check Kamal can read the production secrets from 1Password (values are not shown)
-    deps: [prod:env]
-    cmds:
-      - kamal secrets print | sed -E 's/=.+/=(set)/'
-
-  prod:db:boot:
-    desc: 'First time only: create and start the production Postgres (stb-db)'
-    prompt: Start the stb-db Postgres accessory on the production server?
-    deps: [prod:env]
-    cmds:
-      - kamal accessory boot db
-
-  prod:db:status:
-    desc: Show whether the production Postgres container is running
-    cmds:
-      - kamal accessory details db
-
-  prod:db:shell:
-    desc: Open psql on the production database (stb-db). Careful, it's live data.
-    interactive: true
-    cmds:
-      - kamal accessory exec db --interactive --reuse "psql -U stb -d stb"
-
-  prod:db:logs:
-    desc: Follow the production Postgres (stb-db) logs
-    cmds:
-      - kamal accessory logs db -f
-
-  prod:db:dump:
-    desc: 'Download a backup of the production database to var/backups (pg_dump custom format; restore with pg_restore or task db:restore)'
-    vars:
-      FILE: '{{.BACKUPS}}/stb-{{now | date "20060102-1504"}}.dump'
-    cmds:
-      - mkdir -p {{.BACKUPS}}
-      # Straight from docker over ssh: kamal's own output would end up in the file.
-      - ssh {{.PROD_SSH}} "docker exec stb-db pg_dump -U stb -d stb --format=custom" > {{.FILE}}
-      - test -s {{.FILE}}
-      - echo "Saved {{.FILE}} ($(du -h {{.FILE}} | cut -f1))"
-
-  prod:uploads:backup:
-    desc: Download the production listing photos (the stb_uploads volume) to var/backups
-    vars:
-      FILE: '{{.BACKUPS}}/stb-uploads-{{now | date "20060102-1504"}}.tar.gz'
-    cmds:
-      - mkdir -p {{.BACKUPS}}
-      - ssh {{.PROD_SSH}} "tar -C /var/lib/docker/volumes/stb_uploads/_data -cz ." > {{.FILE}}
-      - echo "Saved {{.FILE}} ($(du -h {{.FILE}} | cut -f1))"
-
-  deploy:
-    desc: Build and deploy to production with Kamal
-    prompt: Deploy the current code to stb.gitforked.com?
-    deps: [prod:env]
-    cmds:
-      - kamal deploy
-
-  prod:migrate:
-    desc: Run pending migrations in production
-    prompt: Run migrations against the production database?
-    deps: [prod:env]
-    cmds:
-      - kamal console doctrine:migrations:migrate --no-interaction
-
-  prod:messenger:setup:
-    desc: 'Make sure the Messenger queue table exists in production (auto_setup=0; migrations create it, safe to rerun)'
-    prompt: Create any missing Messenger tables in the production database?
-    deps: [prod:env]
-    cmds:
-      - kamal console messenger:setup-transports --no-interaction
-
-  prod:worker:logs:
-    desc: Follow the production Messenger worker (email sending) logs
-    cmds:
-      - kamal app logs -f --roles=job
-
-  prod:mail:test:
-    desc: 'Send a test email straight from production through Mailgun (task prod:mail:test -- you@example.com)'
-    deps: [prod:env]
-    cmds:
-      - kamal app exec --roles=web --reuse 'sh -c "php bin/console mailer:test {{.CLI_ARGS}} --from=\"\$MAILER_FROM\" --subject=\"ScarfieTextbooks test email\" --body=\"Mailgun is set up.\""'
-
-  prod:worker:failed:
-    desc: Show messages (e.g. emails) that failed in production
-    cmds:
-      - kamal console messenger:failed:show
-
-  prod:logs:
-    desc: Follow production web app logs
-    cmds:
-      - kamal app logs -f --roles=web
-
-  prod:console:
-    desc: 'Run a Symfony console command in production (task prod:console -- about)'
-    cmds:
-      - kamal console {{.CLI_ARGS}}
-
-  prod:photos:regenerate:
-    desc: 'Remake production photo sizes on the worker (task prod:photos:regenerate -- --missing)'
-    deps: [prod:env]
-    cmds:
-      - kamal console app:photos:regenerate --queue {{.CLI_ARGS}}
-
-  prod:photos:prune:
-    desc: Delete production photo files that no photo in the database uses any more
-    prompt: Delete unused photo files on the production server?
-    deps: [prod:env]
-    cmds:
-      - kamal console app:photos:prune
-
-  prod:papers:import:
-    desc: 'Load the Otago paper list in production (data/otago-papers.csv, shipped in the image)'
-    deps: [prod:env]
-    cmds:
-      - kamal console app:papers:import
-
-  prod:maintenance:on:
-    desc: 'Show visitors a "back soon" page and pause the worker (emails, scheduled jobs) while you fix things; console tasks still work'
-    prompt: Take stb.gitforked.com offline for visitors?
-    deps: [prod:env]
-    cmds:
-      - kamal app maintenance --roles=web --message="ScarfieTextbooks is down for maintenance and will be back shortly."
-      - kamal app stop --roles=job
-
-  prod:maintenance:off:
-    desc: Put the site back online and restart the worker
-    deps: [prod:env]
-    cmds:
-      - kamal app start --roles=job
-      - kamal app live --roles=web
-
-  prod:db:clear:
-    desc: 'Delete ALL production data and photos, reload the paper list and create admin user #1 (admin@scarfietextbooks.com / password; --email=, --password= to change)'
-    prompt: This deletes every user, listing, message and photo on stb.gitforked.com. Did you run prod:db:dump and prod:maintenance:on first?
-    deps: [prod:env]
-    cmds:
-      # No --force: the command asks once more, naming the database.
-      - kamal console app:database:clear {{.CLI_ARGS}}
-
-  prod:legacy:import:
-    desc: 'Import the old site''s MariaDB dump into production (task prod:legacy:import -- dump.sql; add --dry-run to try it)'
-    deps: [prod:env]
-    vars:
-      FILE: '{{index (splitArgs .CLI_ARGS) 0}}'
-      OPTIONS: '{{range $i, $arg := splitArgs .CLI_ARGS}}{{if $i}} {{$arg}}{{end}}{{end}}'
-      # The running web container (stb-web-<version>), looked up on the server.
-      WEB: docker ps -q --filter label=service=stb --filter label=role=web | head -1
-    preconditions:
-      - sh: test -f "{{.FILE}}"
-        msg: 'Pass the dump file first: task prod:legacy:import -- scarfie.sql --dry-run'
-    cmds:
-      # Straight over ssh like prod:db:dump: kamal exec can't pipe a file in.
-      - ssh {{.PROD_SSH}} 'docker exec -i $({{.WEB}}) sh -c "cat > /tmp/legacy-dump.sql"' < "{{.FILE}}"
-      - defer: ssh {{.PROD_SSH}} 'docker exec $({{.WEB}}) rm -f /tmp/legacy-dump.sql'
-      - ssh {{.PROD_SSH}} 'docker exec $({{.WEB}}) php bin/console app:legacy:import /tmp/legacy-dump.sql {{.OPTIONS}}'
-
-  prod:user:reset-password:
-    desc: 'Reset a production account''s password to Password1! (task prod:user:reset-password -- them@example.com)'
-    deps: [prod:env]
-    cmds:
-      - kamal console app:user:reset-password {{.CLI_ARGS}}
-
-  prod:user:promote:
-    desc: 'Make a production account an admin (task prod:user:promote -- you@example.com)'
-    deps: [prod:env]
-    cmds:
-      - kamal console app:user:promote {{.CLI_ARGS}}
-
-  prod:shell:
-    desc: Open a shell in the production app container
-    interactive: true
-    cmds:
-      - kamal shell

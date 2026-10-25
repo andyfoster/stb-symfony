@@ -1,0 +1,213 @@
+# Tasks for a deployed environment, included twice by Taskfile.yml:
+#   prod:*  production, scarfietextbooks.com (kamal -d production)
+#   test:*  test, stb.gitforked.com (kamal -d test)
+# Both run on the same server (SERVER_SSH) with their own containers, database and photos.
+#
+# .kamal/secrets.<destination> fetches APP_SECRET, POSTGRES_PASSWORD, MAILER_DSN (Mailgun) and
+# the Cloudflare Turnstile keys (TURNSTILE_SITE_KEY, TURNSTILE_SECRET_KEY) from 1Password
+# (account my.1password.ca, item Private/<ITEM>). config/deploy.yml has two roles: web, and
+# job (the Messenger worker that sends emails and runs scheduled jobs).
+#
+# Set by Taskfile.yml's includes:
+#   NS       the include's name (prod, test), for messages
+#   DEST     Kamal destination (production, test)
+#   SERVICE  Kamal service: containers <SERVICE>-*, database <SERVICE>-db (user and database
+#            also named SERVICE), photo volume <SERVICE>_uploads
+#   ITEM     1Password item holding the secrets
+#   SITE     the site's address, for prompts
+version: '3'
+
+vars:
+  KAMAL: kamal -d {{.DEST}}
+  # The running web container (<SERVICE>-web-<DEST>-<version>), looked up on the server.
+  WEB: docker ps -q --filter label=service={{.SERVICE}} --filter label=destination={{.DEST}} --filter label=role=web | head -1
+
+tasks:
+  env:
+    internal: true
+    preconditions:
+      - sh: command -v op >/dev/null
+        msg: 'Install the 1Password CLI first: brew install 1password-cli'
+      - sh: op item get {{.ITEM}} --vault Private --account my.1password.ca --fields label=APP_SECRET,label=POSTGRES_PASSWORD,label=MAILER_DSN --reveal >/dev/null
+        msg: 'Could not read APP_SECRET, POSTGRES_PASSWORD and MAILER_DSN from 1Password item Private/{{.ITEM}} (account my.1password.ca). Is it created, and are you signed in?'
+
+  secrets:check:
+    desc: Check Kamal can read the {{.DEST}} secrets from 1Password (values are not shown)
+    deps: [env]
+    cmds:
+      - "{{.KAMAL}} secrets print | sed -E 's/=.+/=(set)/'"
+
+  # --- Deploying -----------------------------------------------------------
+
+  deploy:
+    desc: Build and deploy the current commit to {{.SITE}}
+    prompt: Deploy the current code to {{.SITE}}?
+    deps: [env]
+    cmds:
+      - '{{.KAMAL}} deploy'
+
+  migrate:
+    desc: Run pending migrations on {{.SITE}}
+    prompt: Run migrations against the {{.DEST}} database?
+    deps: [env]
+    cmds:
+      - '{{.KAMAL}} console doctrine:migrations:migrate --no-interaction'
+
+  messenger:setup:
+    desc: 'Make sure the Messenger queue table exists on {{.SITE}} (auto_setup=0; migrations create it, safe to rerun)'
+    prompt: Create any missing Messenger tables in the {{.DEST}} database?
+    deps: [env]
+    cmds:
+      - '{{.KAMAL}} console messenger:setup-transports --no-interaction'
+
+  maintenance:on:
+    desc: 'Show {{.SITE}} visitors a "back soon" page and pause the worker (emails, scheduled jobs); console tasks still work'
+    prompt: Take {{.SITE}} offline for visitors?
+    deps: [env]
+    cmds:
+      - '{{.KAMAL}} app maintenance --roles=web --message="ScarfieTextbooks is down for maintenance and will be back shortly."'
+      - '{{.KAMAL}} app stop --roles=job'
+
+  maintenance:off:
+    desc: Put {{.SITE}} back online and restart the worker
+    deps: [env]
+    cmds:
+      - '{{.KAMAL}} app start --roles=job'
+      - '{{.KAMAL}} app live --roles=web'
+
+  # --- Database (<SERVICE>-db) ---------------------------------------------
+
+  db:boot:
+    desc: 'First time only: create and start the {{.DEST}} Postgres ({{.SERVICE}}-db)'
+    prompt: Start the {{.SERVICE}}-db Postgres accessory on the server?
+    deps: [env]
+    cmds:
+      - '{{.KAMAL}} accessory boot db'
+
+  db:status:
+    desc: Show whether the {{.DEST}} Postgres container ({{.SERVICE}}-db) is running
+    cmds:
+      - '{{.KAMAL}} accessory details db'
+
+  db:shell:
+    desc: Open psql on the {{.DEST}} database ({{.SERVICE}}-db). Careful, it's live data.
+    interactive: true
+    cmds:
+      - '{{.KAMAL}} accessory exec db --interactive --reuse "psql -U {{.SERVICE}} -d {{.SERVICE}}"'
+
+  db:logs:
+    desc: Follow the {{.DEST}} Postgres ({{.SERVICE}}-db) logs
+    cmds:
+      - '{{.KAMAL}} accessory logs db -f'
+
+  db:dump:
+    desc: 'Download a backup of the {{.DEST}} database to var/backups (pg_dump custom format; restore locally with task db:restore)'
+    vars:
+      FILE: '{{.BACKUPS}}/{{.SERVICE}}-{{.DEST}}-{{now | date "20060102-1504"}}.dump'
+    cmds:
+      - mkdir -p {{.BACKUPS}}
+      # Straight from docker over ssh: kamal's own output would end up in the file.
+      - ssh {{.SERVER_SSH}} "docker exec {{.SERVICE}}-db pg_dump -U {{.SERVICE}} -d {{.SERVICE}} --format=custom" > {{.FILE}}
+      - test -s {{.FILE}}
+      - echo "Saved {{.FILE}} ($(du -h {{.FILE}} | cut -f1))"
+
+  db:clear:
+    desc: 'Delete ALL {{.DEST}} data and photos, reload the paper list and create admin user #1 (admin@scarfietextbooks.com / password; --email=, --password= to change)'
+    prompt: This deletes every user, listing, message and photo on {{.SITE}}. Did you run {{.NS}}:db:dump and {{.NS}}:maintenance:on first?
+    deps: [env]
+    cmds:
+      # No --force: the command asks once more, naming the database.
+      - '{{.KAMAL}} console app:database:clear {{.CLI_ARGS}}'
+
+  legacy:import:
+    desc: 'Import the old site''s MariaDB dump into {{.SITE}} (task {{.NS}}:legacy:import -- dump.sql; add --dry-run to try it)'
+    deps: [env]
+    vars:
+      FILE: '{{index (splitArgs .CLI_ARGS) 0}}'
+      OPTIONS: '{{range $i, $arg := splitArgs .CLI_ARGS}}{{if $i}} {{$arg}}{{end}}{{end}}'
+    preconditions:
+      - sh: test -f "{{.FILE}}"
+        msg: 'Pass the dump file first: task {{.NS}}:legacy:import -- scarfie.sql --dry-run'
+    cmds:
+      # Straight over ssh like db:dump: kamal exec can't pipe a file in.
+      - ssh {{.SERVER_SSH}} 'docker exec -i $({{.WEB}}) sh -c "cat > /tmp/legacy-dump.sql"' < "{{.FILE}}"
+      - defer: ssh {{.SERVER_SSH}} 'docker exec $({{.WEB}}) rm -f /tmp/legacy-dump.sql'
+      - ssh {{.SERVER_SSH}} 'docker exec $({{.WEB}}) php bin/console app:legacy:import /tmp/legacy-dump.sql {{.OPTIONS}}'
+
+  # --- Photos (<SERVICE>_uploads volume) -----------------------------------
+
+  uploads:backup:
+    desc: Download the {{.DEST}} listing photos (the {{.SERVICE}}_uploads volume) to var/backups
+    vars:
+      FILE: '{{.BACKUPS}}/{{.SERVICE}}-{{.DEST}}-uploads-{{now | date "20060102-1504"}}.tar.gz'
+    cmds:
+      - mkdir -p {{.BACKUPS}}
+      - ssh {{.SERVER_SSH}} "tar -C /var/lib/docker/volumes/{{.SERVICE}}_uploads/_data -cz ." > {{.FILE}}
+      - echo "Saved {{.FILE}} ($(du -h {{.FILE}} | cut -f1))"
+
+  photos:regenerate:
+    desc: 'Remake {{.DEST}} photo sizes on the worker (task {{.NS}}:photos:regenerate -- --missing)'
+    deps: [env]
+    cmds:
+      - '{{.KAMAL}} console app:photos:regenerate --queue {{.CLI_ARGS}}'
+
+  photos:prune:
+    desc: Delete {{.DEST}} photo files that no photo in the database uses any more
+    prompt: Delete unused photo files on {{.SITE}}?
+    deps: [env]
+    cmds:
+      - '{{.KAMAL}} console app:photos:prune'
+
+  # --- Accounts and data ---------------------------------------------------
+
+  papers:import:
+    desc: 'Load the Otago paper list on {{.SITE}} (data/otago-papers.csv, shipped in the image)'
+    deps: [env]
+    cmds:
+      - '{{.KAMAL}} console app:papers:import'
+
+  user:reset-password:
+    desc: 'Reset a {{.DEST}} account''s password to Password1! (task {{.NS}}:user:reset-password -- them@example.com)'
+    deps: [env]
+    cmds:
+      - '{{.KAMAL}} console app:user:reset-password {{.CLI_ARGS}}'
+
+  user:promote:
+    desc: 'Make a {{.DEST}} account an admin (task {{.NS}}:user:promote -- you@example.com)'
+    deps: [env]
+    cmds:
+      - '{{.KAMAL}} console app:user:promote {{.CLI_ARGS}}'
+
+  # --- Looking around ------------------------------------------------------
+
+  logs:
+    desc: Follow the {{.DEST}} web app logs
+    cmds:
+      - '{{.KAMAL}} app logs -f --roles=web'
+
+  worker:logs:
+    desc: Follow the {{.DEST}} Messenger worker (email sending) logs
+    cmds:
+      - '{{.KAMAL}} app logs -f --roles=job'
+
+  worker:failed:
+    desc: Show messages (e.g. emails) that failed on {{.SITE}}
+    cmds:
+      - '{{.KAMAL}} console messenger:failed:show'
+
+  mail:test:
+    desc: 'Send a test email straight from {{.SITE}} through Mailgun (task {{.NS}}:mail:test -- you@example.com)'
+    deps: [env]
+    cmds:
+      - '{{.KAMAL}} app exec --roles=web --reuse ''sh -c "php bin/console mailer:test {{.CLI_ARGS}} --from=\"\$MAILER_FROM\" --subject=\"ScarfieTextbooks test email\" --body=\"Mailgun is set up.\""'''
+
+  console:
+    desc: 'Run a Symfony console command on {{.SITE}} (task {{.NS}}:console -- about)'
+    cmds:
+      - '{{.KAMAL}} console {{.CLI_ARGS}}'
+
+  shell:
+    desc: Open a shell in the {{.DEST}} app container
+    interactive: true
+    cmds:
+      - '{{.KAMAL}} shell'

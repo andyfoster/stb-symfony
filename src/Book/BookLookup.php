@@ -109,7 +109,7 @@ class BookLookup
             return $this->httpClient->request('GET', $url, [
                 'query'   => $query,
                 'timeout' => 8,
-                'headers' => ['User-Agent' => 'ScarfieTextbooks (https://stb.gitforked.com)'],
+                'headers' => ['User-Agent' => 'ScarfieTextbooks (https://scarfietextbooks.com)'],
             ])->toArray();
         } catch (ExceptionInterface $e) {
             $this->failed = true;

@@ -239,24 +239,33 @@ up to date when adding a workflow.
 
 ## Deployment
 
-- Kamal (`config/deploy.yml`) deploys service `stb` to `stb.gitforked.com`, with Postgres as a
-  Kamal accessory (container `stb-db`, user/database `stb`). `.kamal/secrets` is committed
-  and holds only references: it fetches `APP_SECRET`, `POSTGRES_PASSWORD` and `MAILER_DSN` from
-  1Password (account `my.1password.ca`, item `Private/ScarfieTextbooks-production`), along with
-  `TURNSTILE_SITE_KEY` and `TURNSTILE_SECRET_KEY`, and builds
-  `DATABASE_URL` from them. Never put raw values in it. `task prod:secrets:check` confirms they
-  resolve; `task deploy`, `prod:migrate` and `prod:db:boot` run the same check first. The
-  registry is Kamal's local one (`localhost:5555`), so no registry password is needed. The same
-  server also hosts DayWatch (`daywatch-db`), so check you're pointing at `stb-db`.
+- Two Kamal destinations on the same server, sharing `config/deploy.yml`; every `kamal` command
+  needs `-d`. **production** (`config/deploy.production.yml`): service `scarfietextbooks` at
+  `scarfietextbooks.com` and `www.`, Postgres accessory `scarfietextbooks-db` (user/database
+  `scarfietextbooks`), photo volume `scarfietextbooks_uploads`. **test** (`config/deploy.test.yml`):
+  service `stb` at `stb.gitforked.com`, accessory `stb-db` (user/database `stb`), volume
+  `stb_uploads`; it was the only environment before, so it keeps those names. Images are named
+  after the service so Kamal's image cleanup for one never removes the other's. The tasks for
+  both come from `taskfiles/server.yml`, included twice by `Taskfile.yml`: `task prod:deploy`,
+  `task test:deploy`, `prod:db:shell`, `test:db:dump`, ... (the `prod:` and `test:` names below
+  all have both forms). `.kamal/secrets.production` and `.kamal/secrets.test` are committed and
+  hold only references: they fetch `APP_SECRET`, `POSTGRES_PASSWORD` and `MAILER_DSN` from
+  1Password (account `my.1password.ca`, items `Private/ScarfieTextbooks-production` and
+  `Private/ScarfieTextbooks-test`), along with `TURNSTILE_SITE_KEY` and `TURNSTILE_SECRET_KEY`,
+  and build `DATABASE_URL` from them. Never put raw values in them. `task prod:secrets:check`
+  confirms they resolve; `prod:deploy`, `prod:migrate` and `prod:db:boot` run the same check
+  first. The registry is Kamal's local one (`localhost:5555`), so no registry password is needed.
+  The same server also hosts DayWatch and other apps, so check you're pointing at the right
+  `*-db`.
 - The production image is `dockerfile` (lowercase): FrankenPHP, `APP_ENV=prod`, and it runs
   `importmap:install`, `assets:install` (EasyAdmin's CSS and icons in `public/bundles`, which
   is git-ignored and skipped by `composer install --no-scripts`) and `asset-map:compile` at
   build time. Caddy config is `Caddyfile`.
-- Listing photos live in the `stb_uploads` Docker volume, mounted on the `web` role at
-  `/app/var/uploads`. Nothing backs it up automatically; `task prod:uploads:backup` downloads it.
-- Production database: `task prod:db:shell` (psql in `stb-db`, live data), `prod:db:logs`, and
+- Listing photos live in the `<service>_uploads` Docker volume, mounted on the `web` and `job`
+  roles at `/app/var/uploads`. Nothing backs it up automatically; `task prod:uploads:backup` downloads it.
+- Production database: `task prod:db:shell` (psql in `scarfietextbooks-db`, live data), `prod:db:logs`, and
   `prod:db:dump`, which saves a `pg_dump --format=custom` to `var/backups/` (git-ignored). Dumps
-  and the photo backup stream over plain `ssh` to `Taskfile.yml`'s `PROD_SSH` (keep it in step with
+  and the photo backup stream over plain `ssh` to `Taskfile.yml`'s `SERVER_SSH` (keep it in step with
   `config/deploy.yml`), because `kamal ... exec` adds its own lines to the output.
   `task db:restore -- var/backups/….dump` loads a dump into the local Docker database;
   `task db:dump` saves the local one first if you want to keep it.
@@ -270,13 +279,14 @@ up to date when adding a workflow.
   answers 503 with a message, `/admin` included) and also stops the `job` role so no emails or
   scheduled jobs run; `kamal console` tasks keep working.
 - Migrations are not run on deploy (all `.kamal/hooks` are samples); run `task prod:migrate`
-  after `task deploy`. Migrations create `messenger_messages`; `task prod:messenger:setup`
+  after `task prod:deploy`. Migrations create `messenger_messages`; `task prod:messenger:setup`
   (`messenger:setup-transports`, idempotent) makes sure it exists, since `auto_setup=0`.
 - Email goes through Mailgun (`symfony/mailgun-mailer`, `MAILER_DSN` like
   `mailgun+api://KEY:scarfietextbooks.com@default?region=us`), sent from `MAILER_FROM`
   (`noreply@scarfietextbooks.com`; the production key only sends from that domain, which must be
-  verified in Mailgun with SPF/DKIM DNS). `DEFAULT_URI` in `config/deploy.yml` gives the job role's
-  emails their link host. `task mail:test -- you@example.com` sends a real email with the test key
+  verified in Mailgun with SPF/DKIM DNS). `DEFAULT_URI` in each destination's file gives the job
+  role's emails their link host. Both environments send through the same Mailgun domain; the
+  Turnstile widget needs both sites' hostnames on its list. `task mail:test -- you@example.com` sends a real email with the test key
   (`MAILER_TEST_DSN` in `.env.local`); `task prod:mail:test -- you@example.com` sends one from
   production, bypassing the queue, so errors show straight away.
   Mail is queued on the Doctrine `async` transport and sent by the `job` role in
