@@ -14,10 +14,9 @@
                 <span>{{ app.user.email }}</span>
             </p>
             <ul>
-                <li><a href="{{ path('app_account') }}" {{ route == 'app_account' ? 'aria-current="page"' }}>Overview</a></li>
                 <li><a href="{{ path('app_account_listings') }}" {{ route == 'app_account_listings' ? 'aria-current="page"' }}>My listings</a></li>
                 <li><a href="{{ path('app_account_messages') }}" {{ route starts with 'app_account_message' ? 'aria-current="page"' }}>Messages{% if unread %} <span class="nav-badge">{{ unread }}</span>{% endif %}</a></li>
-                <li><a href="{{ path('app_account_details') }}" {{ route == 'app_account_details' ? 'aria-current="page"' }}>Your details</a></li>
+                <li><a href="{{ path('app_account') }}" {{ route == 'app_account' ? 'aria-current="page"' }}>Account</a></li>
             </ul>
             <a class="button button-small dashboard-post" href="{{ path('app_listing_new') }}">Post a listing</a>
         </nav>

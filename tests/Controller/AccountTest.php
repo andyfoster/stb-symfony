@@ -109,7 +109,7 @@ final class AccountTest extends WebTestCase
         $this->createUser('jo@example.com', 'other horse');
         $this->client->loginUser($user);
 
-        $this->client->request('GET', '/account/details');
+        $this->client->request('GET', '/account');
         $this->client->submitForm('Change email', [
             'change_email_form[email]' => 'sam.new@example.com',
             'change_email_form[currentPassword]' => 'wrong horse',
@@ -130,7 +130,7 @@ final class AccountTest extends WebTestCase
             'change_email_form[email]' => 'Sam.New@example.com',
             'change_email_form[currentPassword]' => 'correct horse',
         ]);
-        self::assertResponseRedirects('/account/details');
+        self::assertResponseRedirects('/account');
         self::assertQueuedEmailCount(2);
         $confirmation = self::getMailerMessage(0);
         self::assertEmailAddressContains($confirmation, 'To', 'sam.new@example.com');
@@ -152,6 +152,54 @@ final class AccountTest extends WebTestCase
         $this->client->submitForm('Log out');
         $this->logIn('sam.new@example.com', 'correct horse');
         self::assertResponseRedirects('/');
+    }
+
+    public function testChangePasswordNeedsTheCurrentOneAndKeepsYouLoggedIn(): void
+    {
+        $this->createUser('sam@example.com', 'correct horse');
+        $this->logIn('sam@example.com', 'correct horse');
+
+        $this->client->request('GET', '/account');
+        $this->client->submitForm('Change password', [
+            'change_password_form[currentPassword]' => 'wrong horse',
+            'change_password_form[plainPassword][first]' => 'battery staple',
+            'change_password_form[plainPassword][second]' => 'battery staple',
+        ]);
+        self::assertResponseStatusCodeSame(422);
+        self::assertAnySelectorTextContains('.form-field', 'That isn’t your current password.');
+
+        $this->client->submitForm('Change password', [
+            'change_password_form[currentPassword]' => 'correct horse',
+            'change_password_form[plainPassword][first]' => 'battery staple',
+            'change_password_form[plainPassword][second]' => 'battery staple',
+        ]);
+        self::assertResponseRedirects('/account');
+        self::assertQueuedEmailCount(0);
+
+        // This session survives the change.
+        $this->client->followRedirect();
+        self::assertSelectorTextContains('.flash', 'Your password is changed.');
+        self::assertSelectorTextContains('.nav-user', 'Sam');
+
+        $this->client->submitForm('Log out');
+        $this->logIn('sam@example.com', 'correct horse');
+        self::assertResponseRedirects('/login');
+        $this->logIn('sam@example.com', 'battery staple');
+        self::assertResponseRedirects('/');
+    }
+
+    public function testAccountPageReplacesTheOverview(): void
+    {
+        $this->client->loginUser($this->createUser('sam@example.com', 'correct horse'));
+
+        $this->client->request('GET', '/account');
+        self::assertSelectorTextContains('h1', 'Account');
+        self::assertSelectorTextContains('.dashboard-nav [aria-current="page"]', 'Account');
+        self::assertSelectorTextContains('.nav-menu-list', 'Account');
+        self::assertSelectorTextNotContains('.dashboard-nav', 'Overview');
+
+        $this->client->request('GET', '/account/details');
+        self::assertResponseRedirects('/account', 301);
     }
 
     public function testConfirmationLinkMustBeSigned(): void

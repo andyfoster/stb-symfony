@@ -1860,34 +1860,6 @@ turbo-frame[aria-busy=true] .listing-grid {
     font-weight:400
 }
 
-.dashboard-stats {
-    display:grid;
-    grid-template-columns:repeat(3,minmax(0,1fr));
-    gap:12px;
-    margin:24px 0 8px
-}
-
-.dashboard-stats div {
-    padding:16px 18px;
-    border:1px solid var(--line);
-    border-radius:8px
-}
-
-.dashboard-stats dt {
-    color:var(--muted);
-    font-size:14px
-}
-
-.dashboard-stats dd {
-    margin:0;
-    font-size:28px;
-    font-weight:700
-}
-
-.dashboard-stats a {
-    text-decoration:none
-}
-
 .dashboard-section {
     margin-top:36px
 }
@@ -1895,36 +1867,6 @@ turbo-frame[aria-busy=true] .listing-grid {
 .dashboard-section h2 {
     margin-bottom:4px;
     font-size:18px
-}
-
-.dashboard-list {
-    margin:12px 0 0;
-    padding:0;
-    list-style:none;
-    border-top:1px solid var(--line)
-}
-
-.dashboard-list li {
-    display:flex;
-    align-items:center;
-    gap:16px;
-    padding:10px 0;
-    border-bottom:1px solid var(--line)
-}
-
-.dashboard-list li a {
-    flex:1;
-    font-weight:600;
-    text-decoration:none
-}
-
-.dashboard-list form {
-    margin:0
-}
-
-.dashboard-more {
-    margin-top:12px;
-    font-size:14px
 }
 
 .dashboard-form {
@@ -2290,9 +2232,15 @@ turbo-frame[aria-busy=true] .listing-grid {
         gap:14px
     }
 
+    /* Just "st" at full size: the whole wordmark would be too small to read. */
     .brand {
-        font-size:clamp(10px,1.8vw,15px);
-        letter-spacing:.02em
+        flex:0 0 auto;
+        width:auto;
+        font-size:20px
+    }
+
+    .brand .brand-remainder {
+        display:none
     }
 
     .site-nav {
@@ -2375,14 +2323,6 @@ turbo-frame[aria-busy=true] .listing-grid {
         flex-direction:row;
         gap:0 12px;
         margin:0
-    }
-
-    .dashboard-stats {
-        gap:8px
-    }
-
-    .dashboard-stats div {
-        padding:12px
     }
 
 

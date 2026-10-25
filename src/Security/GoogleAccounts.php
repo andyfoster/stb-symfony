@@ -30,6 +30,12 @@ final class GoogleAccounts
 
         $user = $this->users->findOneBy(['googleId' => $googleId]);
         if ($user !== null) {
+            // Their Google address may have changed since they last signed in.
+            if ($user->getGoogleEmail() !== mb_strtolower((string) $google->getEmail())) {
+                $user->setGoogleEmail($google->getEmail());
+                $this->entityManager->flush();
+            }
+
             return $user;
         }
 
@@ -40,6 +46,7 @@ final class GoogleAccounts
                 ->setEmail((string) $google->getEmail())
                 ->setDisplayName(self::displayName($google))
                 ->setGoogleId($googleId)
+                ->setGoogleEmail($google->getEmail())
                 ->setVerified(true);
             $this->entityManager->persist($user);
             $this->entityManager->flush();
@@ -55,7 +62,7 @@ final class GoogleAccounts
             $context['passwordCleared'] = $user->getPassword() !== null;
             $user->setVerified(true)->setPassword(null);
         }
-        $user->setGoogleId($googleId);
+        $user->setGoogleId($googleId)->setGoogleEmail($google->getEmail());
         $this->entityManager->flush();
         $this->audit->record(AuditType::GoogleLinked, $user, $context, $user);
 

@@ -211,18 +211,18 @@ final class ContactSellerTest extends WebTestCase
     {
         $this->client->loginUser($this->seller);
 
-        $this->client->request('GET', '/account/details');
+        $this->client->request('GET', '/account');
         $this->client->submitForm('Save', [
             'profile_form[phone]' => '021 555 0123',
             'profile_form[showPhone]' => true,
         ]);
-        self::assertResponseRedirects('/account/details');
+        self::assertResponseRedirects('/account');
 
         $this->manager->clear();
         $seller = $this->manager->find(User::class, $this->seller->getId());
         self::assertSame('021 555 0123', $seller->getPublicPhone());
 
-        $this->client->request('GET', '/account/details');
+        $this->client->request('GET', '/account');
         $this->client->submitForm('Save', ['profile_form[phone]' => 'call me maybe']);
         self::assertResponseStatusCodeSame(422);
     }
