@@ -16,4 +16,20 @@
             <a class="cancel-link" href="{{ path('app_forgot_password') }}">Change your password</a>
         </div>
     {{ form_end(form) }}
+
+    <section class="dashboard-section">
+        <h2>Change your email</h2>
+        <p class="muted">We’ll send a link to the new address to confirm it. Until you do, your listings’ photos are hidden.</p>
+        {% if app.user.password is null %}
+            <p class="muted">Your account doesn’t have a password yet. <a href="{{ path('app_forgot_password') }}">Set one</a> first.</p>
+        {% endif %}
+
+        {{ form_start(email_form, {attr: {class: 'dashboard-form', novalidate: 'novalidate'}}) }}
+            <div class="form-field">{{ form_row(email_form.email) }}</div>
+            <div class="form-field">{{ form_row(email_form.currentPassword) }}</div>
+            <div class="form-actions">
+                <button class="button" type="submit">Change email</button>
+            </div>
+        {{ form_end(email_form) }}
+    </section>
 {% endblock %}

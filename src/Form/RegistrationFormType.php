@@ -6,13 +6,14 @@ use App\Entity\User;
 use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\Extension\Core\Type\EmailType;
 use Symfony\Component\Form\Extension\Core\Type\PasswordType;
+use Symfony\Component\Form\Extension\Core\Type\RepeatedType;
 use Symfony\Component\Form\Extension\Core\Type\TextType;
 use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\OptionsResolver\OptionsResolver;
 use Symfony\Component\Validator\Constraints as Assert;
 
 /**
- * Sign-up with email and password. The password is hashed by the controller,
+ * Sign-up with email and password, typed twice. The password is hashed by the controller,
  * so it isn't mapped onto the User.
  */
 class RegistrationFormType extends AbstractType
@@ -29,12 +30,14 @@ class RegistrationFormType extends AbstractType
                 'label' => 'Email',
                 'attr'  => ['autocomplete' => 'email'],
             ])
-            ->add('plainPassword', PasswordType::class, [
-                'label'       => 'Password',
-                'mapped'      => false,
-                'help'        => 'At least 8 characters.',
-                'attr'        => ['autocomplete' => 'new-password'],
-                'constraints' => [
+            ->add('plainPassword', RepeatedType::class, [
+                'type'            => PasswordType::class,
+                'options'         => ['attr' => ['autocomplete' => 'new-password']],
+                'first_options'   => ['label' => 'Password', 'help' => 'At least 8 characters.'],
+                'second_options'  => ['label' => 'Confirm password'],
+                'invalid_message' => 'The passwords don’t match.',
+                'mapped'          => false,
+                'constraints'     => [
                     new Assert\NotBlank(message: 'Choose a password.'),
                     // 4096 is Symfony's maximum for hashing.
                     new Assert\Length(min: 8, max: 4096, minMessage: 'Use at least {{ limit }} characters.'),

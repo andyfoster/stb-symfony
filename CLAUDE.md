@@ -159,7 +159,10 @@ up to date when adding a workflow.
   (`ResetPasswordRequest`). Accounts from the old site keep their unsalted SHA-1 hex hash:
   `LegacySha1PasswordHasher` (`migrate_from` in `security.yaml`) checks it, trimmed and
   untrimmed as the old site did, and `UserRepository::upgradePassword()` stores a modern hash on
-  first login. Unverified users can still log in and see a banner. The dev login
+  first login. Unverified users can still log in and see a banner. Sign-up asks for the password twice.
+  Your details has a Change email form (`ChangeEmailFormType`, checked with the current password
+  by `UserPassword`): `EmailChanger` marks the account unverified, sends a confirmation link to
+  the new address and a notice to the old one (`emails/email_changed.html.twig`). The dev login
   from fixtures is `sam@example.com` / `password`.
 - Legacy import: `task legacy:import -- dump.sql` (`app:legacy:import`, `--dry-run` rolls back)
   reads the old site's MariaDB dump in PHP (`App\Legacy\MysqlDumpReader`, which also undoes the

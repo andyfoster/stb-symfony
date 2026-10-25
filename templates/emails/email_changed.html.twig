@@ -1,0 +1,9 @@
+{% extends 'emails/_layout.html.twig' %}
+
+{% block content %}
+    <p>Hi {{ user.displayName }},</p>
+
+    <p>The email address for your ScarfieTextbooks account has been changed from {{ previous }} to {{ user.email }}. From now on, log in with the new address.</p>
+
+    <p>If you didn’t do this, someone else may know your password. <a href="{{ url('app_forgot_password') }}">Reset your password</a>, then change your email back from Your details.</p>
+{% endblock %}

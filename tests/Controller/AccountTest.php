@@ -41,7 +41,8 @@ final class AccountTest extends WebTestCase
         $this->client->submitForm('Sign up', [
             'registration_form[displayName]' => 'Sam',
             'registration_form[email]' => 'Sam@Example.com',
-            'registration_form[plainPassword]' => 'correct horse',
+            'registration_form[plainPassword][first]' => 'correct horse',
+            'registration_form[plainPassword][second]' => 'correct horse',
         ]);
 
         self::assertResponseRedirects('/');
@@ -75,13 +76,82 @@ final class AccountTest extends WebTestCase
         $this->client->submitForm('Sign up', [
             'registration_form[displayName]' => 'Sam again',
             'registration_form[email]' => 'SAM@example.com',
-            'registration_form[plainPassword]' => 'short',
+            'registration_form[plainPassword][first]' => 'short',
+            'registration_form[plainPassword][second]' => 'short',
         ]);
 
         self::assertResponseStatusCodeSame(422);
         self::assertAnySelectorTextContains('.form-field', 'There is already an account with this email.');
         self::assertAnySelectorTextContains('.form-field', 'Use at least 8 characters.');
         self::assertQueuedEmailCount(0);
+    }
+
+    public function testSignUpRejectsMismatchedPasswords(): void
+    {
+        $this->client->request('GET', '/register');
+        $this->client->submitForm('Sign up', [
+            'registration_form[displayName]' => 'Sam',
+            'registration_form[email]' => 'sam@example.com',
+            'registration_form[plainPassword][first]' => 'correct horse',
+            'registration_form[plainPassword][second]' => 'correct horsee',
+        ]);
+
+        self::assertResponseStatusCodeSame(422);
+        self::assertAnySelectorTextContains('.form-field', 'The passwords don’t match.');
+        self::assertNull($this->user('sam@example.com'));
+    }
+
+    public function testChangeEmailNeedsPasswordAndConfirmsNewAddress(): void
+    {
+        $user = $this->createUser('sam@example.com', 'correct horse');
+        $user->setVerified(true);
+        $this->manager->flush();
+        $this->createUser('jo@example.com', 'other horse');
+        $this->client->loginUser($user);
+
+        $this->client->request('GET', '/account/details');
+        $this->client->submitForm('Change email', [
+            'change_email_form[email]' => 'sam.new@example.com',
+            'change_email_form[currentPassword]' => 'wrong horse',
+        ]);
+        self::assertResponseStatusCodeSame(422);
+        self::assertAnySelectorTextContains('.form-field', 'That isn’t your password.');
+
+        $this->client->submitForm('Change email', [
+            'change_email_form[email]' => 'JO@example.com',
+            'change_email_form[currentPassword]' => 'correct horse',
+        ]);
+        self::assertResponseStatusCodeSame(422);
+        self::assertAnySelectorTextContains('.form-field', 'There is already an account with this email.');
+        self::assertQueuedEmailCount(0);
+        self::assertSame('sam@example.com', $this->user('sam@example.com')->getEmail());
+
+        $this->client->submitForm('Change email', [
+            'change_email_form[email]' => 'Sam.New@example.com',
+            'change_email_form[currentPassword]' => 'correct horse',
+        ]);
+        self::assertResponseRedirects('/account/details');
+        self::assertQueuedEmailCount(2);
+        $confirmation = self::getMailerMessage(0);
+        self::assertEmailAddressContains($confirmation, 'To', 'sam.new@example.com');
+        self::assertEmailAddressContains(self::getMailerMessage(1), 'To', 'sam@example.com');
+        self::assertEmailHtmlBodyContains(self::getMailerMessage(1), 'sam.new@example.com');
+
+        // Still signed in, now as the new address, which needs confirming.
+        $this->client->followRedirect();
+        self::assertSelectorTextContains('.flash', 'Your email is now sam.new@example.com.');
+        self::assertSelectorTextContains('.muted', 'sam.new@example.com, which isn’t confirmed yet');
+        self::assertNull($this->user('sam@example.com'));
+        self::assertFalse($this->user('sam.new@example.com')->isVerified());
+
+        $this->client->request('GET', $this->linkIn($confirmation));
+        self::assertResponseRedirects('/');
+        self::assertTrue($this->user('sam.new@example.com')->isVerified());
+
+        $this->client->followRedirect();
+        $this->client->submitForm('Log out');
+        $this->logIn('sam.new@example.com', 'correct horse');
+        self::assertResponseRedirects('/');
     }
 
     public function testConfirmationLinkMustBeSigned(): void
@@ -203,7 +273,7 @@ final class AccountTest extends WebTestCase
         return $user;
     }
 
-    private function user(string $email): User
+    private function user(string $email): ?User
     {
         $this->manager->clear();
 
