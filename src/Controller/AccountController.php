@@ -5,9 +5,11 @@ namespace App\Controller;
 use App\Entity\Listing;
 use App\Entity\Message;
 use App\Entity\User;
+use App\Form\ChangeEmailFormType;
 use App\Form\ProfileFormType;
 use App\Repository\ListingRepository;
 use App\Repository\MessageRepository;
+use App\Security\EmailChanger;
 use App\Settings\SiteSettingsProvider;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
@@ -40,8 +42,18 @@ final class AccountController extends AbstractController
     }
 
     #[Route('/details', name: 'app_account_details', methods: ['GET', 'POST'])]
-    public function details(Request $request, EntityManagerInterface $manager, #[CurrentUser] User $user): Response
+    public function details(Request $request, EntityManagerInterface $manager, EmailChanger $emailChanger, #[CurrentUser] User $user): Response
     {
+        $emailForm = $this->createForm(ChangeEmailFormType::class, options: ['user' => $user]);
+        $emailForm->handleRequest($request);
+
+        if ($emailForm->isSubmitted() && $emailForm->isValid()) {
+            $emailChanger->change($user, $emailForm->get('email')->getData());
+            $this->addFlash('success', \sprintf('Your email is now %s. We’ve sent a link there to confirm it.', $user->getEmail()));
+
+            return $this->redirectToRoute('app_account_details', [], Response::HTTP_SEE_OTHER);
+        }
+
         $form = $this->createForm(ProfileFormType::class, $user);
         $form->handleRequest($request);
 
@@ -57,7 +69,7 @@ final class AccountController extends AbstractController
             $manager->refresh($user);
         }
 
-        return $this->render('account/details.html.twig', ['form' => $form]);
+        return $this->render('account/details.html.twig', ['form' => $form, 'email_form' => $emailForm]);
     }
 
     #[Route('/listings', name: 'app_account_listings', methods: ['GET'])]

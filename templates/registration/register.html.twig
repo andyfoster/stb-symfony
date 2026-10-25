@@ -12,7 +12,8 @@
         {{ form_start(form, {attr: {class: 'form-panel', novalidate: 'novalidate'}}) }}
             <div class="form-field">{{ form_row(form.displayName) }}</div>
             <div class="form-field">{{ form_row(form.email) }}</div>
-            <div class="form-field">{{ form_row(form.plainPassword) }}</div>
+            <div class="form-field">{{ form_row(form.plainPassword.first) }}</div>
+            <div class="form-field">{{ form_row(form.plainPassword.second) }}</div>
             <div class="form-actions">
                 <a class="cancel-link" href="{{ path('app_login') }}">Already have an account? Log in</a>
                 <button class="button" type="submit">Sign up</button>
