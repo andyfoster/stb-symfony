@@ -129,7 +129,9 @@ up to date when adding a workflow.
   `TURNSTILE_SITE_KEY`/`TURNSTILE_SECRET_KEY`; `.env` has Cloudflare's always-pass test keys;
   the widget is `interaction-only`, shows Cloudflare's error code if it fails, and rejected tokens
   are logged with Cloudflare's reason; the site's hostname must be on the widget's list in Cloudflare),
-  and a hidden `website` honeypot field. Sellers can show their phone (`User::showPhone`) and set
+  and a hidden `website` honeypot field. Sign-up and new listings (not edits) get Turnstile for
+  everyone (a `captcha` option on `RegistrationFormType` and `ListingFormType`). Each of these
+  checks has a feature flag. Sellers can show their phone (`User::showPhone`) and set
   it under Your details.
 - Admin: EasyAdmin 5 at `/admin` (`src/Controller/Admin`, `ROLE_ADMIN`, also in
   `access_control`); the "Admin" menu link only renders for admins. EasyAdmin 5's API differs
@@ -176,7 +178,8 @@ up to date when adding a workflow.
   verifies it and clears its password, since whoever set it never proved they own the address.
   Failures land on the login page's `.login-error`. Buttons (`security/_google_button.html.twig`
   on login and sign-up) only show when `GOOGLE_CLIENT_ID` is set (Twig global `google_client_id`;
-  `.env` leaves it empty, `.env.test` sets it). Tests swap the provider's Guzzle client
+  `.env` leaves it empty, `.env.test` sets it) and the `google_sign_in` feature flag is on; with
+  it off, `/connect/google` is a 404 and the callback refuses to sign in. Tests swap the provider's Guzzle client
   (`GoogleSignInTest`).
   Your details has a Change email form (`ChangeEmailFormType`, checked with the current password
   by `UserPassword`): `EmailChanger` marks the account unverified, sends a confirmation link to
@@ -223,6 +226,16 @@ up to date when adding a workflow.
   `app:user:promote`. Admins read it under Audit log in `/admin`, and on each user's detail page.
   `PruneAuditLog` (nightly, `src/Schedule.php`) deletes events older than
   `AuditLog::RETENTION_DAYS` (365).
+- Feature flags: `App\Enum\Feature` lists them, with a `label()`, `description()` and
+  `default()`; `FeatureFlags::isEnabled()` reads the `FeatureFlag` rows (by name, so a removed
+  case's row is ignored), falling back to the default, once per request. Admins switch them
+  under Feature flags in `/admin` (`FeatureFlagCrudController`, which adds missing rows when it
+  opens; switches are audited like other admin edits). Twig has `feature_enabled('name')`.
+  Add a case to add a flag; no migration needed. Flags: Google sign-in (off by default),
+  Turnstile on sign-up, on new listings and on the contact forms (on). `app:database:clear`
+  and `app:seed` reset them to their defaults. Tests switch them with `setFeature()` in
+  `DatabaseTestTrait`; tests that submit sign-up or listing forms through the crawler turn
+  that form's check off, and `FeatureFlagTest` covers the checks themselves.
 - `framework.yaml` trusts `X-Forwarded-*` from private addresses (`trusted_proxies: private_ranges`),
   which in production is only kamal-proxy, so `getClientIp()` is the visitor's and `isSecure()`
   is true behind its TLS (`TrustedProxyTest`). Revisit it if the app's port is ever published.

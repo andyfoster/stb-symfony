@@ -2,6 +2,8 @@
 
 namespace App\Controller;
 
+use App\Enum\Feature;
+use App\Feature\FeatureFlags;
 use KnpU\OAuth2ClientBundle\Client\ClientRegistry;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\DependencyInjection\Attribute\Autowire;
@@ -15,10 +17,10 @@ use Symfony\Component\Routing\Attribute\Route;
 final class GoogleController extends AbstractController
 {
     #[Route('/connect/google', name: 'app_google_start', methods: ['GET'])]
-    public function start(ClientRegistry $clients, #[Autowire('%env(GOOGLE_CLIENT_ID)%')] string $clientId): Response
+    public function start(ClientRegistry $clients, FeatureFlags $features, #[Autowire('%env(GOOGLE_CLIENT_ID)%')] string $clientId): Response
     {
-        if ($clientId === '') {
-            throw $this->createNotFoundException('Google sign-in isn’t set up.');
+        if ($clientId === '' || !$features->isEnabled(Feature::GoogleSignIn)) {
+            throw $this->createNotFoundException('Google sign-in isn’t available.');
         }
         if ($this->getUser()) {
             return $this->redirectToRoute('app_listings');

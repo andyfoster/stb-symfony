@@ -7,6 +7,7 @@ use App\Entity\AuditEvent;
 use App\Enum\AuditType;
 use App\Scheduler\PruneAuditLog;
 use App\Scheduler\PruneAuditLogHandler;
+use App\Enum\Feature;
 use App\Tests\DatabaseTestTrait;
 use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
 
@@ -21,6 +22,8 @@ final class AuditLogTest extends WebTestCase
     protected function setUp(): void
     {
         $this->bootClient();
+        // Posting through the crawler can't fill in Turnstile; FeatureFlagTest covers it.
+        $this->setFeature(Feature::ListingCaptcha, false);
     }
 
     public function testLoginAndLogoutAreRecorded(): void

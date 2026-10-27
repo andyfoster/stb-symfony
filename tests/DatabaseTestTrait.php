@@ -8,7 +8,9 @@ use App\Entity\Paper;
 use App\Entity\User;
 use App\Enum\Category;
 use App\Enum\Condition;
+use App\Enum\Feature;
 use App\Enum\ListingType;
+use App\Feature\FeatureFlags;
 use App\Listing\PaperCatalog;
 use Doctrine\ORM\EntityManagerInterface;
 use Doctrine\ORM\Tools\SchemaTool;
@@ -35,6 +37,12 @@ trait DatabaseTestTrait
         $this->client->setServerParameter('HTTP_SEC_FETCH_SITE', 'same-origin');
         $this->manager = static::getContainer()->get(EntityManagerInterface::class);
         (new SchemaTool($this->manager))->createSchema($this->manager->getMetadataFactory()->getAllMetadata());
+    }
+
+    /** Switches a feature flag, as an admin would under Feature flags. */
+    private function setFeature(Feature $feature, bool $enabled): void
+    {
+        static::getContainer()->get(FeatureFlags::class)->set($feature, $enabled);
     }
 
     private function createUser(string $email, bool $verified = true, bool $admin = false, string $name = 'Sam'): User

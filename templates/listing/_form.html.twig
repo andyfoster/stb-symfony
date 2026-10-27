@@ -111,6 +111,7 @@
         </details>
     </div>
 
+    {% if form.children.captcha is defined %}<div class="form-field">{{ form_row(form.captcha) }}</div>{% endif %}
     <div class="listing-form-actions">
         {{ form_widget(form.publish, {label: listing.live ? 'Save changes' : (wanted ? 'Post wanted listing' : 'Publish listing'), attr: {class: 'button', 'data-listing-form-target': 'publish', 'data-editing': listing.live ? 'true' : 'false'}}) }}
         {{ form_widget(form.saveDraft, {attr: {class: 'button button-outline'}}) }}

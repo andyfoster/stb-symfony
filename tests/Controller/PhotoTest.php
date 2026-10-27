@@ -5,6 +5,7 @@ namespace App\Tests\Controller;
 use App\Entity\ListingPhoto;
 use App\Photo\GeneratePhotoSizes;
 use App\Photo\GeneratePhotoSizesHandler;
+use App\Enum\Feature;
 use App\Tests\DatabaseTestTrait;
 use Symfony\Bundle\FrameworkBundle\Console\Application;
 use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
@@ -29,6 +30,8 @@ final class PhotoTest extends WebTestCase
         $this->previousUploadDir = $_ENV['UPLOAD_DIR'] ?? null;
         $_ENV['UPLOAD_DIR']      = $_SERVER['UPLOAD_DIR'] = $this->uploadDir;
         $this->bootClient();
+        // Posting through the crawler can't fill in Turnstile; FeatureFlagTest covers it.
+        $this->setFeature(Feature::ListingCaptcha, false);
     }
 
     protected function tearDown(): void

@@ -2,14 +2,18 @@
 
 namespace App\Tests\Controller;
 
+use App\Tests\DatabaseTestTrait;
 use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
 
 final class AboutTest extends WebTestCase
 {
+    use DatabaseTestTrait;
+
     public function testAboutExplainsTheSiteAndIsLinkedFromTheFooter(): void
     {
-        $client = static::createClient();
-        $client->request('GET', '/about');
+        // The contact form reads the feature flags.
+        $this->bootClient();
+        $this->client->request('GET', '/about');
 
         self::assertResponseIsSuccessful();
         self::assertPageTitleContains('About');
