@@ -2,6 +2,7 @@
 
 namespace App\Form;
 
+use App\Captcha\TurnstileType;
 use App\Entity\Listing;
 use App\Entity\ListingPhoto;
 use App\Enum\Category;
@@ -137,6 +138,10 @@ class ListingFormType extends AbstractType
             ->add('publish', SubmitType::class, ['label' => $listing->isLive() ? 'Save changes' : 'Publish listing'])
             ->add('saveDraft', SubmitType::class, ['label' => $listing->isDraft() || null === $listing->getId() ? 'Save draft' : 'Move to drafts']);
 
+        if ($options['captcha']) {
+            $builder->add('captcha', TurnstileType::class);
+        }
+
         // Before validation: only textbooks keep book details, so other
         // categories don't need an author and don't get a book row.
         $builder->addEventListener(FormEvents::POST_SUBMIT, static function (FormEvent $event): void {
@@ -167,6 +172,8 @@ class ListingFormType extends AbstractType
     {
         $resolver->setDefaults([
             'data_class' => Listing::class,
+            'captcha'    => false,
         ]);
+        $resolver->setAllowedTypes('captcha', 'bool');
     }
 }

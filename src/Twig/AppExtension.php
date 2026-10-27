@@ -3,6 +3,8 @@
 namespace App\Twig;
 
 use App\Entity\ListingPhoto;
+use App\Enum\Feature;
+use App\Feature\FeatureFlags;
 use App\Photo\PhotoStorage;
 use App\Entity\User;
 use App\Repository\MessageRepository;
@@ -15,7 +17,15 @@ final class AppExtension
         private readonly MessageRepository $messages,
         private readonly Security $security,
         private readonly PhotoStorage $photos,
+        private readonly FeatureFlags $features,
     ) {}
+
+    /** Whether a Feature is on, by its value: feature_enabled('google_sign_in'). */
+    #[AsTwigFunction('feature_enabled')]
+    public function featureEnabled(string $feature): bool
+    {
+        return $this->features->isEnabled(Feature::from($feature));
+    }
 
     /** For the "Messages" badge in the header. */
     #[AsTwigFunction('unread_message_count')]

@@ -15,6 +15,7 @@
             <div class="form-field">{{ form_row(form.email) }}</div>
             <div class="form-field">{{ form_row(form.plainPassword.first) }}</div>
             <div class="form-field">{{ form_row(form.plainPassword.second) }}</div>
+            {% if form.children.captcha is defined %}<div class="form-field">{{ form_row(form.captcha) }}</div>{% endif %}
             <div class="form-actions">
                 <a class="cancel-link" href="{{ path('app_login') }}">Already have an account? Log in</a>
                 <button class="button" type="submit">Sign up</button>

@@ -10,5 +10,5 @@ use Symfony\Component\Validator\Constraint;
 #[\Attribute(\Attribute::TARGET_PROPERTY | \Attribute::TARGET_METHOD)]
 class Turnstile extends Constraint
 {
-    public string $message = 'Please confirm you’re not a robot, then send again.';
+    public string $message = 'Please confirm you’re not a robot, then try again.';
 }

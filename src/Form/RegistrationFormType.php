@@ -2,6 +2,7 @@
 
 namespace App\Form;
 
+use App\Captcha\TurnstileType;
 use App\Entity\User;
 use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\Extension\Core\Type\EmailType;
@@ -14,7 +15,7 @@ use Symfony\Component\Validator\Constraints as Assert;
 
 /**
  * Sign-up with email and password, typed twice. The password is hashed by the controller,
- * so it isn't mapped onto the User.
+ * so it isn't mapped onto the User. Turnstile checks it unless the flag is off.
  */
 class RegistrationFormType extends AbstractType
 {
@@ -44,12 +45,18 @@ class RegistrationFormType extends AbstractType
                 ],
             ])
         ;
+
+        if ($options['captcha']) {
+            $builder->add('captcha', TurnstileType::class);
+        }
     }
 
     public function configureOptions(OptionsResolver $resolver): void
     {
         $resolver->setDefaults([
             'data_class' => User::class,
+            'captcha'    => true,
         ]);
+        $resolver->setAllowedTypes('captcha', 'bool');
     }
 }

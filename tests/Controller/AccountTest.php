@@ -3,6 +3,8 @@
 namespace App\Tests\Controller;
 
 use App\Entity\User;
+use App\Enum\Feature;
+use App\Feature\FeatureFlags;
 use App\Repository\UserRepository;
 use Doctrine\ORM\EntityManagerInterface;
 use Doctrine\ORM\Tools\SchemaTool;
@@ -31,6 +33,8 @@ final class AccountTest extends WebTestCase
         $this->client->setServerParameter('HTTP_SEC_FETCH_SITE', 'same-origin');
         $this->manager = static::getContainer()->get(EntityManagerInterface::class);
         (new SchemaTool($this->manager))->createSchema($this->manager->getMetadataFactory()->getAllMetadata());
+        // Signing up through the crawler can't fill in Turnstile; FeatureFlagTest covers it.
+        static::getContainer()->get(FeatureFlags::class)->set(Feature::SignUpCaptcha, false);
     }
 
     public function testSignUpLogsInAndConfirmationLinkVerifiesEmail(): void

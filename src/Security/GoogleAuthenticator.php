@@ -2,6 +2,8 @@
 
 namespace App\Security;
 
+use App\Enum\Feature;
+use App\Feature\FeatureFlags;
 use KnpU\OAuth2ClientBundle\Client\ClientRegistry;
 use KnpU\OAuth2ClientBundle\Security\Authenticator\OAuth2Authenticator;
 use KnpU\OAuth2ClientBundle\Security\Exception\IdentityProviderAuthenticationException;
@@ -34,6 +36,7 @@ final class GoogleAuthenticator extends OAuth2Authenticator
         private readonly ClientRegistry $clients,
         private readonly GoogleAccounts $accounts,
         private readonly UrlGeneratorInterface $urls,
+        private readonly FeatureFlags $features,
     ) {}
 
     public function supports(Request $request): ?bool
@@ -43,6 +46,11 @@ final class GoogleAuthenticator extends OAuth2Authenticator
 
     public function authenticate(Request $request): Passport
     {
+        // Someone may come back from Google after an admin switched it off.
+        if (!$this->features->isEnabled(Feature::GoogleSignIn)) {
+            throw new CustomUserMessageAuthenticationException('Signing in with Google is turned off. Log in with your email instead.');
+        }
+
         $client = $this->clients->getClient('google');
         $token  = $this->fetchAccessToken($client);
 

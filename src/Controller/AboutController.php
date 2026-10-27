@@ -3,6 +3,8 @@
 namespace App\Controller;
 
 use App\Entity\User;
+use App\Enum\Feature;
+use App\Feature\FeatureFlags;
 use App\Form\ContactAdminType;
 use App\Form\ContactSellerType;
 use App\Messaging\AdminContact;
@@ -16,7 +18,7 @@ use Symfony\Component\Security\Http\Attribute\CurrentUser;
 final class AboutController extends AbstractController
 {
     #[Route('/about', name: 'app_about', methods: ['GET', 'POST'])]
-    public function __invoke(Request $request, AdminContact $contact, #[CurrentUser] ?User $user): Response
+    public function __invoke(Request $request, AdminContact $contact, FeatureFlags $features, #[CurrentUser] ?User $user): Response
     {
         $message = new ContactMessage();
         $message->name  = $user?->getDisplayName();
@@ -24,7 +26,7 @@ final class AboutController extends AbstractController
 
         $form = $this->createForm(ContactAdminType::class, $message, [
             'action'  => $this->generateUrl('app_about').'#contact',
-            'captcha' => !$user?->isVerified(),
+            'captcha' => !$user?->isVerified() && $features->isEnabled(Feature::ContactCaptcha),
         ]);
         $form->handleRequest($request);
 

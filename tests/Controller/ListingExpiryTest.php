@@ -4,6 +4,7 @@ namespace App\Tests\Controller;
 
 use App\Entity\Listing;
 use App\Settings\SiteSettingsProvider;
+use App\Enum\Feature;
 use App\Tests\DatabaseTestTrait;
 use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
 
@@ -17,6 +18,8 @@ final class ListingExpiryTest extends WebTestCase
     protected function setUp(): void
     {
         $this->bootClient();
+        // Posting through the crawler can't fill in Turnstile; FeatureFlagTest covers it.
+        $this->setFeature(Feature::ListingCaptcha, false);
     }
 
     public function testNovemberListingIsStillAvailableForNextJuly(): void

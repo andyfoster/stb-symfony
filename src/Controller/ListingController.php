@@ -6,7 +6,9 @@ use App\Entity\Listing;
 use App\Entity\Message;
 use App\Entity\User;
 use App\Enum\Category;
+use App\Enum\Feature;
 use App\Enum\ListingType;
+use App\Feature\FeatureFlags;
 use App\Form\ContactSellerType;
 use App\Form\ListingFilterType;
 use App\Form\ListingFormType;
@@ -80,23 +82,23 @@ final class ListingController extends AbstractController
 
     #[Route('/listings/{id}', name: 'app_listing_show', requirements: ['id' => Requirement::DIGITS], methods: ['GET'])]
     #[IsGranted(ListingVoter::VIEW, 'listing', 'Listing not found.', 404)]
-    public function show(Listing $listing, #[CurrentUser] ?User $user): Response
+    public function show(Listing $listing, FeatureFlags $features, #[CurrentUser] ?User $user): Response
     {
         return $this->render('listing/show.html.twig', [
             'listing' => $listing,
-            'contact' => $this->contactForm($listing, $user),
+            'contact' => $this->contactForm($listing, $user, $features),
         ]);
     }
 
     #[Route('/listings/{id}/contact', name: 'app_listing_contact', requirements: ['id' => Requirement::DIGITS], methods: ['POST'])]
     #[IsGranted(ListingVoter::VIEW, 'listing', 'Listing not found.', 404)]
-    public function contact(Listing $listing, Request $request, SellerMessenger $messenger, #[CurrentUser] ?User $user): Response
+    public function contact(Listing $listing, Request $request, SellerMessenger $messenger, FeatureFlags $features, #[CurrentUser] ?User $user): Response
     {
         if ($listing->getSeller() === null || $listing->getSeller()->getId() === $user?->getId() || !$listing->isLive()) {
             throw $this->createNotFoundException('This listing can’t be contacted.');
         }
 
-        $form = $this->contactForm($listing, $user);
+        $form = $this->contactForm($listing, $user, $features);
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
@@ -124,20 +126,26 @@ final class ListingController extends AbstractController
 
     #[Route('/sell', name: 'app_listing_new', methods: ['GET', 'POST'])]
     #[IsGranted('ROLE_USER')]
-    public function new(Request $request, ListingEditor $editor, #[CurrentUser] User $user): Response
+    public function new(Request $request, ListingEditor $editor, FeatureFlags $features, #[CurrentUser] User $user): Response
     {
         $type    = ListingType::tryFrom((string) $request->query->get('type', ListingType::ForSale->value)) ?? ListingType::ForSale;
         $listing = (new Listing())->setSeller($user)->setType($type)->setCategory(Category::Textbooks);
 
-        return $this->edit($listing, $request, $editor);
+        return $this->listingForm($listing, $request, $editor, $features->isEnabled(Feature::ListingCaptcha));
     }
 
     #[Route('/listings/{id}/edit', name: 'app_listing_edit', requirements: ['id' => Requirement::DIGITS], methods: ['GET', 'POST'])]
     #[IsGranted(ListingVoter::EDIT, 'listing')]
     public function edit(Listing $listing, Request $request, ListingEditor $editor): Response
     {
+        return $this->listingForm($listing, $request, $editor);
+    }
+
+    /** Create and edit share the form; only new listings get the Turnstile check. */
+    private function listingForm(Listing $listing, Request $request, ListingEditor $editor, bool $captcha = false): Response
+    {
         $isNew = $listing->getId() === null;
-        $form  = $this->createForm(ListingFormType::class, $listing);
+        $form  = $this->createForm(ListingFormType::class, $listing, ['captcha' => $captcha]);
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
@@ -217,7 +225,7 @@ final class ListingController extends AbstractController
     /**
      * @return FormInterface<Message>
      */
-    private function contactForm(Listing $listing, ?User $user): FormInterface
+    private function contactForm(Listing $listing, ?User $user, FeatureFlags $features): FormInterface
     {
         $message = new Message();
         if ($user !== null) {
@@ -226,7 +234,7 @@ final class ListingController extends AbstractController
 
         return $this->createForm(ContactSellerType::class, $message, [
             'action'       => $this->generateUrl('app_listing_contact', ['id' => $listing->getId()]),
-            'captcha'      => !$user?->isVerified(),
+            'captcha'      => !$user?->isVerified() && $features->isEnabled(Feature::ContactCaptcha),
             'known_sender' => $user !== null,
         ]);
     }

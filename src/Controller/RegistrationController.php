@@ -5,6 +5,8 @@ namespace App\Controller;
 use App\Audit\AuditLog;
 use App\Entity\User;
 use App\Enum\AuditType;
+use App\Enum\Feature;
+use App\Feature\FeatureFlags;
 use App\Form\RegistrationFormType;
 use App\Repository\UserRepository;
 use App\Security\EmailVerifier;
@@ -26,14 +28,14 @@ final class RegistrationController extends AbstractController
     public function __construct(private readonly EmailVerifier $emailVerifier) {}
 
     #[Route('/register', name: 'app_register', methods: ['GET', 'POST'])]
-    public function register(Request $request, UserPasswordHasherInterface $hasher, EntityManagerInterface $entityManager, Security $security, AuditLog $audit): Response
+    public function register(Request $request, UserPasswordHasherInterface $hasher, EntityManagerInterface $entityManager, Security $security, AuditLog $audit, FeatureFlags $features): Response
     {
         if ($this->getUser()) {
             return $this->redirectToRoute('app_listings');
         }
 
         $user = new User();
-        $form = $this->createForm(RegistrationFormType::class, $user);
+        $form = $this->createForm(RegistrationFormType::class, $user, ['captcha' => $features->isEnabled(Feature::SignUpCaptcha)]);
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {

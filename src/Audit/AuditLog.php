@@ -95,7 +95,7 @@ class AuditLog
         $id = method_exists($subject, 'getId') ? $subject->getId() : null;
 
         $label = null;
-        foreach (['getTitle', 'getEmail', 'getCode'] as $getter) {
+        foreach (['getTitle', 'getEmail', 'getCode', 'getLabel'] as $getter) {
             if (method_exists($subject, $getter) && \is_string($value = $subject->{$getter}())) {
                 $label = $value;
                 break;

@@ -6,6 +6,7 @@ use App\Entity\AuditEvent;
 use App\Entity\User;
 use App\Enum\AuditType;
 use App\Repository\UserRepository;
+use App\Enum\Feature;
 use App\Tests\DatabaseTestTrait;
 use GuzzleHttp\Client;
 use GuzzleHttp\Handler\MockHandler;
@@ -26,6 +27,7 @@ final class GoogleSignInTest extends WebTestCase
     protected function setUp(): void
     {
         $this->bootClient();
+        $this->setFeature(Feature::GoogleSignIn, true);
     }
 
     public function testLoginAndSignUpPagesOfferGoogle(): void
