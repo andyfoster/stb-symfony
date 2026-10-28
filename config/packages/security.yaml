@@ -25,6 +25,8 @@ security:
         main:
             lazy: true
             provider: app_user_provider
+            # Suspended accounts can't log in (App\Security\UserSuspender).
+            user_checker: App\Security\UserChecker
 
             # "Continue with Google" (GoogleController starts it). A magic-link
             # login_link could sit alongside these.

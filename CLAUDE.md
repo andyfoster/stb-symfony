@@ -236,6 +236,18 @@ up to date when adding a workflow.
   and `app:seed` reset them to their defaults. Tests switch them with `setFeature()` in
   `DatabaseTestTrait`; tests that submit sign-up or listing forms through the crawler turn
   that form's check off, and `FeatureFlagTest` covers the checks themselves.
+- Spam control. Blocked IPs (`BlockedIp`, `IpBlocklist`, Blocked IPs in `/admin`): addresses or
+  CIDR ranges that can still browse but get a 403 page (`security/blocked.html.twig`) for every
+  non-GET request, sign-up and login included (`BlockedIpListener`, priority 16, before the
+  firewall; each one is audited). "Block addresses" takes a pasted list; private, Cloudflare and
+  very wide ranges, and the admin's own address, are refused. Users in `/admin` can tick
+  accounts and "Block sign-up IPs" (from their `UserRegistered` audit event). An admin who
+  blocks themselves runs `task prod:ip:unblock -- address` (`app:ip:unblock`). Suspending
+  (`User::suspendedAt`, `UserSuspender`, Suspend/Unsuspend actions and a batch action; never
+  admins): `UserChecker` (the firewall's `user_checker`) refuses every login,
+  `SuspendedUserListener` signs out existing sessions, and their listings are hidden but kept:
+  `Listing::isPublic()` (live and seller not suspended) is what the voter, photos and contact
+  form check, and `ListingRepository` queries skip suspended sellers.
 - `framework.yaml` trusts `X-Forwarded-*` from private addresses (`trusted_proxies: private_ranges`),
   which in production is only kamal-proxy, so `getClientIp()` is the visitor's and `isSecure()`
   is true behind its TLS (`TrustedProxyTest`). Revisit it if the app's port is ever published.

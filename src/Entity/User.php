@@ -59,6 +59,10 @@ class User extends Base implements UserInterface, PasswordAuthenticatedUserInter
     #[ORM\Column(options: ['default' => false])]
     private bool $showPhone = false;
 
+    /** Set by an admin (UserSuspender): no logging in, and their listings are hidden. */
+    #[ORM\Column(nullable: true)]
+    private ?\DateTimeImmutable $suspendedAt = null;
+
     public function getEmail(): ?string
     {
         return $this->email;
@@ -127,6 +131,23 @@ class User extends Base implements UserInterface, PasswordAuthenticatedUserInter
     public function setVerified(bool $verified): static
     {
         $this->verified = $verified;
+
+        return $this;
+    }
+
+    public function isSuspended(): bool
+    {
+        return null !== $this->suspendedAt;
+    }
+
+    public function getSuspendedAt(): ?\DateTimeImmutable
+    {
+        return $this->suspendedAt;
+    }
+
+    public function setSuspendedAt(?\DateTimeImmutable $suspendedAt): static
+    {
+        $this->suspendedAt = $suspendedAt;
 
         return $this;
     }

@@ -29,7 +29,7 @@ final class ListingVoter extends Voter
 
     protected function voteOnAttribute(string $attribute, mixed $subject, TokenInterface $token, ?Vote $vote = null): bool
     {
-        if ($attribute === self::VIEW && $subject->isLive()) {
+        if ($attribute === self::VIEW && $subject->isPublic()) {
             return true;
         }
 

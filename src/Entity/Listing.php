@@ -187,6 +187,12 @@ class Listing extends Base
         return ListingStatus::Active === $this->status && !$this->isExpired($now);
     }
 
+    /** Live and shown to other people: a suspended seller's listings are hidden. */
+    public function isPublic(?\DateTimeImmutable $now = null): bool
+    {
+        return $this->isLive($now) && !$this->seller?->isSuspended();
+    }
+
     /**
      * Unsold listings can be refreshed once they're close to expiring (or have
      * expired), so people can't bump themselves to the top every day.
