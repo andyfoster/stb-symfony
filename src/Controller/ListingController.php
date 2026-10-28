@@ -94,7 +94,7 @@ final class ListingController extends AbstractController
     #[IsGranted(ListingVoter::VIEW, 'listing', 'Listing not found.', 404)]
     public function contact(Listing $listing, Request $request, SellerMessenger $messenger, FeatureFlags $features, #[CurrentUser] ?User $user): Response
     {
-        if ($listing->getSeller() === null || $listing->getSeller()->getId() === $user?->getId() || !$listing->isLive()) {
+        if ($listing->getSeller() === null || $listing->getSeller()->getId() === $user?->getId() || !$listing->isPublic()) {
             throw $this->createNotFoundException('This listing can’t be contacted.');
         }
 

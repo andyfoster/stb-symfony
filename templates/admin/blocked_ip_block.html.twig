@@ -1,0 +1,26 @@
+{% extends '@EasyAdmin/page/content.html.twig' %}
+
+{# BlockedIpCrudController::block(): paste a list of addresses to block. #}
+{% block content_title %}Block addresses{% endblock %}
+
+{% form_theme form '@EasyAdmin/crud/form_theme.html.twig' %}
+
+{% block main %}
+    {% if result %}
+        <div class="alert alert-warning">
+            <p>Blocked {{ result.added|length }}{% if result.skipped is not empty %}; {{ result.skipped|length }} already blocked{% endif %}. These weren’t blocked:</p>
+            <ul class="blocked-rejected mb-0">
+                {% for address, reason in result.rejected %}
+                    <li><code>{{ address }}</code>: {{ reason }}</li>
+                {% endfor %}
+            </ul>
+        </div>
+    {% endif %}
+    <p class="text-muted">Many students share their university’s or flat’s connection, so blocking an address can lock out real people as well. Suspending accounts under Users is gentler.</p>
+    {{ form_start(form) }}
+        {{ form_row(form.addresses) }}
+        {{ form_row(form.note) }}
+        <button class="btn btn-primary" type="submit">Block</button>
+        <a class="btn btn-secondary" href="{{ path('admin_blocked_ip_index') }}">Cancel</a>
+    {{ form_end(form) }}
+{% endblock %}

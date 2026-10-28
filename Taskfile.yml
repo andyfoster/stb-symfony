@@ -309,6 +309,11 @@ tasks:
     cmds:
       - symfony console app:user:reset-password {{.CLI_ARGS}}
 
+  ip:unblock:
+    desc: 'Unblock an IP address or range (task ip:unblock -- 203.0.113.7), e.g. if you blocked your own'
+    cmds:
+      - symfony console app:ip:unblock {{.CLI_ARGS}}
+
   user:promote:
     desc: 'Make an account an admin (task user:promote -- sam@example.com; add --demote to undo)'
     cmds:

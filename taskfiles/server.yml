@@ -188,6 +188,12 @@ tasks:
     cmds:
       - 'kamal console {{.D}} app:user:reset-password {{.CLI_ARGS}}'
 
+  ip:unblock:
+    desc: 'Unblock an IP address or range on {{.SITE}} (task {{.NS}}:ip:unblock -- 203.0.113.7), e.g. if you blocked your own'
+    deps: [env]
+    cmds:
+      - 'kamal console {{.D}} app:ip:unblock {{.CLI_ARGS}}'
+
   user:promote:
     desc: 'Make a {{.DEST}} account an admin (task {{.NS}}:user:promote -- you@example.com)'
     deps: [env]

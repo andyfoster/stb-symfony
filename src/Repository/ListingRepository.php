@@ -91,6 +91,8 @@ class ListingRepository extends ServiceEntityRepository
             ->addSelect("MIN(CASE WHEN LOWER(l.title) LIKE :prefix ESCAPE '!' THEN 0 ELSE 1 END) AS prefix_rank")
             ->from('listing', 'l')
             ->join('l', 'book_details', 'b', 'l.book_id = b.id')
+            ->leftJoin('l', 'app_user', 'seller', 'seller.id = l.seller_id')
+            ->andWhere('seller.suspended_at IS NULL')
             ->andWhere('l.status IN (:statuses)')
             ->andWhere('l.legacy_id IS NULL')
             ->andWhere("LOWER(l.title) LIKE :search ESCAPE '!'")
@@ -119,6 +121,9 @@ class ListingRepository extends ServiceEntityRepository
             ->leftJoin('l', 'book_details', 'b', 'l.book_id = b.id')
             ->leftJoin('b', 'book_details_paper', 'link', 'link.book_details_id = b.id')
             ->leftJoin('link', 'paper', 'bp', 'bp.id = link.paper_id')
+            // Suspended sellers' listings are hidden (imported listings have no seller).
+            ->leftJoin('l', 'app_user', 'seller', 'seller.id = l.seller_id')
+            ->andWhere('seller.suspended_at IS NULL')
             ->andWhere('l.status = :active')->andWhere('l.expires_at > :now')
             ->setParameter('active', ListingStatus::Active->value)
             ->setParameter('now', new \DateTimeImmutable(), Types::DATETIME_IMMUTABLE);
@@ -177,6 +182,7 @@ class ListingRepository extends ServiceEntityRepository
             ->andWhere('l.expiresAt > :now')
             ->andWhere('l.expiresAt <= :soon')
             ->andWhere('l.expiryReminderSentAt IS NULL')
+            ->andWhere('s.suspendedAt IS NULL')
             ->setParameter('active', ListingStatus::Active)
             ->setParameter('now', $now)
             ->setParameter('soon', $now->modify(\sprintf('+%d days', $days)))

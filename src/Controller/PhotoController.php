@@ -21,7 +21,7 @@ final class PhotoController extends AbstractController
     public function show(ListingPhoto $photo, string $size, Request $request, PhotoStorage $storage): BinaryFileResponse
     {
         $listing = $photo->getListing();
-        $public  = $listing->arePhotosPublic() && $listing->isLive();
+        $public  = $listing->arePhotosPublic() && $listing->isPublic();
         if (!$public && !$this->isGranted(ListingVoter::EDIT, $listing)) {
             throw $this->createNotFoundException('Photo not found.');
         }

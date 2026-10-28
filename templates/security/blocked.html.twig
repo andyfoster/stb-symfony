@@ -1,0 +1,14 @@
+{% extends 'base.html.twig' %}
+
+{# BlockedIpListener: what a blocked IP address sees when it sends a form. #}
+{% block title %}Not allowed · ScarfieTextbooks{% endblock %}
+
+{% block body %}
+    <div class="form-page blocked-page">
+        <div class="form-heading">
+            <h1>We can’t accept that from your network</h1>
+        </div>
+        <p>Signing up, logging in and sending messages are blocked from your internet connection because of spam from it.</p>
+        <p>If you’re a real person and this is a mistake, email <a href="mailto:{{ contact_email }}">{{ contact_email }}</a> and we’ll sort it out.</p>
+    </div>
+{% endblock %}

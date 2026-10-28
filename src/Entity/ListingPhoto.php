@@ -61,6 +61,6 @@ class ListingPhoto extends Base
     /** Whether everyone can see it: the listing is live and its seller has confirmed their email. */
     public function isPublic(): bool
     {
-        return null !== $this->listing && $this->listing->arePhotosPublic() && $this->listing->isLive();
+        return null !== $this->listing && $this->listing->arePhotosPublic() && $this->listing->isPublic();
     }
 }

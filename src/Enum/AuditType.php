@@ -28,6 +28,11 @@ enum AuditType: string implements TranslatableInterface
     case PasswordUpgraded = 'password.upgraded';
     case PasswordSet = 'password.set';
     case RoleChanged = 'user.role_changed';
+    case UserSuspended = 'user.suspended';
+    case UserUnsuspended = 'user.unsuspended';
+    case IpBlocked = 'ip.blocked';
+    case IpUnblocked = 'ip.unblocked';
+    case BlockedRequest = 'ip.blocked_request';
 
     // Listings
     case ListingCreated = 'listing.created';
@@ -66,6 +71,11 @@ enum AuditType: string implements TranslatableInterface
             self::PasswordUpgraded => 'Password rehashed',
             self::PasswordSet => 'Password set by admin',
             self::RoleChanged => 'Admin access changed',
+            self::UserSuspended => 'Account suspended',
+            self::UserUnsuspended => 'Account unsuspended',
+            self::IpBlocked => 'IP address blocked',
+            self::IpUnblocked => 'IP address unblocked',
+            self::BlockedRequest => 'Blocked IP turned away',
             self::ListingCreated => 'Listing created',
             self::ListingUpdated => 'Listing edited',
             self::ListingPublished => 'Listing published',
@@ -89,7 +99,7 @@ enum AuditType: string implements TranslatableInterface
     public function badge(): string
     {
         return match ($this) {
-            self::LoginFailed, self::LoginThrottled, self::MessageThrottled, self::ContactThrottled, self::ListingDeleted, self::AdminDeleted => 'danger',
+            self::LoginFailed, self::LoginThrottled, self::MessageThrottled, self::ContactThrottled, self::ListingDeleted, self::AdminDeleted, self::UserSuspended, self::IpBlocked, self::BlockedRequest => 'danger',
             self::PasswordSet, self::RoleChanged, self::EmailChanged, self::GoogleLinked, self::PasswordReset, self::PasswordResetRequested => 'warning',
             self::LoginSucceeded, self::RememberMeLogin, self::Logout => 'info',
             default => 'secondary',

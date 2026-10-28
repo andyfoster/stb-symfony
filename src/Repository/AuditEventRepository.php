@@ -4,6 +4,7 @@ namespace App\Repository;
 
 use App\Entity\AuditEvent;
 use App\Entity\User;
+use App\Enum\AuditType;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\Persistence\ManagerRegistry;
 
@@ -35,6 +36,23 @@ class AuditEventRepository extends ServiceEntityRepository
             ->setMaxResults($limit)
             ->getQuery()
             ->getResult();
+    }
+
+    /** The IP address $user signed up from, if it was recorded. */
+    public function findSignUpIp(User $user): ?string
+    {
+        $event = $this->createQueryBuilder('event')
+            ->where('event.type = :type')
+            ->andWhere('event.subjectType = :subject AND event.subjectId = :id')
+            ->setParameter('type', AuditType::UserRegistered)
+            ->setParameter('subject', 'User')
+            ->setParameter('id', $user->getId())
+            ->orderBy('event.id', 'ASC')
+            ->setMaxResults(1)
+            ->getQuery()
+            ->getOneOrNullResult();
+
+        return $event?->getIp();
     }
 
     /** Deletes events older than $before; returns how many. */
