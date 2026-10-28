@@ -1,0 +1,37 @@
+#!/bin/sh
+set -e
+
+# Runs in front of the FrankenPHP image's own entrypoint, like a Rails app's
+# bin/docker-entrypoint: deploys migrate the database themselves.
+#
+# - The web server (the image's default command) runs pending migrations
+#   before it starts. Kamal only moves traffic over once /up answers, so the
+#   old container keeps serving until they're done; if one fails, this
+#   container exits, the deploy stops and the old version stays up.
+# - The Messenger worker (the job role) waits until they're done, so it never
+#   starts against tables that don't exist yet.
+# - Anything else (kamal app exec, console tasks) starts straight away.
+
+case "$1" in
+    -*|frankenphp)
+        # One migration run at a time, should there ever be more than one web container.
+        mkdir -p /app/var/uploads/.locks
+        flock /app/var/uploads/.locks/migrations \
+            php bin/console doctrine:migrations:migrate --no-interaction --allow-no-migration --all-or-nothing
+        ;;
+    php)
+        if [ "$3" = "messenger:consume" ]; then
+            waited=0
+            until php bin/console doctrine:migrations:up-to-date --quiet; do
+                if [ "$waited" -ge 300 ]; then
+                    echo "Migrations still pending after ${waited}s; starting the worker anyway." >&2
+                    break
+                fi
+                sleep 5
+                waited=$((waited + 5))
+            done
+        fi
+        ;;
+esac
+
+exec docker-php-entrypoint "$@"

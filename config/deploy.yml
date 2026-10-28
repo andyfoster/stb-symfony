@@ -26,6 +26,10 @@ servers:
 # Remove this section when using multiple web servers and ensure you terminate SSL at your load balancer.
 #
 # Note: If using Cloudflare, set encryption mode in SSL/TLS setting to "Full" to enable CF-to-app encryption.
+# How long a new container has to answer /up before the deploy gives up. It
+# runs pending migrations first (bin/docker-entrypoint), so allow for slow ones.
+deploy_timeout: 120
+
 proxy:
   ssl: true
   # hosts: set per destination.

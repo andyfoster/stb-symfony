@@ -47,8 +47,9 @@ tasks:
     cmds:
       - 'kamal deploy {{.D}}'
 
+  # Deploys migrate by themselves (bin/docker-entrypoint); this is for running them by hand.
   migrate:
-    desc: Run pending migrations on {{.SITE}}
+    desc: Run pending migrations on {{.SITE}} (deploys already do)
     prompt: Run migrations against the {{.DEST}} database?
     deps: [env]
     cmds:

@@ -52,4 +52,8 @@ RUN php bin/console cache:clear --env=prod
 
 COPY Caddyfile /etc/frankenphp/Caddyfile
 
+# Migrates the database before the web server starts (see the script).
+ENTRYPOINT ["bin/docker-entrypoint"]
+CMD ["--config", "/etc/frankenphp/Caddyfile", "--adapter", "caddyfile"]
+
 EXPOSE 80
