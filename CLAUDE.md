@@ -314,8 +314,14 @@ up to date when adding a workflow.
   `ssh`), `prod:maintenance:off`. Maintenance is Kamal's own (`kamal app maintenance`: kamal-proxy
   answers 503 with a message, `/admin` included) and also stops the `job` role so no emails or
   scheduled jobs run; `kamal console` tasks keep working.
-- Migrations are not run on deploy (all `.kamal/hooks` are samples); run `task prod:migrate`
-  after `task prod:deploy`. Migrations create `messenger_messages`; `task prod:messenger:setup`
+- Deploys migrate the database themselves, as Rails apps do: the image's `ENTRYPOINT` is
+  `bin/docker-entrypoint`, which runs pending migrations (under `flock`, all-or-nothing) before
+  the web server starts. kamal-proxy only switches traffic once the new container answers `/up`
+  (`deploy_timeout: 120` in `config/deploy.yml`), so the old version serves meanwhile and stays
+  up if a migration fails; write migrations the old code can still run against. The worker
+  (`job` role) waits, up to five minutes, until `doctrine:migrations:up-to-date` passes.
+  `docker exec` (`kamal console`/`shell`) skips the entrypoint. `task prod:migrate` still runs
+  them by hand (and restarts the worker). Migrations create `messenger_messages`; `task prod:messenger:setup`
   (`messenger:setup-transports`, idempotent) makes sure it exists, since `auto_setup=0`.
 - Email goes through Mailgun (`symfony/mailgun-mailer`, `MAILER_DSN` like
   `mailgun+api://KEY:scarfietextbooks.com@default?region=us`), sent from `MAILER_FROM`
