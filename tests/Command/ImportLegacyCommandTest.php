@@ -7,6 +7,7 @@ use App\Entity\Listing;
 use App\Entity\Paper;
 use App\Entity\User;
 use App\Enum\Condition;
+use App\Enum\Feature;
 use App\Legacy\LegacyImporter;
 use App\Repository\BookRepository;
 use App\Repository\ListingRepository;
@@ -34,6 +35,8 @@ final class ImportLegacyCommandTest extends WebTestCase
     protected function setUp(): void
     {
         $this->bootClient();
+        // Logging in through the crawler can't fill in Turnstile; FeatureFlagTest covers it.
+        $this->setFeature(Feature::LoginCaptcha, false);
         self::mockTime('2025-10-20 00:00:00 UTC');
         $this->command = new CommandTester((new Application(self::$kernel))->find('app:legacy:import'));
     }

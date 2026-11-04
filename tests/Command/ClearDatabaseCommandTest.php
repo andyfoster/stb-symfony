@@ -5,6 +5,7 @@ namespace App\Tests\Command;
 use App\Entity\Listing;
 use App\Entity\Paper;
 use App\Entity\User;
+use App\Enum\Feature;
 use App\Tests\DatabaseTestTrait;
 use Symfony\Bundle\FrameworkBundle\Console\Application;
 use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
@@ -60,6 +61,8 @@ final class ClearDatabaseCommandTest extends WebTestCase
         self::assertTrue($users[0]->isVerified());
         self::assertContains('ROLE_ADMIN', $users[0]->getRoles());
 
+        // The command resets feature flags; logging in through the crawler can't fill in Turnstile.
+        $this->setFeature(Feature::LoginCaptcha, false);
         $this->client->request('GET', '/login');
         $this->client->submitForm('Log in', ['email' => 'admin@scarfietextbooks.com', 'password' => 'password']);
         self::assertResponseRedirects('/');
@@ -73,6 +76,8 @@ final class ClearDatabaseCommandTest extends WebTestCase
 
         $this->command->assertCommandIsSuccessful();
         self::assertStringNotContainsString('tui and kererū', $this->command->getDisplay());
+        // The command resets feature flags; logging in through the crawler can't fill in Turnstile.
+        $this->setFeature(Feature::LoginCaptcha, false);
         $this->client->request('GET', '/login');
         $this->client->submitForm('Log in', ['email' => 'andy@example.com', 'password' => 'tui and kererū']);
         self::assertResponseRedirects('/');

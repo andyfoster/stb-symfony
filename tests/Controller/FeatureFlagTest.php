@@ -12,7 +12,8 @@ use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
 
 /**
  * Feature flags in /admin, and what they switch: "Continue with Google" and
- * the Turnstile checks on sign-up, new listings and the contact forms.
+ * the Turnstile checks on sign-up, login, password resets, new listings and
+ * the contact forms.
  * Turnstile accepts any token except "fail" (MockHttpResponses).
  */
 final class FeatureFlagTest extends WebTestCase
@@ -144,6 +145,91 @@ final class FeatureFlagTest extends WebTestCase
         self::assertSelectorNotExists('[data-controller="turnstile"]');
         $this->client->request('GET', '/listings/'.$listing->getId());
         self::assertSelectorNotExists('[data-controller="turnstile"]');
+    }
+
+    public function testLoginNeedsTheTurnstileCheckBeforeThePasswordIsTried(): void
+    {
+        $this->createUser('sam@example.com');
+        $this->client->request('GET', '/login');
+        self::assertSelectorExists('form [data-controller="turnstile"][data-turnstile-field-name-value="captcha"]');
+
+        // Right password, no token: refused without looking at the password.
+        $this->logIn(captcha: null);
+        self::assertResponseRedirects('/login');
+        $this->client->followRedirect();
+        self::assertSelectorTextContains('.login-error', 'not a robot');
+
+        $this->logIn(captcha: 'fail');
+        self::assertResponseRedirects('/login');
+
+        $this->logIn(captcha: 'ok');
+        self::assertResponseRedirects('/');
+    }
+
+    public function testLoginWithoutTheCheckWhenSwitchedOff(): void
+    {
+        $this->setFeature(Feature::LoginCaptcha, false);
+        $this->createUser('sam@example.com');
+        $this->client->request('GET', '/login');
+        self::assertSelectorNotExists('[data-controller="turnstile"]');
+
+        $this->logIn(captcha: null);
+        self::assertResponseRedirects('/');
+    }
+
+    public function testPasswordResetNeedsTheTurnstileCheck(): void
+    {
+        $this->createUser('sam@example.com');
+        $this->client->request('GET', '/reset-password');
+        self::assertSelectorExists('form [data-controller="turnstile"]');
+
+        $this->requestReset(captcha: null);
+        self::assertResponseStatusCodeSame(422);
+        self::assertSelectorTextContains('form', 'not a robot');
+
+        $this->requestReset(captcha: 'fail');
+        self::assertResponseStatusCodeSame(422);
+        self::assertQueuedEmailCount(0);
+
+        $this->requestReset(captcha: 'ok');
+        self::assertResponseRedirects('/reset-password/check-email');
+        self::assertQueuedEmailCount(1);
+    }
+
+    public function testPasswordResetWithoutTheCheckWhenSwitchedOff(): void
+    {
+        $this->setFeature(Feature::PasswordResetCaptcha, false);
+        $this->createUser('sam@example.com');
+        $this->client->request('GET', '/reset-password');
+        self::assertSelectorNotExists('[data-controller="turnstile"]');
+
+        $this->requestReset(captcha: null);
+        self::assertResponseRedirects('/reset-password/check-email');
+    }
+
+    private function logIn(?string $captcha): void
+    {
+        $crawler = $this->client->request('GET', '/login');
+        $form = $crawler->selectButton('Log in')->form(['email' => 'sam@example.com', 'password' => 'correct horse']);
+        $values = $form->getPhpValues();
+        if (null !== $captcha) {
+            // The Turnstile widget posts its token under the field's name.
+            $values['captcha'] = $captcha;
+        }
+
+        $this->client->request('POST', $form->getUri(), $values);
+    }
+
+    private function requestReset(?string $captcha): void
+    {
+        $crawler = $this->client->request('GET', '/reset-password');
+        $form = $crawler->selectButton('Send reset link')->form(['reset_password_request_form[email]' => 'sam@example.com']);
+        $values = $form->getPhpValues();
+        if (null !== $captcha) {
+            $values['reset_password_request_form']['captcha'] = $captcha;
+        }
+
+        $this->client->request('POST', $form->getUri(), $values);
     }
 
     private function signUp(?string $captcha): void

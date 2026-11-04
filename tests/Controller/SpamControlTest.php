@@ -24,6 +24,8 @@ final class SpamControlTest extends WebTestCase
     protected function setUp(): void
     {
         $this->bootClient();
+        // Logging in through the crawler can't fill in Turnstile; FeatureFlagTest covers it.
+        $this->setFeature(Feature::LoginCaptcha, false);
         // Signing up through the crawler can't fill in Turnstile; FeatureFlagTest covers it.
         $this->setFeature(Feature::SignUpCaptcha, false);
     }

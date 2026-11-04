@@ -5,6 +5,8 @@ namespace App\Controller;
 use App\Audit\AuditLog;
 use App\Entity\User;
 use App\Enum\AuditType;
+use App\Enum\Feature;
+use App\Feature\FeatureFlags;
 use App\Form\ChangePasswordFormType;
 use App\Form\ResetPasswordRequestFormType;
 use App\Repository\UserRepository;
@@ -35,9 +37,9 @@ final class ResetPasswordController extends AbstractController
     ) {}
 
     #[Route('', name: 'app_forgot_password', methods: ['GET', 'POST'])]
-    public function request(Request $request, UserRepository $users, MailerInterface $mailer): Response
+    public function request(Request $request, UserRepository $users, MailerInterface $mailer, FeatureFlags $features): Response
     {
-        $form = $this->createForm(ResetPasswordRequestFormType::class);
+        $form = $this->createForm(ResetPasswordRequestFormType::class, options: ['captcha' => $features->isEnabled(Feature::PasswordResetCaptcha)]);
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {

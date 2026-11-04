@@ -12,6 +12,7 @@
 
         {{ form_start(form, {attr: {class: 'form-panel', novalidate: 'novalidate'}}) }}
             <div class="form-field">{{ form_row(form.email) }}</div>
+            {% if form.children.captcha is defined %}<div class="form-field">{{ form_row(form.captcha) }}</div>{% endif %}
             <div class="form-actions">
                 <a class="cancel-link" href="{{ path('app_login') }}">Cancel</a>
                 <button class="button" type="submit">Send reset link</button>

@@ -2,6 +2,7 @@
 
 namespace App\Tests\Command;
 
+use App\Enum\Feature;
 use App\Tests\DatabaseTestTrait;
 use Symfony\Bundle\FrameworkBundle\Console\Application;
 use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
@@ -16,6 +17,8 @@ final class ResetUserPasswordCommandTest extends WebTestCase
     protected function setUp(): void
     {
         $this->bootClient();
+        // Logging in through the crawler can't fill in Turnstile; FeatureFlagTest covers it.
+        $this->setFeature(Feature::LoginCaptcha, false);
         $this->command = new CommandTester((new Application(self::$kernel))->find('app:user:reset-password'));
     }
 

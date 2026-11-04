@@ -33,8 +33,10 @@ final class AccountTest extends WebTestCase
         $this->client->setServerParameter('HTTP_SEC_FETCH_SITE', 'same-origin');
         $this->manager = static::getContainer()->get(EntityManagerInterface::class);
         (new SchemaTool($this->manager))->createSchema($this->manager->getMetadataFactory()->getAllMetadata());
-        // Signing up through the crawler can't fill in Turnstile; FeatureFlagTest covers it.
+        // Signing up, logging in and resetting passwords through the crawler can't fill in Turnstile; FeatureFlagTest covers it.
         static::getContainer()->get(FeatureFlags::class)->set(Feature::SignUpCaptcha, false);
+        static::getContainer()->get(FeatureFlags::class)->set(Feature::LoginCaptcha, false);
+        static::getContainer()->get(FeatureFlags::class)->set(Feature::PasswordResetCaptcha, false);
     }
 
     public function testSignUpLogsInAndConfirmationLinkVerifiesEmail(): void
