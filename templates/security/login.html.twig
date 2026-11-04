@@ -24,6 +24,9 @@
                 <input type="password" id="password" name="password" autocomplete="current-password" required>
             </div>
             <label class="checkbox-field"><input type="checkbox" name="_remember_me"> Keep me logged in on this device</label>
+            {% if turnstile_site_key %}
+                <div class="form-field">{{ include('captcha/_turnstile.html.twig', {site_key: turnstile_site_key, field_name: turnstile_field}) }}</div>
+            {% endif %}
 
             <input type="hidden" name="_csrf_token" data-controller="csrf-protection" value="{{ csrf_token('authenticate') }}">
 

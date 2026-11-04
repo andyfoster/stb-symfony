@@ -1,12 +1,5 @@
 {# App-wide form blocks, on top of Symfony's default layout. #}
 
 {% block turnstile_widget %}
-    <div class="turnstile"
-         data-controller="turnstile"
-         data-turnstile-site-key-value="{{ site_key }}"
-         data-turnstile-field-name-value="{{ full_name }}">
-        <div data-turnstile-target="widget"></div>
-        <p class="turnstile-error" data-turnstile-target="error" role="alert" hidden></p>
-    </div>
-    <noscript><p class="form-help">Please turn on JavaScript to send this form.</p></noscript>
+    {{ include('captcha/_turnstile.html.twig', {site_key: site_key, field_name: full_name}) }}
 {% endblock %}

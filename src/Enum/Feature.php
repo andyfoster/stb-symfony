@@ -13,6 +13,8 @@ enum Feature: string
     case SignUpCaptcha = 'sign_up_captcha';
     case ListingCaptcha = 'listing_captcha';
     case ContactCaptcha = 'contact_captcha';
+    case LoginCaptcha = 'login_captcha';
+    case PasswordResetCaptcha = 'password_reset_captcha';
 
     public function label(): string
     {
@@ -21,6 +23,8 @@ enum Feature: string
             self::SignUpCaptcha => 'Cloudflare check on sign-up',
             self::ListingCaptcha => 'Cloudflare check on new listings',
             self::ContactCaptcha => 'Cloudflare check on contact forms',
+            self::LoginCaptcha => 'Cloudflare check on login',
+            self::PasswordResetCaptcha => 'Cloudflare check on password resets',
         };
     }
 
@@ -31,6 +35,8 @@ enum Feature: string
             self::SignUpCaptcha => 'Turnstile on the sign-up form.',
             self::ListingCaptcha => 'Turnstile when anyone posts a new listing (not when editing one).',
             self::ContactCaptcha => 'Turnstile on “Contact the seller” and the About page’s contact form, for guests and unconfirmed accounts.',
+            self::LoginCaptcha => 'Turnstile on the login form (not “Continue with Google”).',
+            self::PasswordResetCaptcha => 'Turnstile on “Forgot your password?” before a reset link is emailed.',
         };
     }
 

@@ -5,6 +5,7 @@ namespace App\Tests\Controller;
 use App\Entity\AuditEvent;
 use App\Entity\User;
 use App\Enum\AuditType;
+use App\Enum\Feature;
 use App\Repository\UserRepository;
 use App\Tests\DatabaseTestTrait;
 use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
@@ -20,6 +21,8 @@ final class LegacyPasswordTest extends WebTestCase
     protected function setUp(): void
     {
         $this->bootClient();
+        // Logging in through the crawler can't fill in Turnstile; FeatureFlagTest covers it.
+        $this->setFeature(Feature::LoginCaptcha, false);
     }
 
     public function testOldSha1PasswordLogsInAndIsRehashed(): void

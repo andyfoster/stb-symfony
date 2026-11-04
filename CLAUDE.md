@@ -129,9 +129,14 @@ up to date when adding a workflow.
   `TURNSTILE_SITE_KEY`/`TURNSTILE_SECRET_KEY`; `.env` has Cloudflare's always-pass test keys;
   the widget is `interaction-only`, shows Cloudflare's error code if it fails, and rejected tokens
   are logged with Cloudflare's reason; the site's hostname must be on the widget's list in Cloudflare),
-  and a hidden `website` honeypot field. Sign-up and new listings (not edits) get Turnstile for
-  everyone (a `captcha` option on `RegistrationFormType` and `ListingFormType`). Each of these
-  checks has a feature flag. Sellers can show their phone (`User::showPhone`) and set
+  and a hidden `website` honeypot field. Sign-up, "Forgot your password?" and new listings (not
+  edits) get Turnstile for everyone (a `captcha` option on `RegistrationFormType`,
+  `ResetPasswordRequestFormType` and `ListingFormType`). So does the login form: form_login has no
+  Symfony form, so `login.html.twig` renders the widget itself (`captcha/_turnstile.html.twig`,
+  also used by the form theme) and `LoginCaptchaListener` checks the `captcha` field on
+  `CheckPassportEvent`, before the user is loaded or the password checked; a refusal is an
+  ordinary failed login (throttled, audited, shown in `.login-error`). Each of these checks has a
+  feature flag. Sellers can show their phone (`User::showPhone`) and set
   it under Your details.
 - Admin: EasyAdmin 5 at `/admin` (`src/Controller/Admin`, `ROLE_ADMIN`, also in
   `access_control`); the "Admin" menu link only renders for admins. EasyAdmin 5's API differs
@@ -232,10 +237,10 @@ up to date when adding a workflow.
   under Feature flags in `/admin` (`FeatureFlagCrudController`, which adds missing rows when it
   opens; switches are audited like other admin edits). Twig has `feature_enabled('name')`.
   Add a case to add a flag; no migration needed. Flags: Google sign-in (off by default),
-  Turnstile on sign-up, on new listings and on the contact forms (on). `app:database:clear`
+  Turnstile on sign-up, login, password-reset requests, new listings and the contact forms (on). `app:database:clear`
   and `app:seed` reset them to their defaults. Tests switch them with `setFeature()` in
-  `DatabaseTestTrait`; tests that submit sign-up or listing forms through the crawler turn
-  that form's check off, and `FeatureFlagTest` covers the checks themselves.
+  `DatabaseTestTrait`; tests that submit sign-up, login, reset or listing forms through the
+  crawler turn that form's check off (after `app:seed`/`app:database:clear`, which reset flags), and `FeatureFlagTest` covers the checks themselves.
 - Spam control. Blocked IPs (`BlockedIp`, `IpBlocklist`, Blocked IPs in `/admin`): addresses or
   CIDR ranges that can still browse but get a 403 page (`security/blocked.html.twig`) for every
   non-GET request, sign-up and login included (`BlockedIpListener`, priority 16, before the

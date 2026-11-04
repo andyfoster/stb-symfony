@@ -3,6 +3,7 @@
 namespace App\Tests\Controller;
 
 use App\Entity\SiteSettings;
+use App\Enum\Feature;
 use App\Tests\DatabaseTestTrait;
 use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
 
@@ -16,6 +17,8 @@ final class AdminTest extends WebTestCase
     protected function setUp(): void
     {
         $this->bootClient();
+        // Logging in through the crawler can't fill in Turnstile; FeatureFlagTest covers it.
+        $this->setFeature(Feature::LoginCaptcha, false);
     }
 
     public function testOnlyAdminsSeeTheMenuLinkAndPanel(): void

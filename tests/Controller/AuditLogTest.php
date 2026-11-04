@@ -22,6 +22,8 @@ final class AuditLogTest extends WebTestCase
     protected function setUp(): void
     {
         $this->bootClient();
+        // Logging in through the crawler can't fill in Turnstile; FeatureFlagTest covers it.
+        $this->setFeature(Feature::LoginCaptcha, false);
         // Posting through the crawler can't fill in Turnstile; FeatureFlagTest covers it.
         $this->setFeature(Feature::ListingCaptcha, false);
     }

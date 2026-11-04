@@ -2,7 +2,11 @@
 
 namespace App\Controller;
 
+use App\Enum\Feature;
+use App\Feature\FeatureFlags;
+use App\Security\LoginCaptchaListener;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
+use Symfony\Component\DependencyInjection\Attribute\Autowire;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Attribute\Route;
 use Symfony\Component\Security\Http\Authentication\AuthenticationUtils;
@@ -10,10 +14,16 @@ use Symfony\Component\Security\Http\Authentication\AuthenticationUtils;
 final class SecurityController extends AbstractController
 {
     /**
-     * Shows the form; the firewall's form_login handles the POST.
+     * Shows the form; the firewall's form_login handles the POST, and
+     * LoginCaptchaListener checks its Turnstile token.
      */
     #[Route('/login', name: 'app_login', methods: ['GET', 'POST'])]
-    public function login(AuthenticationUtils $authenticationUtils): Response
+    public function login(
+        AuthenticationUtils $authenticationUtils,
+        FeatureFlags $features,
+        #[Autowire('%env(TURNSTILE_SITE_KEY)%')]
+        string $turnstileSiteKey,
+    ): Response
     {
         if ($this->getUser()) {
             return $this->redirectToRoute('app_listings');
@@ -22,6 +32,8 @@ final class SecurityController extends AbstractController
         return $this->render('security/login.html.twig', [
             'last_email' => $authenticationUtils->getLastUsername(),
             'error'      => $authenticationUtils->getLastAuthenticationError(),
+            'turnstile_site_key' => $features->isEnabled(Feature::LoginCaptcha) ? $turnstileSiteKey : null,
+            'turnstile_field'    => LoginCaptchaListener::FIELD,
         ]);
     }
 

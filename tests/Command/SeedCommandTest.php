@@ -8,6 +8,7 @@ use App\Entity\Listing;
 use App\Entity\Message;
 use App\Entity\User;
 use App\Enum\Category;
+use App\Enum\Feature;
 use App\Enum\ListingType;
 use App\Seed\ExampleData;
 use App\Tests\DatabaseTestTrait;
@@ -76,6 +77,8 @@ final class SeedCommandTest extends WebTestCase
         $this->client->request('GET', \sprintf('/photos/%d/thumb', $photo->getId()));
         self::assertResponseIsSuccessful();
 
+        // The command resets feature flags; logging in through the crawler can't fill in Turnstile.
+        $this->setFeature(Feature::LoginCaptcha, false);
         $this->client->request('GET', '/login');
         $this->client->submitForm('Log in', ['email' => 'sam@example.com', 'password' => 'password']);
         self::assertResponseRedirects('/');
